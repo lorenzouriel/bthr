@@ -1,0 +1,52 @@
+trigger:
+  branches:
+    include:
+      - dev
+
+pool:
+  name: 'Default'
+  demands:
+    - Agent.Name -equals 10.0.0.113
+
+variables:
+  - group: API-DEV
+
+stages:
+  - stage: Deploy
+    displayName: 'Deploy API to Proxmox'
+    jobs:
+      - job: Deploy
+        displayName: 'Deploy via Docker Compose'
+        steps:
+          - checkout: self
+            displayName: 'Checkout New Code'
+
+          - task: Bash@3
+            displayName: 'Generate .env file'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "API_PORT=$(API_PORT)" > .env
+                echo "ASPNETCORE_ENVIRONMENT=$(ASPNETCORE_ENVIRONMENT)" >> .env
+                echo "DB_CONNECTION_STRING=$(DB_CONNECTION_STRING)" >> .env
+                echo "JWT_AUDIENCE=$(JWT_AUDIENCE)" >> .env
+                echo "JWT_EXPIRATION_MINUTES=$(JWT_EXPIRATION_MINUTES)" >> .env
+                echo "JWT_ISSUER=$(JWT_ISSUER)" >> .env
+                echo "JWT_SECRET_KEY=$(JWT_SECRET_KEY)" >> .env
+                echo "COOKIE_SECURE=false" >> .env
+                echo "BOT_API_KEY=$(BOT_API_KEY)" >> .env
+
+          - task: Bash@3
+            displayName: 'Start API Services'
+            inputs:
+              targetType: 'inline'
+              script: |
+                docker-compose -f docker-compose.yml up -d --build --force-recreate
+
+          - task: Bash@3
+            displayName: 'Cleanup .env file'
+            condition: always()
+            inputs:
+              targetType: 'inline'
+              script: |
+                rm -f .env

@@ -1,0 +1,77 @@
+trigger:
+  branches:
+    include:
+      - dev
+  paths:
+    include:
+      - migrations/*
+      - flyway.toml
+
+pool:
+  name: 'Default'
+  demands:
+    - Agent.Name -equals 10.0.0.107
+
+variables:
+  - group: DATABASE-DEV
+
+stages:
+  - stage: Deploy
+    displayName: 'Migrate Database on Proxmox'
+    jobs:
+      - job: Deploy
+        displayName: 'Run Flyway Migrations'
+        steps:
+          - checkout: self
+
+          - task: Bash@3
+            displayName: 'Validate Migration Files'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Validating migration files..."
+                file_count=$(find migrations -name "V*.sql" | wc -l)
+                echo "Found $file_count migration files"
+
+          - task: Bash@3
+            displayName: 'Build Flyway Docker Image'
+            inputs:
+              targetType: 'inline'
+              script: |
+                docker compose build findatabase
+
+          - task: Bash@3
+            displayName: 'Flyway Info'
+            inputs:
+              targetType: 'inline'
+              script: |
+                docker compose run --rm \
+                  -e FLYWAY_URL="$(DEV_DB_URL)" \
+                  -e FLYWAY_USER="$(DEV_DB_USER)" \
+                  -e FLYWAY_PASSWORD="$(DEV_DB_PASSWORD)" \
+                  -e FLYWAY_SCHEMAS=dbo,finance,plan,investment,reporting \
+                  -e FLYWAY_DEFAULT_SCHEMA=dbo \
+                  -e FLYWAY_CREATE_SCHEMAS=true \
+                  findatabase info
+
+          - task: Bash@3
+            displayName: 'Flyway Migrate'
+            inputs:
+              targetType: 'inline'
+              script: |
+                docker compose run --rm \
+                  -e FLYWAY_URL="$(DEV_DB_URL)" \
+                  -e FLYWAY_USER="$(DEV_DB_USER)" \
+                  -e FLYWAY_PASSWORD="$(DEV_DB_PASSWORD)" \
+                  -e FLYWAY_SCHEMAS=dbo,finance,plan,investment,reporting \
+                  -e FLYWAY_DEFAULT_SCHEMA=dbo \
+                  -e FLYWAY_CREATE_SCHEMAS=true \
+                  findatabase migrate
+
+          - task: Bash@3
+            displayName: 'Cleanup Docker'
+            condition: always()
+            inputs:
+              targetType: 'inline'
+              script: |
+                docker compose down -v

@@ -1,0 +1,1219 @@
+{
+  "name": "fin_pulse",
+  "tables": [
+    {
+      "name": "flyway_schema_history",
+      "type": "BASIC TABLE",
+      "columns": [
+        {
+          "name": "installed_rank",
+          "type": "int",
+          "nullable": false
+        },
+        {
+          "name": "version",
+          "type": "nvarchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "description",
+          "type": "nvarchar(200)",
+          "nullable": true
+        },
+        {
+          "name": "type",
+          "type": "nvarchar(20)",
+          "nullable": false
+        },
+        {
+          "name": "script",
+          "type": "nvarchar(1000)",
+          "nullable": false
+        },
+        {
+          "name": "checksum",
+          "type": "int",
+          "nullable": true
+        },
+        {
+          "name": "installed_by",
+          "type": "nvarchar(100)",
+          "nullable": false
+        },
+        {
+          "name": "installed_on",
+          "type": "datetime",
+          "nullable": false,
+          "default": "(getdate())"
+        },
+        {
+          "name": "execution_time",
+          "type": "int",
+          "nullable": false
+        },
+        {
+          "name": "success",
+          "type": "bit",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "flyway_schema_history_pk",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ installed_rank ]",
+          "table": "flyway_schema_history",
+          "columns": [
+            "installed_rank"
+          ]
+        },
+        {
+          "name": "flyway_schema_history_s_idx",
+          "def": "NONCLUSTERED, [ success ]",
+          "table": "flyway_schema_history",
+          "columns": [
+            "success"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "flyway_schema_history_pk",
+          "type": "PRIMARY KEY",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ installed_rank ]",
+          "table": "flyway_schema_history",
+          "columns": [
+            "installed_rank"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "type": "BASIC TABLE",
+      "comment": "Stores registered application users and their authentication data.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "nullable": false,
+          "comment": "Unique identifier for each user (primary key)."
+        },
+        {
+          "name": "username",
+          "type": "varchar(100)",
+          "nullable": false,
+          "comment": "Public username chosen by the user (unique within the system)."
+        },
+        {
+          "name": "phone_number",
+          "type": "varchar(15)",
+          "nullable": true,
+          "comment": "Optional phone number used for contact or verification."
+        },
+        {
+          "name": "email",
+          "type": "varchar(100)",
+          "nullable": false,
+          "comment": "Primary email address of the user (used for login and notifications)."
+        },
+        {
+          "name": "password",
+          "type": "nvarchar(1024)",
+          "nullable": true,
+          "comment": "Hashed password for authentication (never stored in plain text)."
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": false,
+          "default": "(getdate())",
+          "comment": "Date and time when the user record was created."
+        },
+        {
+          "name": "status",
+          "type": "tinyint",
+          "nullable": false,
+          "default": "((1))",
+          "comment": "User status flag (1 = active, 0 = inactive, others for future states)."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PK__users_*",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "users",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PK__users_*",
+          "type": "PRIMARY KEY",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "users",
+          "columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "plan.budgets",
+      "type": "BASIC TABLE",
+      "comment": "Defines user-created financial budgets within the planning module.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "nullable": false,
+          "comment": "Unique identifier for each budget (primary key)."
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "nullable": false,
+          "comment": "Identifier of the user who owns or created the budget (foreign key to dbo.users)."
+        },
+        {
+          "name": "name",
+          "type": "varchar(100)",
+          "nullable": false,
+          "comment": "Name assigned to the budget (e.g., \"Vacation 2025\" or \"Monthly Groceries\")."
+        },
+        {
+          "name": "description",
+          "type": "varchar(255)",
+          "nullable": true,
+          "comment": "Optional detailed description of the budget purpose or scope."
+        },
+        {
+          "name": "amount_limit",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Total monetary limit allocated for this budget period."
+        },
+        {
+          "name": "currency_code",
+          "type": "varchar(10)",
+          "nullable": false,
+          "comment": "Currency associated with the budget (e.g., USD, BRL, EUR)."
+        },
+        {
+          "name": "start_date",
+          "type": "datetime",
+          "nullable": false,
+          "comment": "Date when the budget becomes active."
+        },
+        {
+          "name": "end_date",
+          "type": "datetime",
+          "nullable": false,
+          "comment": "Date when the budget period ends."
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": false,
+          "default": "(getdate())",
+          "comment": "Timestamp when the budget record was created."
+        },
+        {
+          "name": "status",
+          "type": "tinyint",
+          "nullable": false,
+          "default": "((1))",
+          "comment": "Indicates whether the budget is active (1), inactive (0), or archived."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PK__budgets_*",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "plan.budgets",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PK__budgets_*",
+          "type": "PRIMARY KEY",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "plan.budgets",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "FK__budgets__user_id_*",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY(user_id) REFERENCES users(id) ON UPDATE NO_ACTION ON DELETE NO_ACTION",
+          "table": "plan.budgets",
+          "referenced_table": "users",
+          "columns": [
+            "user_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "plan.goals",
+      "type": "BASIC TABLE",
+      "comment": "Tracks user-defined financial goals and their progress toward a target amount.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "nullable": false,
+          "comment": "Unique identifier for each goal (primary key)."
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "nullable": false,
+          "comment": "Identifier of the user who owns the goal (foreign key to dbo.users)."
+        },
+        {
+          "name": "name",
+          "type": "varchar(100)",
+          "nullable": false,
+          "comment": "Descriptive name of the financial goal (e.g., \"Emergency Fund\" or \"New Car\")."
+        },
+        {
+          "name": "description",
+          "type": "varchar(255)",
+          "nullable": true,
+          "comment": "Optional details about the purpose or motivation behind the goal."
+        },
+        {
+          "name": "target_amount",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Total amount the user aims to reach for this goal."
+        },
+        {
+          "name": "current_amount",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Amount currently saved or achieved toward the target."
+        },
+        {
+          "name": "currency_code",
+          "type": "varchar(10)",
+          "nullable": false,
+          "comment": "Currency associated with the goal (e.g., USD, BRL, EUR)."
+        },
+        {
+          "name": "due_date",
+          "type": "datetime",
+          "nullable": false,
+          "comment": "Target date by which the goal should be achieved."
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": false,
+          "default": "(getdate())",
+          "comment": "Date and time when the goal record was created."
+        },
+        {
+          "name": "status",
+          "type": "tinyint",
+          "nullable": false,
+          "default": "((1))",
+          "comment": "Indicates the goal state (1 = active, 0 = inactive, others for future use)."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PK__goals_*",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "plan.goals",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PK__goals_*",
+          "type": "PRIMARY KEY",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "plan.goals",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "FK__goals__user_id_*",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY(user_id) REFERENCES users(id) ON UPDATE NO_ACTION ON DELETE NO_ACTION",
+          "table": "plan.goals",
+          "referenced_table": "users",
+          "columns": [
+            "user_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "finance.earnings",
+      "type": "BASIC TABLE",
+      "comment": "Records user earnings, such as salary, bonuses, or other income sources.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "nullable": false,
+          "comment": "Unique identifier for each earning record (primary key)."
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "nullable": false,
+          "comment": "References the user who owns the earning record (foreign key to dbo.users)."
+        },
+        {
+          "name": "category",
+          "type": "varchar(255)",
+          "nullable": false,
+          "comment": "Category describing the earning source (e.g., Salary, Bonus, Freelance)."
+        },
+        {
+          "name": "payment_method",
+          "type": "varchar(255)",
+          "nullable": false,
+          "comment": "Method by which the earning was received (e.g., Bank Transfer, Cash, Card)."
+        },
+        {
+          "name": "amount",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Total amount of money earned in the transaction."
+        },
+        {
+          "name": "currency_code",
+          "type": "varchar(10)",
+          "nullable": false,
+          "comment": "Currency code for the earning (e.g., USD, BRL, EUR)."
+        },
+        {
+          "name": "description",
+          "type": "varchar(255)",
+          "nullable": true,
+          "comment": "Optional text describing the earning or its source in more detail."
+        },
+        {
+          "name": "earning_date",
+          "type": "datetime",
+          "nullable": false,
+          "comment": "Date when the earning was received or recorded."
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": false,
+          "default": "(getdate())",
+          "comment": "Date and time when the earning record was created in the system."
+        },
+        {
+          "name": "status",
+          "type": "tinyint",
+          "nullable": false,
+          "default": "((1))",
+          "comment": "Indicates if the earning record is active (1), inactive (0), or archived."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PK__earnings_*",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "finance.earnings",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PK__earnings_*",
+          "type": "PRIMARY KEY",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "finance.earnings",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "FK__earnings__user_i_*",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY(user_id) REFERENCES users(id) ON UPDATE NO_ACTION ON DELETE NO_ACTION",
+          "table": "finance.earnings",
+          "referenced_table": "users",
+          "columns": [
+            "user_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "finance.expenses",
+      "type": "BASIC TABLE",
+      "comment": "Records user expenses, including purchase details, amounts, and payment methods.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "nullable": false,
+          "comment": "Unique identifier for each expense record (primary key)."
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "nullable": false,
+          "comment": "References the user who owns the expense record (foreign key to dbo.users)."
+        },
+        {
+          "name": "category",
+          "type": "varchar(255)",
+          "nullable": false,
+          "comment": "Category describing the type of expense (e.g., Food, Transportation, Utilities)."
+        },
+        {
+          "name": "payment_method",
+          "type": "varchar(255)",
+          "nullable": false,
+          "comment": "Method used for payment (e.g., Credit Card, Cash, Bank Transfer)."
+        },
+        {
+          "name": "amount",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Total monetary value of the expense transaction."
+        },
+        {
+          "name": "currency_code",
+          "type": "varchar(10)",
+          "nullable": false,
+          "comment": "Currency code representing the expense currency (e.g., USD, BRL, EUR)."
+        },
+        {
+          "name": "description",
+          "type": "varchar(255)",
+          "nullable": true,
+          "comment": "Optional text providing more details about the expense or its context."
+        },
+        {
+          "name": "expense_date",
+          "type": "datetime",
+          "nullable": false,
+          "comment": "Date when the expense occurred or was recorded."
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": false,
+          "default": "(getdate())",
+          "comment": "Date and time when the expense record was created in the system."
+        },
+        {
+          "name": "status",
+          "type": "tinyint",
+          "nullable": false,
+          "default": "((1))",
+          "comment": "Indicates if the expense record is active (1), inactive (0), or archived."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PK__expenses_*",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "finance.expenses",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PK__expenses_*",
+          "type": "PRIMARY KEY",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "finance.expenses",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "FK__expenses__user_i_*",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY(user_id) REFERENCES users(id) ON UPDATE NO_ACTION ON DELETE NO_ACTION",
+          "table": "finance.expenses",
+          "referenced_table": "users",
+          "columns": [
+            "user_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "finance.investments",
+      "type": "BASIC TABLE",
+      "comment": "Stores detailed records of user investments across multiple asset types and platforms.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "nullable": false,
+          "comment": "Unique identifier for each investment record (primary key)."
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "nullable": false,
+          "comment": "References the user who owns the investment (foreign key to dbo.users)."
+        },
+        {
+          "name": "investment_type",
+          "type": "varchar(50)",
+          "nullable": false,
+          "comment": "Investment type classification (e.g., Renda Fixa, Renda Variável, Cripto, Fundo, Tesouro, Imobiliário)."
+        },
+        {
+          "name": "category",
+          "type": "varchar(100)",
+          "nullable": false,
+          "comment": "Subcategory within the investment type (e.g., CDB, Ações, FIIs)."
+        },
+        {
+          "name": "asset_name",
+          "type": "varchar(100)",
+          "nullable": false,
+          "comment": "Name or ticker symbol of the invested asset (e.g., PETR4, CDB Itaú, Tesouro IPCA+)."
+        },
+        {
+          "name": "broker",
+          "type": "varchar(100)",
+          "nullable": true,
+          "comment": "Financial platform or broker managing the investment (e.g., XP, Nubank, Binance)."
+        },
+        {
+          "name": "currency_code",
+          "type": "varchar(10)",
+          "nullable": false,
+          "comment": "Currency code representing the investment currency."
+        },
+        {
+          "name": "invested_amount",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Total amount of money originally invested in the asset."
+        },
+        {
+          "name": "current_value",
+          "type": "decimal",
+          "nullable": true,
+          "comment": "Current market value of the investment, updated periodically."
+        },
+        {
+          "name": "purchase_date",
+          "type": "datetime",
+          "nullable": false,
+          "comment": "Date when the investment was made or asset was acquired."
+        },
+        {
+          "name": "maturity_date",
+          "type": "datetime",
+          "nullable": true,
+          "comment": "Date when the investment matures or ends (applicable mainly to fixed income)."
+        },
+        {
+          "name": "annual_yield_percent",
+          "type": "decimal",
+          "nullable": true,
+          "comment": "Annual percentage yield or expected return of the investment."
+        },
+        {
+          "name": "profit_loss",
+          "type": "decimal",
+          "nullable": true,
+          "comment": "Profit or loss amount calculated as current_value minus invested_amount."
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": false,
+          "default": "(getdate())",
+          "comment": "Timestamp when the investment record was created in the system."
+        },
+        {
+          "name": "status",
+          "type": "tinyint",
+          "nullable": false,
+          "default": "((1))",
+          "comment": "Indicates if the investment record is active (1), inactive (0), or archived."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PK__investme_*",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "finance.investments",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PK__investme_*",
+          "type": "PRIMARY KEY",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "finance.investments",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "FK__investmen__user__*",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY(user_id) REFERENCES users(id) ON UPDATE NO_ACTION ON DELETE NO_ACTION",
+          "table": "finance.investments",
+          "referenced_table": "users",
+          "columns": [
+            "user_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "finance.bills",
+      "type": "BASIC TABLE",
+      "comment": "Defines bills and recurring payment obligations for users, including due dates, amounts, and status tracking.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "nullable": false,
+          "comment": "Unique identifier for each bill record (primary key)."
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "nullable": false,
+          "comment": "References the user who owns the bill record (foreign key to dbo.users)."
+        },
+        {
+          "name": "bill_name",
+          "type": "varchar(255)",
+          "nullable": false,
+          "comment": "Descriptive name of the bill (e.g., Electricity, Internet, Rent)."
+        },
+        {
+          "name": "category",
+          "type": "varchar(255)",
+          "nullable": false,
+          "comment": "Category describing the type of bill (e.g., Utilities, Housing, Subscriptions)."
+        },
+        {
+          "name": "payment_method",
+          "type": "varchar(255)",
+          "nullable": true,
+          "comment": "Method used for bill payment (e.g., Credit Card, Debit, Bank Transfer)."
+        },
+        {
+          "name": "amount",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Monetary amount due for the bill."
+        },
+        {
+          "name": "currency_code",
+          "type": "varchar(10)",
+          "nullable": false,
+          "comment": "Currency code representing the bill currency (e.g., USD, BRL, EUR)."
+        },
+        {
+          "name": "due_date",
+          "type": "date",
+          "nullable": false,
+          "comment": "Date when the bill is due for payment."
+        },
+        {
+          "name": "recurrence_type",
+          "type": "varchar(50)",
+          "nullable": true,
+          "comment": "Type of recurrence pattern (e.g., Monthly, Yearly, None)."
+        },
+        {
+          "name": "recurrence_interval",
+          "type": "int",
+          "nullable": true,
+          "default": "((1))",
+          "comment": "Interval between bill recurrences (e.g., every 2 months)."
+        },
+        {
+          "name": "next_due_date",
+          "type": "date",
+          "nullable": true,
+          "comment": "Next scheduled due date for recurring bills."
+        },
+        {
+          "name": "paid_date",
+          "type": "date",
+          "nullable": true,
+          "comment": "Date when the bill was paid, if applicable."
+        },
+        {
+          "name": "description",
+          "type": "varchar(255)",
+          "nullable": true,
+          "comment": "Optional description providing additional context about the bill or payment details."
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": false,
+          "default": "(getdate())",
+          "comment": "Timestamp when the bill record was created."
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "nullable": true,
+          "comment": "Timestamp when the bill record was last updated."
+        },
+        {
+          "name": "status",
+          "type": "tinyint",
+          "nullable": false,
+          "default": "((1))",
+          "comment": "Status flag for the bill (1=Active, 0=Inactive, 2=Paid, 3=Cancelled)."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PK__bills_*",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "finance.bills",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PK__bills_*",
+          "type": "PRIMARY KEY",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "finance.bills",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "FK__bills__user_id_*",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY(user_id) REFERENCES users(id) ON UPDATE NO_ACTION ON DELETE NO_ACTION",
+          "table": "finance.bills",
+          "referenced_table": "users",
+          "columns": [
+            "user_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "investment.stocks",
+      "type": "BASIC TABLE",
+      "comment": "Stores historical or real-time stock market price data,\n        including open, close, high, low, and volume for a given date.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "nullable": false,
+          "comment": "Unique identifier for each stock price record."
+        },
+        {
+          "name": "name",
+          "type": "nvarchar(100)",
+          "nullable": false,
+          "comment": "Name of the stock."
+        },
+        {
+          "name": "description",
+          "type": "nvarchar(255)",
+          "nullable": true,
+          "comment": "Description of the stock."
+        },
+        {
+          "name": "broker",
+          "type": "varchar(100)",
+          "nullable": true,
+          "comment": "Financial platform or broker managing the investment (e.g., XP, Nubank, Binance)."
+        },
+        {
+          "name": "date",
+          "type": "datetime",
+          "nullable": false,
+          "comment": "Date or timestamp of the market data (daily or intraday)."
+        },
+        {
+          "name": "open_price",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Stock price at the beginning of the trading session."
+        },
+        {
+          "name": "close_price",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Stock price at the end of the trading session."
+        },
+        {
+          "name": "high_price",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Highest traded price during the session."
+        },
+        {
+          "name": "low_price",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Lowest traded price during the session."
+        },
+        {
+          "name": "volume",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "Total number of shares traded during the session."
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": false,
+          "default": "(getdate())",
+          "comment": "Timestamp when the record was created in the system."
+        },
+        {
+          "name": "status",
+          "type": "tinyint",
+          "nullable": false,
+          "default": "((1))",
+          "comment": "Status flag indicating if the record is active (1) or inactive (0)."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PK__stocks_*",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "investment.stocks",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PK__stocks_*",
+          "type": "PRIMARY KEY",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "investment.stocks",
+          "columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "investment.cryptos",
+      "type": "BASIC TABLE",
+      "comment": "Stores historical or real-time cryptocurrency price data including\n        open, close, high, low, and volume for a given date.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "nullable": false,
+          "comment": "Unique identifier for each cryptocurrency record."
+        },
+        {
+          "name": "name",
+          "type": "nvarchar(100)",
+          "nullable": false,
+          "comment": "Name of the crypto."
+        },
+        {
+          "name": "description",
+          "type": "nvarchar(255)",
+          "nullable": true,
+          "comment": "Description of the crypto."
+        },
+        {
+          "name": "date",
+          "type": "datetime",
+          "nullable": false,
+          "comment": "Date or timestamp of the market data (daily or intraday)."
+        },
+        {
+          "name": "open_price",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Price at the beginning of the trading session."
+        },
+        {
+          "name": "close_price",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Price at the end of the trading session."
+        },
+        {
+          "name": "high_price",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Highest traded price during the session."
+        },
+        {
+          "name": "low_price",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Lowest traded price during the session."
+        },
+        {
+          "name": "volume",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Total traded volume of the cryptocurrency during the session (can include fractions)."
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": false,
+          "default": "(getdate())",
+          "comment": "Timestamp when the cryptocurrency record was created in the system."
+        },
+        {
+          "name": "status",
+          "type": "tinyint",
+          "nullable": false,
+          "default": "((1))",
+          "comment": "Status flag indicating if the record is active (1) or inactive (0)."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PK__cryptos_*",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "investment.cryptos",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PK__cryptos_*",
+          "type": "PRIMARY KEY",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "investment.cryptos",
+          "columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "investment.currencies",
+      "type": "BASIC TABLE",
+      "comment": "Stores historical foreign exchange rates between a currency and a base currency for a given date.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "nullable": false,
+          "comment": "Unique identifier for each FX rate record."
+        },
+        {
+          "name": "name",
+          "type": "nvarchar(100)",
+          "nullable": false,
+          "comment": "Name of the currency code."
+        },
+        {
+          "name": "description",
+          "type": "nvarchar(255)",
+          "nullable": true,
+          "comment": "Description of the currency code."
+        },
+        {
+          "name": "currency_code",
+          "type": "varchar(10)",
+          "nullable": false,
+          "comment": "Currency code being converted."
+        },
+        {
+          "name": "base_currency_code",
+          "type": "varchar(10)",
+          "nullable": false,
+          "comment": "Base currency code used for conversion."
+        },
+        {
+          "name": "date",
+          "type": "datetime",
+          "nullable": false,
+          "comment": "Date of the exchange rate."
+        },
+        {
+          "name": "rate",
+          "type": "decimal",
+          "nullable": false,
+          "comment": "Exchange rate of currency_code to base_currency_code on the given date."
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": false,
+          "default": "(getdate())",
+          "comment": "Timestamp when the FX rate record was created in the system."
+        },
+        {
+          "name": "status",
+          "type": "tinyint",
+          "nullable": false,
+          "default": "((1))",
+          "comment": "Indicates if the FX rate record is active (1) or inactive (0)."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PK__currenci_*",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "investment.currencies",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PK__currenci_*",
+          "type": "PRIMARY KEY",
+          "def": "CLUSTERED, unique, part of a PRIMARY KEY constraint, [ id ]",
+          "table": "investment.currencies",
+          "columns": [
+            "id"
+          ]
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "table": "plan.budgets",
+      "columns": [
+        "user_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "users",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": ""
+    },
+    {
+      "table": "plan.goals",
+      "columns": [
+        "user_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "users",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": ""
+    },
+    {
+      "table": "finance.earnings",
+      "columns": [
+        "user_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "users",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": ""
+    },
+    {
+      "table": "finance.expenses",
+      "columns": [
+        "user_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "users",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": ""
+    },
+    {
+      "table": "finance.investments",
+      "columns": [
+        "user_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "users",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": ""
+    },
+    {
+      "table": "finance.bills",
+      "columns": [
+        "user_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "users",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": ""
+    }
+  ],
+  "driver": {
+    "name": "sqlserver",
+    "database_version": "Microsoft SQL Server 2022 (RTM-CU21) (KB5065865) - 16.0.4215.2 (X64) \n\tAug 11 2025 13:24:21 \n\tCopyright (C) 2022 Microsoft Corporation\n\tStandard Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) \u003cX64\u003e",
+    "meta": {
+      "dict": {
+        "Functions": "Stored procedures and functions"
+      }
+    }
+  }
+}

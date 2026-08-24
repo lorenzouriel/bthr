@@ -1,0 +1,24 @@
+# Environment files with credentials
+.env
+.env.local
+.env.*.local
+
+.claude/
+
+# Flyway output
+flyway.conf
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak

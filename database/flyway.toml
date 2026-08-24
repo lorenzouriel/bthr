@@ -1,0 +1,58 @@
+# Flyway Configuration File (TOML format)
+# https://documentation.red-gate.com/fd/configuration-files-184127472.html
+
+[flyway]
+# Database connection settings
+# These are provided via environment variables in docker-compose.yml
+# url, user, and password are set via FLYWAY_URL, FLYWAY_USER, FLYWAY_PASSWORD env vars
+
+# Migration locations
+locations = ["filesystem:/flyway/sql"]
+
+# Schema management
+# schemas, defaultSchema, and createSchemas are set via environment variables in docker-compose.yml
+
+# Flyway table name (tracks migration history)
+table = "flyway_schema_history"
+
+# Baseline settings (for existing databases)
+# baselineVersion = "0"
+# baselineDescription = "Initial baseline"
+# baselineOnMigrate = true
+
+# Validation settings
+validateOnMigrate = true
+validateMigrationNaming = true
+
+# Encoding
+encoding = "UTF-8"
+
+# SQL Migration settings
+sqlMigrationPrefix = "V"
+sqlMigrationSeparator = "__"
+sqlMigrationSuffixes = [".sql"]
+repeatableSqlMigrationPrefix = "R"
+
+# Placeholders (optional - can be used in SQL files)
+[flyway.placeholders]
+# Example: database = "finance_db"
+# Usage in SQL: ${database}
+
+# Output settings
+outputType = "console"
+
+# Logging
+loggers = "console"
+
+# Mixed mode (allow mixing transactional and non-transactional statements)
+mixed = true
+
+# Group migrations (run all pending migrations in a single transaction if possible)
+group = false
+
+# Clean (DANGEROUS - drops all objects in configured schemas)
+# NEVER use in production!
+cleanDisabled = true
+
+# License key (for Flyway Teams/Enterprise features)
+# licenseKey = "${FLYWAY_LICENSE_KEY}"

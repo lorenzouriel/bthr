@@ -1,0 +1,23 @@
+services:
+  # Flyway Migrations
+  # Connects to an external SQL Server instance
+  findatabase:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: findatabase
+    container_name: findatabase
+    environment:
+      - FLYWAY_URL=${FLYWAY_URL}
+      - FLYWAY_USER=${FLYWAY_USER}
+      - FLYWAY_PASSWORD=${FLYWAY_PASSWORD}
+      - FLYWAY_SCHEMAS=dbo,finance,plan,investment,reporting
+      - FLYWAY_DEFAULT_SCHEMA=dbo
+      - FLYWAY_CREATE_SCHEMAS=true
+    volumes:
+      - ./migrations:/flyway/sql
+      - ./flyway.toml:/flyway/conf/flyway.toml
+    command: migrate
+    # Use host.docker.internal to access SQL Server running on the host machine
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

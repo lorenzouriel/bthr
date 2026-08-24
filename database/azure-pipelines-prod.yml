@@ -1,0 +1,66 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - migrations/*
+      - flyway.toml
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: VPS
+  - group: DATABASE-PROD
+
+stages:
+  - stage: Deploy
+    displayName: 'Migrate Database on VPS'
+    jobs:
+      - job: Deploy
+        displayName: 'Run Flyway Migrations via SSH'
+        steps:
+          - checkout: self
+
+          - script: |
+              mkdir -p ~/.ssh
+              echo "$(VPS_SSH_KEY)" > ~/.ssh/deploy_key
+              chmod 600 ~/.ssh/deploy_key
+            displayName: 'Configure SSH'
+
+          - script: |
+              echo "Validating migration files..."
+              file_count=$(find migrations -name "V*.sql" | wc -l)
+              echo "Found $file_count migration files"
+            displayName: 'Validate Migration Files'
+
+          - script: |
+              rsync -az -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+                migrations/ ubuntu@$(VPS_IP):/srv/fin/database/migrations/
+              scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+                flyway.toml docker-compose.yml ubuntu@$(VPS_IP):/srv/fin/database/
+            displayName: 'Sync Migrations to VPS'
+
+          - script: |
+              ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ubuntu@$(VPS_IP) << 'EOF'
+                cd /srv/fin/database
+                docker compose run --rm \
+                  -e FLYWAY_URL="$(PROD_DB_URL)" \
+                  -e FLYWAY_USER="$(PROD_DB_USER)" \
+                  -e FLYWAY_PASSWORD="$(PROD_DB_PASSWORD)" \
+                  -e FLYWAY_SCHEMAS=dbo,finance,plan,investment,reporting \
+                  -e FLYWAY_DEFAULT_SCHEMA=dbo \
+                  -e FLYWAY_CREATE_SCHEMAS=true \
+                  findatabase info
+                docker compose run --rm \
+                  -e FLYWAY_URL="$(PROD_DB_URL)" \
+                  -e FLYWAY_USER="$(PROD_DB_USER)" \
+                  -e FLYWAY_PASSWORD="$(PROD_DB_PASSWORD)" \
+                  -e FLYWAY_SCHEMAS=dbo,finance,plan,investment,reporting \
+                  -e FLYWAY_DEFAULT_SCHEMA=dbo \
+                  -e FLYWAY_CREATE_SCHEMAS=true \
+                  findatabase migrate
+                docker compose down -v
+              EOF
+            displayName: 'Run Flyway Migrations on VPS'

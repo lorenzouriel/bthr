@@ -1,0 +1,7 @@
+# .tbls.yml
+# DSN (Database Source Name) to connect database
+dsn: sqlserver://user:password@host:1433/database
+
+# Path to generate document
+# Default is `dbdoc`
+docPath: schema
