@@ -11,13 +11,13 @@ In Azure DevOps:
 4. Add these variables:
 
 **Development Environment:**
-- `DEV_DB_URL` = `jdbc:sqlserver://your-dev-server:1433;databaseName=FinPulse_Dev;encrypt=true;trustServerCertificate=true`
+- `DEV_DB_URL` = `jdbc:postgresql://your-dev-server:5432/FinPulse_Dev`
 - `DEV_DB_USER` = `your-db-user`
 - `DEV_DB_PASSWORD` = `your-password` (🔒 click lock icon to mark as secret)
 
 **Database Schemas (configured in pipeline):**
 The pipeline automatically creates and manages these schemas:
-- `dbo` (default schema)
+- `public` (default schema)
 - `finance`
 - `plan`
 - `investment`
@@ -37,7 +37,7 @@ Your agent `10.0.0.xxx` must have:
 - ✅ Docker installed and running
 - ✅ Docker Compose installed
 - ✅ Python 3.x (for SQLFluff)
-- ✅ Network access to SQL Server dev instance
+- ✅ Network access to the PostgreSQL dev instance
 - ✅ Sufficient disk space for Docker images
 
 ### 4. How It Works
@@ -65,7 +65,7 @@ Build Docker Image → Flyway Info → Flyway Migrate → Cleanup
 
 ### Step 3: SQLFluff Linting
 - Lints all migration files in `migrations/` directory
-- Uses `.sqlfluff` configuration file
+- Uses `.sqlfluff` configuration file (`dialect = postgres`)
 - Fails pipeline if linting errors are found
 - Outputs results in GitHub annotation format
 
@@ -81,7 +81,7 @@ Build Docker Image → Flyway Info → Flyway Migrate → Cleanup
 ### Step 6: Flyway Migrate
 - Runs `flyway migrate` to apply pending migrations
 - Automatically creates schemas if they don't exist:
-  - `dbo` (default)
+  - `public` (default)
   - `finance`
   - `plan`
   - `investment`
@@ -107,21 +107,21 @@ docker-compose build flyway
 
 # Run Flyway info locally
 docker-compose run --rm \
-  -e FLYWAY_URL="jdbc:sqlserver://..." \
+  -e FLYWAY_URL="jdbc:postgresql://..." \
   -e FLYWAY_USER="..." \
   -e FLYWAY_PASSWORD="..." \
-  -e FLYWAY_SCHEMAS=dbo,finance,plan,investment,reporting \
-  -e FLYWAY_DEFAULT_SCHEMA=dbo \
+  -e FLYWAY_SCHEMAS=public,finance,plan,investment,reporting \
+  -e FLYWAY_DEFAULT_SCHEMA=public \
   -e FLYWAY_CREATE_SCHEMAS=true \
   flyway info
 
 # Run Flyway migrate locally
 docker-compose run --rm \
-  -e FLYWAY_URL="jdbc:sqlserver://..." \
+  -e FLYWAY_URL="jdbc:postgresql://..." \
   -e FLYWAY_USER="..." \
   -e FLYWAY_PASSWORD="..." \
-  -e FLYWAY_SCHEMAS=dbo,finance,plan,investment,reporting \
-  -e FLYWAY_DEFAULT_SCHEMA=dbo \
+  -e FLYWAY_SCHEMAS=public,finance,plan,investment,reporting \
+  -e FLYWAY_DEFAULT_SCHEMA=public \
   -e FLYWAY_CREATE_SCHEMAS=true \
   flyway migrate
 ```
@@ -134,8 +134,8 @@ The pipeline uses these environment variables from the variable group:
 - `$(DEV_DB_PASSWORD)` - Database password (secret)
 
 And these hardcoded in the pipeline:
-- `FLYWAY_SCHEMAS=dbo,finance,plan,investment,reporting`
-- `FLYWAY_DEFAULT_SCHEMA=dbo`
+- `FLYWAY_SCHEMAS=public,finance,plan,investment,reporting`
+- `FLYWAY_DEFAULT_SCHEMA=public`
 - `FLYWAY_CREATE_SCHEMAS=true`
 
 ## Pipeline Configuration Summary
@@ -153,7 +153,7 @@ And these hardcoded in the pipeline:
 - `FLYWAY-xxx`
 
 **Database Schemas:**
-- dbo (default)
+- public (default)
 - finance
 - plan
 - investment

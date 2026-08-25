@@ -49,8 +49,8 @@ stages:
                   -e FLYWAY_URL="$(DB_URL)" \
                   -e FLYWAY_USER="$(DB_USER)" \
                   -e FLYWAY_PASSWORD="$(DB_PASSWORD)" \
-                  -e FLYWAY_SCHEMAS=dbo,finance,plan,investment,reporting \
-                  -e FLYWAY_DEFAULT_SCHEMA=dbo \
+                  -e FLYWAY_SCHEMAS=public,finance,plan,investment,reporting \
+                  -e FLYWAY_DEFAULT_SCHEMA=public \
                   -e FLYWAY_CREATE_SCHEMAS=true \
                   findatabase info
 
@@ -63,8 +63,8 @@ stages:
                   -e FLYWAY_URL="$(DB_URL)" \
                   -e FLYWAY_USER="$(DB_USER)" \
                   -e FLYWAY_PASSWORD="$(DB_PASSWORD)" \
-                  -e FLYWAY_SCHEMAS=dbo,finance,plan,investment,reporting \
-                  -e FLYWAY_DEFAULT_SCHEMA=dbo \
+                  -e FLYWAY_SCHEMAS=public,finance,plan,investment,reporting \
+                  -e FLYWAY_DEFAULT_SCHEMA=public \
                   -e FLYWAY_CREATE_SCHEMAS=true \
                   findatabase migrate
 

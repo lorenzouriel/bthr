@@ -1,6 +1,24 @@
 services:
+  # Local PostgreSQL instance for development and CI
+  postgres:
+    image: postgres:17-alpine
+    container_name: findatabase-postgres
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   # Flyway Migrations
-  # Connects to an external SQL Server instance
+  # Connects to the local postgres service defined above
   findatabase:
     build:
       context: .
@@ -8,16 +26,19 @@ services:
     image: findatabase
     container_name: findatabase
     environment:
-      - FLYWAY_URL=${FLYWAY_URL}
-      - FLYWAY_USER=${FLYWAY_USER}
-      - FLYWAY_PASSWORD=${FLYWAY_PASSWORD}
-      - FLYWAY_SCHEMAS=dbo,finance,plan,investment,reporting
-      - FLYWAY_DEFAULT_SCHEMA=dbo
+      - FLYWAY_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      - FLYWAY_USER=${POSTGRES_USER}
+      - FLYWAY_PASSWORD=${POSTGRES_PASSWORD}
+      - FLYWAY_SCHEMAS=public,finance,plan,investment,reporting
+      - FLYWAY_DEFAULT_SCHEMA=public
       - FLYWAY_CREATE_SCHEMAS=true
     volumes:
       - ./migrations:/flyway/sql
       - ./flyway.toml:/flyway/conf/flyway.toml
     command: migrate
-    # Use host.docker.internal to access SQL Server running on the host machine
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

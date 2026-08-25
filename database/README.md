@@ -1,6 +1,6 @@
 # Fin Pulse Database
 
-> SQL Server database schema for a personal finance assistant that helps users track expenses, earnings, investments, and financial goals.
+> PostgreSQL database schema for a personal finance assistant that helps users track expenses, earnings, investments, and financial goals.
 
 ## Overview
 
@@ -15,8 +15,7 @@ Fin Pulse Database provides the data layer for a personal finance application. I
 
 ### Prerequisites
 
-- Docker and Docker Compose
-- SQL Server instance (local or cloud)
+- Docker and Docker Compose (a local PostgreSQL instance is provisioned automatically — no separate install needed)
 
 ### Setup
 
@@ -33,18 +32,21 @@ cd fin/database
 cp .env.example .env
 ```
 
-3. Edit `.env` with your SQL Server connection details:
+3. Edit `.env` with your PostgreSQL credentials:
 
 ```properties
-FLYWAY_URL=jdbc:sqlserver://localhost:1433;databaseName=FinPulse;encrypt=true;trustServerCertificate=true
-FLYWAY_USER=sa
+POSTGRES_DB=fin_pulse
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=YourStrongPassword123!
+FLYWAY_URL=jdbc:postgresql://postgres:5432/fin_pulse
+FLYWAY_USER=postgres
 FLYWAY_PASSWORD=YourStrongPassword123!
 ```
 
 4. Run migrations:
 
 ```bash
-docker compose up flyway
+docker compose up
 ```
 
 ### Verify Installation
@@ -61,7 +63,7 @@ docker compose run --rm flyway info
 
 | Schema | Purpose |
 | ------ | ------- |
-| `dbo` | Core tables (users, budgets, goals, investments) |
+| `public` | Core tables (users, budgets, goals, investments) |
 | `finance` | Financial transactions |
 | `plan` | Planning and budgeting |
 | `investment` | Investment tracking |
@@ -181,10 +183,13 @@ docker compose run --rm flyway repair
 
 | Variable | Description | Example |
 | -------- | ----------- | ------- |
-| `FLYWAY_URL` | JDBC connection string | `jdbc:sqlserver://localhost:1433;databaseName=FinPulse` |
-| `FLYWAY_USER` | Database username | `sa` |
+| `POSTGRES_DB` | Local PostgreSQL container database name | `fin_pulse` |
+| `POSTGRES_USER` | Local PostgreSQL container user | `postgres` |
+| `POSTGRES_PASSWORD` | Local PostgreSQL container password | `YourPassword123!` |
+| `FLYWAY_URL` | JDBC connection string | `jdbc:postgresql://postgres:5432/fin_pulse` |
+| `FLYWAY_USER` | Database username | `postgres` |
 | `FLYWAY_PASSWORD` | Database password | `YourPassword123!` |
-| `FLYWAY_SCHEMAS` | Schemas to manage | `dbo,finance,plan,investment,reporting` |
+| `FLYWAY_SCHEMAS` | Schemas to manage | `public,finance,plan,investment,reporting` |
 
 ### Flyway Configuration
 
@@ -225,7 +230,7 @@ Configure these in Azure DevOps variable group `FLYWAY-DEV`:
 1. Create a new SQL file in `migrations/`:
 
 ```bash
-touch migrations/V15__create_new_table.sql
+touch migrations/V13__create_new_table.sql
 ```
 
 2. Write your SQL migration following the existing patterns:
@@ -234,21 +239,15 @@ touch migrations/V15__create_new_table.sql
 ------------------------------------------------------------
 -- TABLE DESCRIPTION
 ------------------------------------------------------------
-CREATE TABLE dbo.new_table (
-    id INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+CREATE TABLE new_table (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
     user_id INT NOT NULL,
     -- additional columns...
-    created_at DATETIMEOFFSET NOT NULL DEFAULT SYSDATETIMEOFFSET()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-GO
 
--- Add extended properties for documentation
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Description of the table',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'new_table';
-GO
+-- Add a comment for documentation
+COMMENT ON TABLE new_table IS 'Description of the table';
 ```
 
 3. Test locally:
@@ -260,11 +259,11 @@ docker compose run --rm flyway migrate
 
 ### SQL Standards
 
-- Use `INT IDENTITY(1,1)` for primary keys
+- Use `INT GENERATED ALWAYS AS IDENTITY` for primary keys
 - Include `user_id` foreign key for user-owned data
 - Add `status` column (SMALLINT) for soft deletes
-- Include `created_at` timestamp with `SYSDATETIMEOFFSET()`
-- Document all tables and columns with `sp_addextendedproperty`
+- Include `created_at` timestamp with `TIMESTAMPTZ NOT NULL DEFAULT now()`
+- Document all tables and columns with `COMMENT ON TABLE` / `COMMENT ON COLUMN`
 
 ## Project Structure
 

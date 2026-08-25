@@ -1,149 +1,64 @@
 ------------------------------------------------------------
--- DBO.BILLS TABLE DEFINITION
+-- BILLS TABLE DEFINITION
 -- Bills are stored as templates (one row per bill definition).
 -- Payment tracking is done via the expenses table.
 ------------------------------------------------------------
-CREATE TABLE dbo.bills (
-    id              INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+CREATE TABLE bills (
+    id              INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
     user_id         INT NOT NULL,
-    name            NVARCHAR(255) NOT NULL,
-    description     NVARCHAR(500) NULL,
-    category        NVARCHAR(100) NOT NULL,
-    amount          DECIMAL(18,2) NOT NULL,
-    due_day         TINYINT NOT NULL,
-    payment_method  NVARCHAR(100) NULL,
-    currency_code   NVARCHAR(10) NOT NULL DEFAULT 'BRL',
-    is_recurrent    BIT NOT NULL DEFAULT 1,
-    end_date        DATE NULL,
-    recurrence_type NVARCHAR(50) NULL,
+    name            VARCHAR(255) NOT NULL,
+    description     VARCHAR(500),
+    category        VARCHAR(100) NOT NULL,
+    amount          NUMERIC(18,2) NOT NULL,
+    due_day         SMALLINT NOT NULL,
+    payment_method  VARCHAR(100),
+    currency_code   VARCHAR(10) NOT NULL DEFAULT 'BRL',
+    is_recurrent    BOOLEAN NOT NULL DEFAULT true,
+    end_date        DATE,
+    recurrence_type VARCHAR(50),
     status          SMALLINT NOT NULL DEFAULT 1,
-    created_at      DATETIME NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT CK_bills_due_day CHECK (due_day BETWEEN 1 AND 31)
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT ck_bills_due_day CHECK (due_day BETWEEN 1 AND 31)
 );
-GO
 
 ------------------------------------------------------------
 -- TABLE DESCRIPTION
 ------------------------------------------------------------
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Stores bill templates for users. One row per bill definition. Payment tracking is done via the expenses table (matched by description = bill name).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills';
-GO
+COMMENT ON TABLE bills
+IS 'Stores bill templates for users. One row per bill definition. Payment tracking is done via '
+'the expenses table (matched by description = bill name).';
 
 ------------------------------------------------------------
 -- COLUMN DESCRIPTIONS
 ------------------------------------------------------------
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Unique identifier for each bill template (primary key).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'id';
-GO
+COMMENT ON COLUMN bills.id IS 'Unique identifier for each bill template (primary key).';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'References the user who owns this bill.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'user_id';
-GO
+COMMENT ON COLUMN bills.user_id IS 'References the user who owns this bill.';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Descriptive name of the bill (e.g., Netflix, Conta de Luz). Used to match payments in expenses table.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'name';
-GO
+COMMENT ON COLUMN bills.name
+IS 'Descriptive name of the bill (e.g., Netflix, Conta de Luz). Used to match payments in expenses table.';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Optional description or notes for this bill.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'description';
-GO
+COMMENT ON COLUMN bills.description IS 'Optional description or notes for this bill.';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Category of the bill (e.g., Moradia, Lazer, Saúde).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'category';
-GO
+COMMENT ON COLUMN bills.category IS 'Category of the bill (e.g., Moradia, Lazer, Saúde).';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Monetary amount due for this bill.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'amount';
-GO
+COMMENT ON COLUMN bills.amount IS 'Monetary amount due for this bill.';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Day of month the bill is due (1-31). The API computes the full due date for the current month.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'due_day';
-GO
+COMMENT ON COLUMN bills.due_day
+IS 'Day of month the bill is due (1-31). The API computes the full due date for the current month.';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Payment method (e.g., Cartão de Crédito, Pix, Débito Automático).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'payment_method';
-GO
+COMMENT ON COLUMN bills.payment_method IS 'Payment method (e.g., Cartão de Crédito, Pix, Débito Automático).';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Currency code (e.g., BRL, USD).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'currency_code';
-GO
+COMMENT ON COLUMN bills.currency_code IS 'Currency code (e.g., BRL, USD).';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Whether the bill recurs monthly. 1=recurring (end_date must be NULL), 0=one-time.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'is_recurrent';
-GO
+COMMENT ON COLUMN bills.is_recurrent
+IS 'Whether the bill recurs monthly. 1=recurring (end_date must be NULL), 0=one-time.';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Optional end date for non-recurring bills. NULL for recurring bills.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'end_date';
-GO
+COMMENT ON COLUMN bills.end_date IS 'Optional end date for non-recurring bills. NULL for recurring bills.';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Recurrence pattern (e.g., Monthly, Yearly).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'recurrence_type';
-GO
+COMMENT ON COLUMN bills.recurrence_type IS 'Recurrence pattern (e.g., Monthly, Yearly).';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Status flag (1=Active, 0=Deleted).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'status';
-GO
+COMMENT ON COLUMN bills.status IS 'Status flag (1=Active, 0=Deleted).';
 
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Timestamp when the bill template was created.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'bills',
-    @level2type = N'Column', @level2name = N'created_at';
-GO
+COMMENT ON COLUMN bills.created_at IS 'Timestamp when the bill template was created.';

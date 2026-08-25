@@ -6,25 +6,19 @@
 ------------------------------------------------------------
 
 -- Bills Indexes
-CREATE INDEX IX_bills_user_id ON dbo.bills(user_id);
-GO
+CREATE INDEX ix_bills_user_id ON bills (user_id);
 
 -- Budgets Indexes
-CREATE INDEX IX_budgets_user_id ON dbo.budgets(user_id);
-GO
+CREATE INDEX ix_budgets_user_id ON budgets (user_id);
 
 -- Goals Indexes
-CREATE INDEX IX_goals_user_id ON dbo.goals(user_id);
-GO
+CREATE INDEX ix_goals_user_id ON goals (user_id);
 
 -- Investments Indexes
-CREATE INDEX IX_investments_user_id ON dbo.investments(user_id);
-GO
+CREATE INDEX ix_investments_user_id ON investments (user_id);
 
 -- Expenses Indexes
-CREATE INDEX IX_expenses_user_id ON dbo.expenses(user_id);
-GO
+CREATE INDEX ix_expenses_user_id ON expenses (user_id);
 
 -- Earnings Indexes
-CREATE INDEX IX_earnings_user_id ON dbo.earnings(user_id);
-GO
+CREATE INDEX ix_earnings_user_id ON earnings (user_id);

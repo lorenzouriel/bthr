@@ -1,8 +1,8 @@
 # Fin API
 
-> A comprehensive personal finance management REST API built with ASP.NET Core 8.0, Entity Framework Core, and SQL Server.
+> A comprehensive personal finance management REST API built with ASP.NET Core 10.0, Entity Framework Core, and PostgreSQL.
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
 [![Tests](https://img.shields.io/badge/Tests-294%20passing-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -31,9 +31,9 @@ FinPulse API provides a complete backend solution for personal finance applicati
 
 | Component | Technology |
 |-----------|------------|
-| Framework | ASP.NET Core 8.0 |
-| ORM | Entity Framework Core 8.0 |
-| Database | SQL Server |
+| Framework | ASP.NET Core 10.0 |
+| ORM | Entity Framework Core 10.0 |
+| Database | PostgreSQL |
 | Authentication | JWT Bearer Tokens (HTTP-only cookies) |
 | Password Hashing | BCrypt.Net |
 | API Documentation | Swagger/OpenAPI |
@@ -45,8 +45,8 @@ FinPulse API provides a complete backend solution for personal finance applicati
 
 ### Prerequisites
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- SQL Server (local or remote instance)
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- PostgreSQL (local or remote instance — `database/docker-compose.yml` provisions one locally)
 - [Docker](https://www.docker.com/get-started) (optional)
 
 ### Local Development
@@ -61,7 +61,7 @@ FinPulse API provides a complete backend solution for personal finance applicati
    ```json
    {
      "ConnectionStrings": {
-       "DefaultConnection": "Server=localhost,1433;Database=fin_pulse;User Id=sa;Password=YourPassword;TrustServerCertificate=True;"
+       "DefaultConnection": "Host=localhost;Port=5432;Database=fin_pulse;Username=postgres;Password=YourPassword;"
      }
    }
    ```
@@ -162,7 +162,7 @@ curl -b cookies.txt http://localhost:5026/api/users/1/expenses
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `ConnectionStrings__DefaultConnection` | SQL Server connection string | Yes |
+| `ConnectionStrings__DefaultConnection` | PostgreSQL connection string | Yes |
 | `Jwt__SecretKey` | JWT signing key (min 32 chars) | Yes |
 | `Jwt__Issuer` | JWT token issuer | No (default: `FinPulse.Api`) |
 | `Jwt__Audience` | JWT token audience | No (default: `FinPulse.Api`) |

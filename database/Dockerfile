@@ -1,4 +1,4 @@
-# Flyway Docker Setup for SQL Server Migrations
+# Flyway Docker Setup for PostgreSQL Migrations
 FROM flyway/flyway:latest
 
 # Copy migration files

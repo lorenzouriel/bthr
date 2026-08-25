@@ -6,26 +6,10 @@
 -- Date: 2025-11-06
 ------------------------------------------------------------
 
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'finance')
-BEGIN
-    EXEC('CREATE SCHEMA [finance]');
-END
-GO
+CREATE SCHEMA IF NOT EXISTS finance;
 
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'plan')
-BEGIN
-    EXEC('CREATE SCHEMA [plan]');
-END
-GO
+CREATE SCHEMA IF NOT EXISTS plan;
 
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'reporting')
-BEGIN
-    EXEC('CREATE SCHEMA [reporting]');
-END
-GO
+CREATE SCHEMA IF NOT EXISTS reporting;
 
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'investment')
-BEGIN
-    EXEC('CREATE SCHEMA [investment]');
-END
-GO
+CREATE SCHEMA IF NOT EXISTS investment;

@@ -9,6 +9,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
+      - Otel__ExporterEndpoint=${OTEL_EXPORTER_OTLP_ENDPOINT}
       - Jwt__SecretKey=${JWT_SECRET_KEY}
       - Jwt__Issuer=${JWT_ISSUER:-FinPulse.Api}
       - Jwt__Audience=${JWT_AUDIENCE:-FinPulse.Api}

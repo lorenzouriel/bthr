@@ -1,101 +1,47 @@
 ------------------------------------------------------------
 -- USERS TABLE DEFINITION
 ------------------------------------------------------------
-CREATE TABLE dbo.users
+CREATE TABLE users
 (
-    id INT IDENTITY (1, 1) PRIMARY KEY NOT NULL,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
     username VARCHAR(100) NOT NULL,
-    phone_number VARCHAR(15) NULL,
+    phone_number VARCHAR(15),
     email VARCHAR(100) NOT NULL,
-    [password] NVARCHAR(1024) NULL,
-    created_at DATETIME DEFAULT GETDATE() NOT NULL,
-    [plan] TINYINT NOT NULL DEFAULT 0,
-    [status] TINYINT DEFAULT 1 NOT NULL
+    password VARCHAR(1024),
+    created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    plan SMALLINT NOT NULL DEFAULT 0,
+    status SMALLINT DEFAULT 1 NOT NULL
 );
-GO
 
 ------------------------------------------------------------
 -- TABLE DESCRIPTION
 ------------------------------------------------------------
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Stores registered application users and their authentication data.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'users';
-GO
+COMMENT ON TABLE users IS 'Stores registered application users and their authentication data.';
 
 ------------------------------------------------------------
 -- COLUMN DESCRIPTIONS
 ------------------------------------------------------------
 
 -- id
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Unique identifier for each user (primary key).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'users',
-    @level2type = N'Column', @level2name = N'id';
-GO
+COMMENT ON COLUMN users.id IS 'Unique identifier for each user (primary key).';
 
 -- username
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Public username chosen by the user (unique within the system).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'users',
-    @level2type = N'Column', @level2name = N'username';
-GO
+COMMENT ON COLUMN users.username IS 'Public username chosen by the user (unique within the system).';
 
 -- phone_number
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Optional phone number used for contact or verification.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'users',
-    @level2type = N'Column', @level2name = N'phone_number';
-GO
+COMMENT ON COLUMN users.phone_number IS 'Optional phone number used for contact or verification.';
 
 -- email
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Primary email address of the user (used for login and notifications).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'users',
-    @level2type = N'Column', @level2name = N'email';
-GO
+COMMENT ON COLUMN users.email IS 'Primary email address of the user (used for login and notifications).';
 
 -- password
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Hashed password for authentication (never stored in plain text).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'users',
-    @level2type = N'Column', @level2name = N'password';
-GO
+COMMENT ON COLUMN users.password IS 'Hashed password for authentication (never stored in plain text).';
 
 -- created_at
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Date and time when the user record was created.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'users',
-    @level2type = N'Column', @level2name = N'created_at';
-GO
+COMMENT ON COLUMN users.created_at IS 'Date and time when the user record was created.';
 
 -- plan
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Subscription plan (0=Freemium, 1=Basic).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'users',
-    @level2type = N'Column', @level2name = N'plan';
-GO
+COMMENT ON COLUMN users.plan IS 'Subscription plan (0=Freemium, 1=Basic).';
 
 -- status
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'User status flag (1 = active, 0 = inactive, others for future states).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'users',
-    @level2type = N'Column', @level2name = N'status';
-GO
+COMMENT ON COLUMN users.status IS 'User status flag (1 = active, 0 = inactive, others for future states).';

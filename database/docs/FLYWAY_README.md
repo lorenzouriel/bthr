@@ -1,5 +1,5 @@
 # Flyway Database Migration Setup
-This project uses [Flyway](https://flywaydb.org/) for managing SQL Server database migrations in a version-controlled, automated manner.
+This project uses [Flyway](https://flywaydb.org/) for managing PostgreSQL database migrations in a version-controlled, automated manner.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
@@ -31,7 +31,7 @@ You need ONE of the following:
 - Docker Compose (optional, but recommended)
 
 ### Database Requirements
-- SQL Server 2019+ (running externally, not in Docker)
+- PostgreSQL 15+ (a local instance is provisioned automatically via `docker-compose.yml`)
 - Database user with appropriate permissions (CREATE, ALTER, DROP, SELECT, INSERT, UPDATE, DELETE)
 
 ## Quick Start
@@ -44,7 +44,7 @@ cd C:\WAVES\fin\database
 # Copy environment template
 copy .env.example .env
 
-# Edit .env with your SQL Server credentials
+# Edit .env with your PostgreSQL credentials
 notepad .env
 ```
 
@@ -53,8 +53,11 @@ notepad .env
 Edit `.env` file:
 
 ```env
-FLYWAY_URL=jdbc:sqlserver://localhost:1433;databaseName=FinPulse;encrypt=true;trustServerCertificate=true
-FLYWAY_USER=sa
+POSTGRES_DB=fin_pulse
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=YourActualPassword
+FLYWAY_URL=jdbc:postgresql://postgres:5432/fin_pulse
+FLYWAY_USER=postgres
 FLYWAY_PASSWORD=YourActualPassword
 ```
 
@@ -74,14 +77,18 @@ flyway validate
 
 **Using Docker:**
 ```bash
-# Run migrations using Docker Compose
-docker-compose up flyway
+# Start the local PostgreSQL instance and run migrations
+docker compose up
 
-# Or build and run manually
+# Or step by step
+docker compose up -d postgres
+docker compose up flyway
+
+# Or build and run manually against an already-running Postgres instance
 docker build -t finpulse-flyway .
 docker run --rm \
-  -e FLYWAY_URL="jdbc:sqlserver://host.docker.internal:1433;databaseName=FinPulse;encrypt=true;trustServerCertificate=true" \
-  -e FLYWAY_USER="sa" \
+  -e FLYWAY_URL="jdbc:postgresql://host.docker.internal:5432/fin_pulse" \
+  -e FLYWAY_USER="postgres" \
   -e FLYWAY_PASSWORD="YourPassword" \
   finpulse-flyway migrate
 ```
@@ -98,8 +105,8 @@ url = "${FLYWAY_URL}"                   # Database JDBC URL
 user = "${FLYWAY_USER}"                 # Database user
 password = "${FLYWAY_PASSWORD}"         # Database password
 locations = ["filesystem:migrations"]   # Migration files location
-schemas = ["dbo", "finance", "plan", "investment", "reporting"]
-defaultSchema = "dbo"
+schemas = ["public", "finance", "plan", "investment", "reporting"]
+defaultSchema = "public"
 createSchemas = true                    # Auto-create schemas
 table = "flyway_schema_history"        # Migration history table
 ```
@@ -109,7 +116,7 @@ table = "flyway_schema_history"        # Migration history table
 All sensitive data is stored in `.env` (never committed to git):
 
 ```env
-FLYWAY_URL=jdbc:sqlserver://<host>:<port>;databaseName=<db>;encrypt=true;trustServerCertificate=true
+FLYWAY_URL=jdbc:postgresql://<host>:<port>/<database>
 FLYWAY_USER=<username>
 FLYWAY_PASSWORD=<password>
 ```
@@ -142,19 +149,18 @@ flyway repair
 
 **Naming Convention:**
 - Versioned: `V<version>__<description>.sql`
-  - Example: `V11__add_user_email_index.sql`
+  - Example: `V13__add_user_email_index.sql`
 - Repeatable: `R__<description>.sql`
   - Example: `R__user_spending_view.sql`
 
 **Example Migration:**
 
 ```sql
--- V11__add_user_email_index.sql
+-- V13__add_user_email_index.sql
 ------------------------------------------------------------
 -- ADD EMAIL INDEX TO USERS TABLE
 ------------------------------------------------------------
-CREATE INDEX IX_users_email ON dbo.users(email);
-GO
+CREATE INDEX ix_users_email ON users (email);
 ```
 
 **Versioning Strategy:**
@@ -177,7 +183,7 @@ GO
 
 1. **Create migration locally**
    ```bash
-   # Create new file: migrations/V11__add_feature.sql
+   # Create new file: migrations/V13__add_feature.sql
    # Write your SQL
    ```
 
@@ -189,7 +195,7 @@ GO
 
 3. **Commit and push**
    ```bash
-   git add migrations/V11__add_feature.sql
+   git add migrations/V13__add_feature.sql
    git commit -m "feat: add new feature migration"
    git push
    ```
@@ -202,10 +208,9 @@ GO
 ### Migration Guidelines
 
 **DO:**
-- ✅ Use explicit schema names: `[dbo].[users]`
-- ✅ Include GO statements for batching
-- ✅ Add extended properties for documentation
-- ✅ Use idempotent checks where possible
+- ✅ Reference tables unqualified within their schema (e.g. `users`, or `finance.expenses` for schema-qualified tables)
+- ✅ Add `COMMENT ON TABLE`/`COMMENT ON COLUMN` for documentation
+- ✅ Use idempotent checks where possible (`CREATE ... IF NOT EXISTS`)
 - ✅ Test rollback strategies
 
 **DON'T:**

@@ -9,7 +9,7 @@ docker pull ghcr.io/k1low/tbls:latest
 ```yml
 # .tbls.yml
 # DSN (Database Source Name) to connect database
-dsn: sqlserver://user:password@host:1433/database
+dsn: postgres://user:password@host:5432/database?sslmode=disable
 
 # Path to generate document
 # Default is `dbdoc`

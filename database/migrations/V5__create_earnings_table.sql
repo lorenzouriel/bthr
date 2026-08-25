@@ -1,120 +1,55 @@
 ------------------------------------------------------------
--- DBO.EARNINGS TABLE DEFINITION
+-- EARNINGS TABLE DEFINITION
 ------------------------------------------------------------
-CREATE TABLE dbo.earnings (
-    id INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+CREATE TABLE earnings (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
     user_id INT NOT NULL,
-    amount DECIMAL(18,2) NOT NULL,
-    category NVARCHAR(100) NOT NULL,
-    description NVARCHAR(500) NULL,
-    earning_date DATETIME NOT NULL,
-    payment_method NVARCHAR(100) NOT NULL,
-    currency_code NVARCHAR(10) NOT NULL DEFAULT 'BRL',
+    amount NUMERIC(18,2) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    description VARCHAR(500),
+    earning_date TIMESTAMPTZ NOT NULL,
+    payment_method VARCHAR(100) NOT NULL,
+    currency_code VARCHAR(10) NOT NULL DEFAULT 'BRL',
     status SMALLINT NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL DEFAULT GETDATE()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-GO
 
 ------------------------------------------------------------
 -- TABLE DESCRIPTION
 ------------------------------------------------------------
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Records user earnings, such as salary, bonuses, or other income sources.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'earnings';
-GO
+COMMENT ON TABLE earnings IS 'Records user earnings, such as salary, bonuses, or other income sources.';
 
 ------------------------------------------------------------
 -- COLUMN DESCRIPTIONS
 ------------------------------------------------------------
 
 -- id
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Unique identifier for each earning record (primary key).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'earnings',
-    @level2type = N'Column', @level2name = N'id';
-GO
+COMMENT ON COLUMN earnings.id IS 'Unique identifier for each earning record (primary key).';
 
 -- user_id
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'References the user who owns the earning record.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'earnings',
-    @level2type = N'Column', @level2name = N'user_id';
-GO
+COMMENT ON COLUMN earnings.user_id IS 'References the user who owns the earning record.';
 
 -- amount
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Total amount of money earned in the transaction.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'earnings',
-    @level2type = N'Column', @level2name = N'amount';
-GO
+COMMENT ON COLUMN earnings.amount IS 'Total amount of money earned in the transaction.';
 
 -- category
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Category describing the earning source (e.g., Salary, Bonus, Freelance).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'earnings',
-    @level2type = N'Column', @level2name = N'category';
-GO
+COMMENT ON COLUMN earnings.category IS 'Category describing the earning source (e.g., Salary, Bonus, Freelance).';
 
 -- description
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Optional text describing the earning or its source in more detail.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'earnings',
-    @level2type = N'Column', @level2name = N'description';
-GO
+COMMENT ON COLUMN earnings.description IS 'Optional text describing the earning or its source in more detail.';
 
 -- earning_date
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Date and time when the earning was received or recorded.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'earnings',
-    @level2type = N'Column', @level2name = N'earning_date';
-GO
+COMMENT ON COLUMN earnings.earning_date IS 'Date and time when the earning was received or recorded.';
 
 -- payment_method
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Method by which the earning was received (e.g., Bank Transfer, Cash, Card).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'earnings',
-    @level2type = N'Column', @level2name = N'payment_method';
-GO
+COMMENT ON COLUMN earnings.payment_method
+IS 'Method by which the earning was received (e.g., Bank Transfer, Cash, Card).';
 
 -- currency_code
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Currency code for the earning (e.g., USD, BRL, EUR).',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'earnings',
-    @level2type = N'Column', @level2name = N'currency_code';
-GO
+COMMENT ON COLUMN earnings.currency_code IS 'Currency code for the earning (e.g., USD, BRL, EUR).';
 
 -- status
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Indicates if the earning record is active (1), inactive (0), or archived.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'earnings',
-    @level2type = N'Column', @level2name = N'status';
-GO
+COMMENT ON COLUMN earnings.status IS 'Indicates if the earning record is active (1), inactive (0), or archived.';
 
 -- created_at
-EXEC sp_addextendedproperty
-    @name = N'MS_Description',
-    @value = N'Date and time when the earning record was created in the system.',
-    @level0type = N'Schema', @level0name = N'dbo',
-    @level1type = N'Table',  @level1name = N'earnings',
-    @level2type = N'Column', @level2name = N'created_at';
-GO
+COMMENT ON COLUMN earnings.created_at IS 'Date and time when the earning record was created in the system.';
