@@ -9,7 +9,7 @@
 | **Feature** | MIND_MODULE |
 | **Date** | 2026-08-25 |
 | **Author** | define-agent |
-| **Status** | ✅ Complete (Designed) |
+| **Status** | ✅ Complete (Built) |
 | **Clarity Score** | 14/15 |
 
 ---
@@ -192,4 +192,4 @@ None - ready for Design. (Assumption A-004 — exact next migration version numb
 
 ## Next Step
 
-**Ready for:** `/design .claude/sdd/features/DEFINE_MIND_MODULE.md`
+**Ready for:** `/ship .claude/sdd/features/DEFINE_MIND_MODULE.md`
