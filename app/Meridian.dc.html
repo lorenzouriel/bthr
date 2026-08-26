@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F6}
+*{box-sizing:border-box}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(120,128,140,.25);border-radius:5px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+@keyframes mfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+input::placeholder{color:inherit;opacity:.45}
+</style>
+</helmet>
+
+<div style="{{ rootStyle }}">
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <nav style="width:236px;flex:none;display:flex;flex-direction:column;padding:20px 12px 14px;border-right:1px solid var(--br,rgba(27,31,36,0.08));overflow-y:auto">
+    <div style="display:flex;align-items:baseline;gap:8px;padding:0 10px 18px">
+      <span style="font-family:'Newsreader',serif;font-style:italic;font-weight:400;font-size:21px;letter-spacing:0.01em">Meridian</span>
+      <span style="font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--m,#6B7280)">personal OS</span>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ topNav }}" as="it" hint-placeholder-count="3">
+        <div style="{{ it.style }}" onClick="{{ it.go }}">
+          <span style="width:16px;text-align:center;font-size:12px;opacity:0.85">{{ it.glyph }}</span>
+          <span style="flex:1">{{ it.label }}</span>
+          <sc-if value="{{ it.badge }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:10.5px;font-weight:600;padding:1px 7px;border-radius:99px;background:var(--hl,rgba(27,31,36,0.06));color:var(--m,#6B7280)">{{ it.badge }}</span>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+
+    <sc-for list="{{ navPillars }}" as="p" hint-placeholder-count="3">
+      <div style="display:flex;flex-direction:column;gap:2px;margin-top:20px">
+        <div style="{{ p.headStyle }}" onClick="{{ p.go }}">
+          <span style="{{ p.dotStyle }}"></span>
+          <span>{{ p.label }}</span>
+          <span style="margin-left:auto;font-family:'Newsreader',serif;font-size:13px;color:var(--m,#6B7280)">{{ p.score }}</span>
+        </div>
+        <sc-for list="{{ p.modules }}" as="it" hint-placeholder-count="3">
+          <div style="{{ it.style }}" onClick="{{ it.go }}">
+            <span style="width:16px"></span>
+            <span>{{ it.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+
+    <div style="margin-top:auto;padding-top:18px;display:flex;align-items:center;gap:10px;padding-left:10px;padding-right:10px">
+      <div style="width:28px;height:28px;border-radius:99px;background:var(--hl,rgba(27,31,36,0.06));border:1px solid var(--br,rgba(27,31,36,0.08));display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:var(--m,#6B7280)">DC</div>
+      <div style="display:flex;flex-direction:column">
+        <span style="font-size:12.5px;font-weight:600">Daniel Costa</span>
+        <span style="font-size:11px;color:var(--m,#6B7280)">Day 214 of 2026</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══════════ MAIN ══════════ -->
+  <main style="flex:1;overflow-y:auto;min-width:0">
+
+    <!-- ── HOME ── -->
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="Home" style="max-width:880px;margin:0 auto;padding:48px 44px 64px;animation:mfade .35s ease">
+        <p style="margin:0;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m,#6B7280)">Wednesday, July 2</p>
+        <h1 style="margin:6px 0 0;font-family:'Newsreader',serif;font-weight:400;font-size:34px;letter-spacing:-0.01em">Good afternoon, Daniel.</h1>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:32px">
+          <sc-for list="{{ scores }}" as="s" hint-placeholder-count="3">
+            <div style="{{ s.cardStyle }}" onClick="{{ s.go }}">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="{{ s.dotStyle }}"></span>
+                <span style="font-size:12.5px;font-weight:600;color:var(--m,#6B7280)">{{ s.label }}</span>
+              </div>
+              <div style="font-family:'Newsreader',serif;font-weight:300;font-size:44px;line-height:1.1;margin-top:10px">{{ s.score }}<span style="font-size:18px;color:var(--m,#6B7280)">%</span></div>
+              <div style="height:3px;border-radius:2px;background:var(--hl,rgba(27,31,36,0.06));margin-top:14px;overflow:hidden">
+                <div style="{{ s.barStyle }}"></div>
+              </div>
+              <div style="font-size:11.5px;color:var(--m,#6B7280);margin-top:8px">{{ s.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:36px;margin-top:44px">
+          <div>
+            <h2 style="margin:0 0 14px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m,#6B7280)">Today's focus</h2>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ focus }}" as="f" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--br,rgba(27,31,36,0.08));cursor:pointer" onClick="{{ f.toggle }}">
+                  <span style="{{ f.checkStyle }}">{{ f.mark }}</span>
+                  <div style="display:flex;flex-direction:column;gap:1px">
+                    <span style="{{ f.textStyle }}">{{ f.t }}</span>
+                    <span style="font-size:11.5px;color:var(--m,#6B7280)">{{ f.s }}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <h2 style="margin:34px 0 14px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m,#6B7280)">Recent activity</h2>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ activity }}" as="a" hint-placeholder-count="4">
+                <div style="display:flex;align-items:baseline;gap:12px;padding:8px 2px">
+                  <span style="width:44px;flex:none;font-size:11.5px;color:var(--m,#6B7280);font-variant-numeric:tabular-nums">{{ a.time }}</span>
+                  <span style="{{ a.dotStyle }}"></span>
+                  <span style="font-size:13.5px">{{ a.t }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <h2 style="margin:0 0 14px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m,#6B7280)">Upcoming</h2>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ upcoming }}" as="u" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:var(--s,#FFFFFF);border:1px solid var(--br,rgba(27,31,36,0.08));box-shadow:var(--sh,none)">
+                  <div style="display:flex;flex-direction:column;flex:1">
+                    <span style="font-size:13.5px;font-weight:500">{{ u.t }}</span>
+                    <span style="font-size:11.5px;color:var(--m,#6B7280)">{{ u.s }}</span>
+                  </div>
+                  <span style="{{ u.tagStyle }}">{{ u.tag }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="margin-top:28px;padding:16px 18px;border-radius:12px;border:1px solid var(--br,rgba(27,31,36,0.08));background:var(--hl,rgba(27,31,36,0.04))">
+              <p style="margin:0;font-family:'Newsreader',serif;font-style:italic;font-size:15.5px;line-height:1.5">"{{ homeQuote }}"</p>
+              <p style="margin:8px 0 0;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--m,#6B7280)">AI coach · daily brief</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ── PILLAR DASHBOARD ── -->
+    <sc-if value="{{ isPillar }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Pillar dashboard" style="max-width:880px;margin:0 auto;padding:48px 44px 64px;animation:mfade .35s ease">
+        <div style="display:flex;align-items:baseline;gap:14px">
+          <h1 style="margin:0;font-family:'Newsreader',serif;font-weight:400;font-size:34px">{{ pillar.label }}</h1>
+          <span style="font-size:13px;color:var(--m,#6B7280)">{{ pillar.tagline }}</span>
+          <span style="margin-left:auto;font-family:'Newsreader',serif;font-weight:300;font-size:34px">{{ pillar.score }}<span style="font-size:16px;color:var(--m,#6B7280)">%</span></span>
+        </div>
+        <div style="height:3px;border-radius:2px;background:var(--hl,rgba(27,31,36,0.06));margin-top:14px;overflow:hidden">
+          <div style="{{ pillar.barStyle }}"></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:30px">
+          <sc-for list="{{ pillar.metrics }}" as="mt" hint-placeholder-count="6">
+            <div style="padding:16px 18px;border-radius:12px;background:var(--s,#FFFFFF);border:1px solid var(--br,rgba(27,31,36,0.08));box-shadow:var(--sh,none)">
+              <div style="font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--m,#6B7280)">{{ mt.k }}</div>
+              <div style="font-family:'Newsreader',serif;font-weight:300;font-size:26px;margin-top:6px">{{ mt.v }}</div>
+              <div style="font-size:11.5px;color:var(--m,#6B7280);margin-top:2px">{{ mt.n }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="margin-top:26px;padding:16px 18px;border-radius:12px;border:1px solid var(--br,rgba(27,31,36,0.08));background:var(--hl,rgba(27,31,36,0.04))">
+          <p style="margin:0;font-family:'Newsreader',serif;font-style:italic;font-size:15.5px;line-height:1.5">"{{ pillar.insight }}"</p>
+          <p style="margin:8px 0 0;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--m,#6B7280)">AI coach</p>
+        </div>
+
+        <h2 style="margin:36px 0 14px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m,#6B7280)">Modules</h2>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+          <sc-for list="{{ pillar.modules }}" as="md" hint-placeholder-count="3">
+            <div style="padding:18px;border-radius:12px;background:var(--s,#FFFFFF);border:1px solid var(--br,rgba(27,31,36,0.08));box-shadow:var(--sh,none);cursor:pointer;transition:transform .15s ease" style-hover="transform:translateY(-2px)" onClick="{{ md.go }}">
+              <div style="font-size:14.5px;font-weight:600">{{ md.label }}</div>
+              <div style="font-size:12.5px;color:var(--m,#6B7280);margin-top:4px;line-height:1.45">{{ md.purpose }}</div>
+              <div style="font-size:11.5px;margin-top:12px;color:var(--m,#6B7280)">{{ md.count }} capabilities →</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ── MODULE (leaf) ── -->
+    <sc-if value="{{ isModule }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Module" style="max-width:880px;margin:0 auto;padding:48px 44px 64px;animation:mfade .35s ease">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--m,#6B7280)">
+          <span style="cursor:pointer" onClick="{{ mod.back }}">{{ mod.pillarLabel }}</span>
+          <span>/</span>
+          <span style="color:var(--t,#1B1F24);font-weight:600">{{ mod.label }}</span>
+        </div>
+        <h1 style="margin:10px 0 0;font-family:'Newsreader',serif;font-weight:400;font-size:34px">{{ mod.label }}</h1>
+        <p style="margin:8px 0 0;font-size:14.5px;color:var(--m,#6B7280)">{{ mod.purpose }}</p>
+
+        <div style="display:flex;flex-direction:column;gap:32px;margin-top:32px">
+          <sc-for list="{{ mod.blocks }}" as="b" hint-placeholder-count="2">
+            <div>
+              <sc-if value="{{ b.title }}" hint-placeholder-val="{{ false }}">
+                <h2 style="margin:0 0 12px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m,#6B7280)">{{ b.title }}</h2>
+              </sc-if>
+
+              <sc-if value="{{ b.isStats }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+                  <sc-for list="{{ b.items }}" as="mt" hint-placeholder-count="3">
+                    <div style="padding:16px 18px;border-radius:12px;background:var(--s,#FFFFFF);border:1px solid var(--br,rgba(27,31,36,0.08));box-shadow:var(--sh,none)">
+                      <div style="font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--m,#6B7280)">{{ mt.k }}</div>
+                      <div style="font-family:'Newsreader',serif;font-weight:300;font-size:26px;margin-top:6px">{{ mt.v }}</div>
+                      <div style="font-size:11.5px;color:var(--m,#6B7280);margin-top:2px">{{ mt.n }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isChart }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:12px;padding:20px 20px 14px;border-radius:12px;background:var(--s,#FFFFFF);border:1px solid var(--br,rgba(27,31,36,0.08));box-shadow:var(--sh,none)">
+                  <sc-for list="{{ b.cols }}" as="c" hint-placeholder-count="7">
+                    <div style="flex:1;display:flex;flex-direction:column;gap:7px;height:150px">
+                      <div style="flex:1;display:flex;align-items:flex-end"><div style="{{ c.barStyle }}"></div></div>
+                      <div style="text-align:center;font-size:11px;font-variant-numeric:tabular-nums">{{ c.v }}</div>
+                      <div style="text-align:center;font-size:10.5px;color:var(--m,#6B7280)">{{ c.l }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isBars }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column">
+                  <sc-for list="{{ b.rows }}" as="r" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;gap:7px;padding:11px 2px;border-bottom:1px solid var(--br,rgba(27,31,36,0.08))">
+                      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+                        <span style="font-size:13.5px;font-weight:500">{{ r.label }}</span>
+                        <span style="font-size:12px;color:var(--m,#6B7280);font-variant-numeric:tabular-nums">{{ r.val }}</span>
+                      </div>
+                      <div style="height:4px;border-radius:2px;background:var(--hl,rgba(27,31,36,0.06));overflow:hidden"><div style="{{ r.barStyle }}"></div></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isList }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column">
+                  <sc-for list="{{ b.rows }}" as="r" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:baseline;gap:12px;padding:11px 2px;border-bottom:1px solid var(--br,rgba(27,31,36,0.08))">
+                      <div style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+                        <span style="font-size:14px;font-weight:500">{{ r.t }}</span>
+                        <span style="font-size:11.5px;color:var(--m,#6B7280)">{{ r.s }}</span>
+                      </div>
+                      <span style="font-size:12px;color:var(--m,#6B7280);font-variant-numeric:tabular-nums;flex:none">{{ r.r }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isGrid }}" hint-placeholder-val="{{ false }}">
+                <div style="display:inline-flex;flex-wrap:wrap;gap:6px;padding:18px;border-radius:12px;background:var(--s,#FFFFFF);border:1px solid var(--br,rgba(27,31,36,0.08));box-shadow:var(--sh,none);max-width:322px">
+                  <sc-for list="{{ b.dots }}" as="d" hint-placeholder-count="14">
+                    <span style="{{ d.style }}"></span>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isKanban }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start">
+                  <sc-for list="{{ b.cols }}" as="col" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;gap:10px">
+                      <div style="font-size:11.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--m,#6B7280)">{{ col.title }} · {{ col.count }}</div>
+                      <sc-for list="{{ col.cards }}" as="cd" hint-placeholder-count="2">
+                        <div style="padding:13px 15px;border-radius:10px;background:var(--s,#FFFFFF);border:1px solid var(--br,rgba(27,31,36,0.08));box-shadow:var(--sh,none)">
+                          <div style="font-size:13.5px;font-weight:500">{{ cd.t }}</div>
+                          <div style="font-size:11.5px;color:var(--m,#6B7280);margin-top:3px">{{ cd.s }}</div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isCanvas }}" hint-placeholder-val="{{ false }}">
+                <div style="height:200px;border-radius:12px;border:1px solid var(--br,rgba(27,31,36,0.08));background:repeating-linear-gradient(-45deg,var(--hl,rgba(27,31,36,0.04)) 0 14px,transparent 14px 28px);display:flex;align-items:center;justify-content:center">
+                  <span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--m,#6B7280);background:var(--s,#FFFFFF);border:1px solid var(--br,rgba(27,31,36,0.08));padding:5px 12px;border-radius:6px">{{ b.label }}</span>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <h2 style="margin:36px 0 12px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m,#6B7280)">Capabilities</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ mod.features }}" as="ft" hint-placeholder-count="8">
+            <span style="font-size:13px;font-weight:500;padding:7px 13px;border-radius:99px;background:var(--s,#FFFFFF);border:1px solid var(--br,rgba(27,31,36,0.08))">{{ ft }}</span>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ mod.hasAi }}" hint-placeholder-val="{{ false }}">
+          <h2 style="margin:32px 0 12px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m,#6B7280)">The coach might say</h2>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ mod.ai }}" as="q" hint-placeholder-count="2">
+              <p style="margin:0;font-family:'Newsreader',serif;font-style:italic;font-size:16px;line-height:1.5;padding-left:14px;border-left:2px solid var(--br,rgba(27,31,36,0.12))">"{{ q }}"</p>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ── INBOX ── -->
+    <sc-if value="{{ isInbox }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Inbox" style="max-width:760px;margin:0 auto;padding:48px 44px 64px;animation:mfade .35s ease">
+        <h1 style="margin:0;font-family:'Newsreader',serif;font-weight:400;font-size:34px">Inbox</h1>
+        <p style="margin:8px 0 0;font-size:14.5px;color:var(--m,#6B7280)">Everything enters here. The AI classifies it — you confirm.</p>
+
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:22px">
+          <sc-for list="{{ inboxSources }}" as="src" hint-placeholder-count="6">
+            <span style="font-size:11.5px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:99px;background:var(--hl,rgba(27,31,36,0.05));color:var(--m,#6B7280)">{{ src }}</span>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:26px">
+          <sc-for list="{{ inbox }}" as="it" hint-placeholder-count="4">
+            <div style="padding:16px 18px;border-radius:12px;background:var(--s,#FFFFFF);border:1px solid var(--br,rgba(27,31,36,0.08));box-shadow:var(--sh,none)">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--m,#6B7280)">{{ it.src }}</span>
+                <span style="font-size:11px;color:var(--m,#6B7280)">{{ it.when }}</span>
+                <span style="{{ it.tagStyle }}">→ {{ it.tag }}</span>
+              </div>
+              <p style="margin:8px 0 0;font-size:14px;line-height:1.5">{{ it.text }}</p>
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <button style="{{ it.btnStyle }}" onClick="{{ it.file }}">{{ it.btnLabel }}</button>
+                <button style="font-size:12.5px;font-weight:500;padding:6px 14px;border-radius:8px;border:1px solid var(--br,rgba(27,31,36,0.12));background:transparent;color:var(--m,#6B7280);cursor:pointer;font-family:inherit">Reclassify</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ── TIMELINE ── -->
+    <sc-if value="{{ isTimeline }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Timeline" style="max-width:680px;margin:0 auto;padding:48px 44px 64px;animation:mfade .35s ease">
+        <h1 style="margin:0;font-family:'Newsreader',serif;font-weight:400;font-size:34px">Timeline</h1>
+        <p style="margin:8px 0 0;font-size:14.5px;color:var(--m,#6B7280)">One chronological view of your life. Ask the coach anything about it.</p>
+
+        <div style="display:flex;flex-direction:column;margin-top:30px">
+          <sc-for list="{{ timeline }}" as="e" hint-placeholder-count="8">
+            <sc-if value="{{ e.isDay }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m,#6B7280);padding:26px 0 10px">{{ e.label }}</div>
+            </sc-if>
+            <sc-if value="{{ e.isEntry }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:16px">
+                <div style="width:48px;flex:none;text-align:right;font-size:12px;color:var(--m,#6B7280);font-variant-numeric:tabular-nums;padding-top:14px">{{ e.time }}</div>
+                <div style="display:flex;flex-direction:column;align-items:center;flex:none">
+                  <div style="width:1px;flex:1;background:var(--br,rgba(27,31,36,0.1))"></div>
+                  <span style="{{ e.dotStyle }}"></span>
+                  <div style="width:1px;flex:1;background:var(--br,rgba(27,31,36,0.1))"></div>
+                </div>
+                <div style="flex:1;padding:10px 0">
+                  <div style="display:flex;align-items:baseline;gap:10px">
+                    <span style="font-size:14px;font-weight:500">{{ e.t }}</span>
+                    <span style="font-size:11.5px;color:var(--m,#6B7280)">{{ e.tag }}</span>
+                  </div>
+                  <sc-if value="{{ e.note }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:12.5px;color:var(--m,#6B7280);margin-top:2px">{{ e.note }}</div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+
+  <!-- ══════════ AI COACH PANEL ══════════ -->
+  <sc-if value="{{ aiOn }}" hint-placeholder-val="{{ true }}">
+    <aside style="width:312px;flex:none;display:flex;flex-direction:column;border-left:1px solid var(--br,rgba(27,31,36,0.08));background:var(--s,#FFFFFF)">
+      <div style="padding:20px 20px 14px;border-bottom:1px solid var(--br,rgba(27,31,36,0.08));display:flex;align-items:baseline;gap:8px">
+        <span style="font-family:'Newsreader',serif;font-style:italic;font-size:17px">Coach</span>
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--m,#6B7280)">{{ contextLabel }}</span>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ chatMsgs }}" as="msg" hint-placeholder-count="3">
+          <div style="{{ msg.style }}">{{ msg.text }}</div>
+        </sc-for>
+      </div>
+      <div style="padding:14px 16px;border-top:1px solid var(--br,rgba(27,31,36,0.08));display:flex;gap:8px">
+        <input value="{{ chatInput }}" onChange="{{ onChatInput }}" onKeyDown="{{ onChatKey }}" placeholder="Ask about your life…" style="flex:1;min-width:0;font-family:inherit;font-size:13px;padding:9px 12px;border-radius:9px;border:1px solid var(--br,rgba(27,31,36,0.12));background:var(--b,#F3F4F6);color:var(--t,#1B1F24);outline:none">
+        <button onClick="{{ sendChat }}" style="font-family:inherit;font-size:13px;font-weight:600;padding:9px 14px;border-radius:9px;border:none;background:var(--t,#1B1F24);color:var(--b,#F3F4F6);cursor:pointer">↑</button>
+      </div>
+    </aside>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Porcelain&quot;,&quot;Ink&quot;,&quot;Dusk&quot;],&quot;default&quot;:&quot;Porcelain&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Appearance&quot;},&quot;pillarAccents&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Appearance&quot;},&quot;aiPanel&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { page: 'home', focusDone: [false, false, false], filed: {}, chatExtra: [], chatInput: '' };
+
+  themeVars() {
+    var name = this.props.theme ?? 'Porcelain';
+    var T = {
+      Porcelain: { '--b': '#F3F4F6', '--s': '#FFFFFF', '--t': '#1B1F24', '--m': '#6B7280', '--br': 'rgba(27,31,36,0.08)', '--hl': 'rgba(27,31,36,0.045)', '--sh': '0 1px 2px rgba(27,31,36,0.05)' },
+      Ink: { '--b': '#FBFBFC', '--s': '#FBFBFC', '--t': '#17191C', '--m': '#5F656D', '--br': 'rgba(23,25,28,0.16)', '--hl': 'rgba(23,25,28,0.055)', '--sh': 'none' },
+      Dusk: { '--b': '#131519', '--s': '#1B1E24', '--t': '#E7EAEE', '--m': '#8D95A1', '--br': 'rgba(231,234,238,0.09)', '--hl': 'rgba(231,234,238,0.055)', '--sh': '0 1px 3px rgba(0,0,0,0.35)' }
+    }[name] || {};
+    var dark = name === 'Dusk';
+    var L = dark ? 0.74 : 0.55, C = 0.09;
+    var acc = this.props.pillarAccents ?? true;
+    T['--ab'] = 'oklch(' + L + ' ' + C + ' 245)';
+    T['--am'] = acc ? 'oklch(' + L + ' ' + C + ' 305)' : T['--ab'];
+    T['--as'] = acc ? 'oklch(' + L + ' ' + C + ' 165)' : T['--ab'];
+    if (!acc) T['--ab'] = dark ? 'oklch(0.8 0.02 250)' : 'oklch(0.4 0.02 250)', T['--am'] = T['--ab'], T['--as'] = T['--ab'];
+    return T;
+  }
+
+  go(page) { return () => this.setState({ page: page, chatExtra: [] }); }
+
+  dot(accVar, size) {
+    return { width: (size || 7) + 'px', height: (size || 7) + 'px', borderRadius: '99px', background: 'var(' + accVar + ')', flex: 'none', display: 'inline-block' };
+  }
+
+  navStyle(active) {
+    return { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '13.5px', userSelect: 'none',
+      fontWeight: active ? 600 : 500, color: active ? 'var(--t)' : 'var(--m)', background: active ? 'var(--hl)' : 'transparent' };
+  }
+
+  tagStyle(accVar) {
+    return { fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', padding: '3px 9px', borderRadius: '99px', color: 'var(' + accVar + ')', border: '1px solid var(--br)', flex: 'none' };
+  }
+
+  buildBlocks(blocks, accVar) {
+    var A = 'var(' + accVar + ')';
+    return (blocks || []).map(b => {
+      var o = { title: b.title || '', isStats: false, isChart: false, isBars: false, isList: false, isGrid: false, isKanban: false, isCanvas: false };
+      if (b.type === 'stats') { o.isStats = true; o.items = b.items; }
+      if (b.type === 'chart') {
+        var max = Math.max.apply(null, b.vals.map(v => v.v)) || 1;
+        o.isChart = true;
+        o.cols = b.vals.map(v => ({ l: v.l, v: v.d,
+          barStyle: { height: Math.max(4, Math.round(v.v / max * 100)) + '%', width: '100%', maxWidth: '30px', margin: '0 auto', borderRadius: '4px', background: v.v ? A : 'var(--hl)' } }));
+      }
+      if (b.type === 'bars') { o.isBars = true; o.rows = b.rows.map(r => ({ label: r.l, val: r.v,
+        barStyle: { width: Math.min(100, r.p) + '%', height: '100%', borderRadius: '2px', background: A } })); }
+      if (b.type === 'list') { o.isList = true; o.rows = b.rows; }
+      if (b.type === 'grid') { o.isGrid = true; o.dots = b.dots.map(d => ({
+        style: { width: '15px', height: '15px', borderRadius: '4px', background: d ? A : 'var(--hl)', opacity: d ? 0.85 : 1, flex: 'none' } })); }
+      if (b.type === 'kanban') { o.isKanban = true; o.cols = b.cols.map(c => ({ title: c.t, count: c.cards.length, cards: c.cards })); }
+      if (b.type === 'canvas') { o.isCanvas = true; o.label = b.label; }
+      return o;
+    });
+  }
+
+  pillars() {
+    return [
+      { id: 'body', label: 'Body', acc: '--ab', score: 84, tagline: 'Physical health & performance',
+        insight: 'You have enough recovery for tonight\u2019s push day \u2014 keep it under 60 minutes.',
+        note: 'Recovery moderate \u00b7 4/5 sessions',
+        metrics: [
+          { k: 'Weight', v: '78.2 kg', n: '\u22120.4 this week' }, { k: 'Calories', v: '1,840', n: 'of 2,400 kcal' }, { k: 'Hydration', v: '1.6 L', n: 'of 2.5 L target' },
+          { k: 'Sleep', v: '6h 40m', n: 'last night \u00b7 81% quality' }, { k: 'Recovery', v: '72%', n: 'moderate' }, { k: 'Training', v: '4 / 5', n: 'sessions this week' }],
+        modules: [
+          { id: 'training', label: 'Training', purpose: 'Track workouts and become stronger.',
+            features: ['Garmin Integration', 'Strava Integration', 'Manual Workout', 'Workout History', 'Personal Records', 'Exercises', 'Programs', 'Goals', 'Training Calendar', 'Recovery Status', 'AI Training Coach'],
+            ai: ['Increase squat weight next week.', 'You\u2019re overtraining \u2014 take Thursday off.', 'Your running pace improved 8% this month.'],
+            blocks: [
+              { type: 'stats', items: [{ k: 'Volume', v: '12,400 kg', n: 'this week' }, { k: 'Sessions', v: '4 / 5', n: 'this week' }, { k: 'Personal records', v: '2', n: 'this month' }] },
+              { type: 'chart', title: 'Minutes trained \u2014 this week', vals: [{ l: 'Thu', v: 48, d: '48' }, { l: 'Fri', v: 0, d: '\u2014' }, { l: 'Sat', v: 64, d: '64' }, { l: 'Sun', v: 61, d: '61' }, { l: 'Mon', v: 0, d: '\u2014' }, { l: 'Tue', v: 52, d: '52' }, { l: 'Wed', v: 31, d: '31' }] },
+              { type: 'list', title: 'Recent workouts', rows: [
+                { t: 'Push day', s: 'Planned \u00b7 today 18:00', r: '\u2014' },
+                { t: 'Run \u2014 5.2 km', s: 'Today 07:12 \u00b7 via Garmin', r: '5:24 /km' },
+                { t: 'Pull day', s: 'Yesterday \u00b7 52 min', r: 'PR +20 kg' },
+                { t: 'Leg day', s: 'Sunday \u00b7 61 min', r: '14 sets' }] }] },
+          { id: 'nutrition', label: 'Nutrition', purpose: 'Manage everything you eat.',
+            features: ['Calories', 'Macros', 'Meals', 'Water Intake', 'Recipes', 'Healthy Days', 'Meal History', 'Weight Progress', 'Goals', 'Shopping List', 'AI Nutrition Coach'],
+            ai: ['Eat 20g more protein today.', 'You skipped breakfast three days this week.'],
+            blocks: [
+              { type: 'stats', items: [{ k: 'Calories', v: '1,840', n: 'of 2,400 kcal' }, { k: 'Protein', v: '128 g', n: 'of 160 g' }, { k: 'Water', v: '1.6 L', n: 'of 2.5 L' }] },
+              { type: 'bars', title: 'Macros today', rows: [{ l: 'Protein', v: '128 / 160 g', p: 80 }, { l: 'Carbs', v: '210 / 280 g', p: 75 }, { l: 'Fat', v: '58 / 80 g', p: 72 }] },
+              { type: 'list', title: 'Meals', rows: [
+                { t: 'Breakfast \u2014 oats, eggs, berries', s: '08:03', r: '520 kcal' },
+                { t: 'Lunch \u2014 chicken rice bowl', s: '12:30', r: '680 kcal' },
+                { t: 'Snack \u2014 protein shake', s: '15:40', r: '240 kcal' },
+                { t: 'Dinner \u2014 salmon + vegetables', s: 'planned \u00b7 19:30', r: '~640 kcal' }] }] },
+          { id: 'sleep', label: 'Sleep', purpose: 'Protect the third of life that powers the rest.',
+            features: ['Sleep Duration', 'Sleep Quality', 'Recovery', 'Bedtime Consistency', 'Garmin Integration', 'Apple Health', 'AI Sleep Tips'],
+            ai: ['Your bedtime drifted 40 minutes later this week.'],
+            blocks: [
+              { type: 'stats', items: [{ k: 'Last night', v: '6h 40m', n: 'quality 81%' }, { k: 'Bedtime', v: '23:40', n: 'target 23:00' }, { k: '7-day avg', v: '6h 57m', n: 'target 7h 30m' }] },
+              { type: 'chart', title: 'Hours slept \u2014 last 7 nights', vals: [{ l: 'Thu', v: 7.2, d: '7.2' }, { l: 'Fri', v: 6.9, d: '6.9' }, { l: 'Sat', v: 7.5, d: '7.5' }, { l: 'Sun', v: 6.4, d: '6.4' }, { l: 'Mon', v: 7.1, d: '7.1' }, { l: 'Tue', v: 6.8, d: '6.8' }, { l: 'Wed', v: 6.7, d: '6.7' }] },
+              { type: 'bars', title: 'Consistency', rows: [{ l: 'Bedtime consistency', v: '74%', p: 74 }, { l: 'Wake-time consistency', v: '88%', p: 88 }] }] }] },
+      { id: 'mind', label: 'Mind', acc: '--am', score: 76, tagline: 'Productivity & knowledge',
+        insight: 'You\u2019re spending 25% above budget on dining \u2014 want me to adjust July\u2019s plan?',
+        note: '3h 10m deep work \u00b7 8/12 tasks',
+        metrics: [
+          { k: 'Focus time', v: '3h 10m', n: 'deep work today' }, { k: 'Tasks', v: '8 / 12', n: 'done today' }, { k: 'Projects', v: '3 active', n: '1 due Friday' },
+          { k: 'Learning', v: '68%', n: 'AWS SA-C03 course' }, { k: 'Reading', v: 'p. 214', n: 'Deep Work \u00b7 of 296' }, { k: 'Net worth', v: '$48,120', n: '+2.1% this month' }],
+        modules: [
+          { id: 'focus', label: 'Focus', purpose: 'Manage execution.',
+            features: ['Today\u2019s Tasks', 'Priorities', 'Deep Work Sessions', 'Pomodoro', 'Calendar', 'Time Blocking', 'Habits', 'Weekly Planning', 'AI Planner'],
+            ai: ['Schedule one hour for your AWS course today.'],
+            blocks: [
+              { type: 'stats', items: [{ k: 'Deep work', v: '3h 10m', n: 'today' }, { k: 'Pomodoros', v: '6', n: 'today' }, { k: 'Tasks', v: '8 / 12', n: 'done today' }] },
+              { type: 'list', title: 'Today\u2019s tasks', rows: [
+                { t: 'Roadmap draft \u2014 deep work', s: 'Priority 1 \u00b7 09:30\u201311:00', r: '\u2713' },
+                { t: 'AWS course \u2014 module 7', s: 'Priority 2 \u00b7 blocked 20:30', r: '45 min' },
+                { t: 'Review July budget with coach', s: 'Priority 3', r: '15 min' },
+                { t: 'Email accountant', s: 'Admin', r: '\u2713' }] },
+              { type: 'grid', title: 'Habits \u2014 last 4 weeks', dots: [1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1] }] },
+          { id: 'projects', label: 'Projects', purpose: 'Manage ideas and execution.',
+            features: ['Brainstorm', 'Kanban', 'Roadmaps', 'Notes', 'Files', 'Goals', 'Milestones', 'Linked Knowledge', 'AI Project Assistant'],
+            ai: ['Meridian roadmap has no milestone after August \u2014 want to plan one?'],
+            blocks: [
+              { type: 'kanban', title: 'Board', cols: [
+                { t: 'Backlog', cards: [{ t: 'Home gym setup', s: 'Body \u00b7 no deadline' }, { t: 'Blog redesign', s: 'Idea \u00b7 from inbox' }] },
+                { t: 'In progress', cards: [{ t: 'Meridian roadmap', s: 'Milestone due Friday' }, { t: 'AWS certification', s: '68% \u00b7 exam Aug 12' }] },
+                { t: 'Done', cards: [{ t: 'Q2 personal review', s: 'Shipped Jun 28' }, { t: 'Tax filing', s: 'Shipped Jun 14' }] }] }] },
+          { id: 'knowledge', label: 'Knowledge', purpose: 'Second brain, inspired by Obsidian.',
+            features: ['Notes', 'Daily Notes', 'Backlinks', 'Graph View', 'Tags', 'Projects', 'Areas', 'Resources', 'Archive', 'Templates', 'Semantic Search', 'AI Connections'],
+            ai: ['Based on your notes, you\u2019re increasingly interested in AI agents.'],
+            blocks: [
+              { type: 'stats', items: [{ k: 'Notes', v: '1,284', n: 'total' }, { k: 'Backlinks', v: '4,102', n: 'connections' }, { k: 'New notes', v: '17', n: 'this week' }] },
+              { type: 'canvas', title: 'Graph view', label: 'graph view \u00b7 placeholder' },
+              { type: 'list', title: 'Recent notes', rows: [
+                { t: 'Agents as personal infrastructure', s: '#ai \u00b7 4 backlinks', r: '13:05' },
+                { t: 'Weekly review template v3', s: '#systems \u00b7 9 backlinks', r: 'Mon' },
+                { t: 'Zettelkasten pruning rules', s: '#pkm \u00b7 2 backlinks', r: 'Sun' }] }] },
+          { id: 'learning', label: 'Learning', purpose: 'Manage continuous education.',
+            features: ['Courses', 'Books', 'Articles', 'YouTube', 'Podcasts', 'Languages', 'Certificates', 'Flashcards', 'Study Sessions', 'Reading Progress', 'AI Tutor', 'Next Study Session'],
+            ai: ['12 flashcards are due \u2014 five minutes now beats an hour later.'],
+            blocks: [
+              { type: 'stats', items: [{ k: 'Flashcards due', v: '12', n: '~5 minutes' }, { k: 'Study streak', v: '5 days', n: 'current' }, { k: 'Certificates', v: '3', n: 'earned' }] },
+              { type: 'bars', title: 'In progress', rows: [{ l: 'AWS Solutions Architect \u2014 course', v: '68%', p: 68 }, { l: 'Spanish \u2014 B1', v: '34%', p: 34 }, { l: 'Deep Work \u2014 book', v: '72%', p: 72 }] },
+              { type: 'list', title: 'Up next', rows: [
+                { t: 'AWS module 7 \u2014 VPC networking', s: 'Course \u00b7 45 min', r: '20:30' },
+                { t: 'How to Take Smart Notes \u2014 ch. 4', s: 'Book', r: 'queue' },
+                { t: 'Latent Space \u2014 agents episode', s: 'Podcast \u00b7 1h 02m', r: 'queue' }] }] },
+          { id: 'finance', label: 'Finance', purpose: 'Your personal CFO.',
+            features: ['Open Finance Integration', 'Accounts', 'Expenses', 'Income', 'Subscriptions', 'Budgets', 'Bills', 'Savings', 'Investments', 'Net Worth', 'Goals', 'Reports', 'AI Financial Advisor'],
+            ai: ['Three subscriptions went unused in June \u2014 cancel them and save $34/month.'],
+            blocks: [
+              { type: 'stats', items: [{ k: 'Net worth', v: '$48,120', n: '+2.1% this month' }, { k: 'Spent \u2014 July', v: '$312', n: 'of $2,600 budget' }, { k: 'Savings rate', v: '22%', n: 'last 3 months' }] },
+              { type: 'bars', title: 'June budgets', rows: [{ l: 'Dining', v: '$437 / $350 \u00b7 over', p: 125 }, { l: 'Groceries', v: '$520 / $600', p: 87 }, { l: 'Transport', v: '$95 / $150', p: 63 }, { l: 'Subscriptions', v: '$86 / $120', p: 72 }] },
+              { type: 'list', title: 'Recent transactions', rows: [
+                { t: 'Groceries \u2014 Whole Foods', s: 'Today \u00b7 checking', r: '\u2212$63.40' },
+                { t: 'AWS certification exam', s: 'Jul 1 \u00b7 credit', r: '\u2212$150.00' },
+                { t: 'Salary \u2014 Acme Inc.', s: 'Jul 1 \u00b7 checking', r: '+$5,400.00' },
+                { t: 'Spotify', s: 'Jun 29 \u00b7 subscription', r: '\u2212$11.99' }] }] }] },
+      { id: 'spirit', label: 'Spirit', acc: '--as', score: 91, tagline: 'Clarity & emotional wellbeing',
+        insight: 'Your mood dips on days without a morning walk. Tomorrow is clear at 7:00.',
+        note: '12-day meditation streak',
+        metrics: [
+          { k: 'Mood', v: 'Calm', n: '7-day avg 7.8 / 10' }, { k: 'Meditation', v: '12 days', n: 'current streak' }, { k: 'Journal', v: '214', n: 'entries this year' },
+          { k: 'Gratitude', v: '3', n: 'noted today' }, { k: 'Sleep quality', v: '81%', n: 'restful' }, { k: 'Reflection', v: 'Sunday', n: 'weekly review' }],
+        modules: [
+          { id: 'meditation', label: 'Meditation', purpose: 'Train attention and calm.',
+            features: ['Guided Meditation', 'Breathing Exercises', 'Meditation Timer', 'Daily Streak', 'History', 'Goals', 'Mindfulness Tips', 'AI Meditation Coach'],
+            ai: ['Your focus sessions run 23% longer on days you meditate first.'],
+            blocks: [
+              { type: 'stats', items: [{ k: 'Streak', v: '12 days', n: 'best: 21' }, { k: 'This month', v: '4h 20m', n: 'across 24 sessions' }, { k: 'Avg session', v: '11 min', n: 'mostly evenings' }] },
+              { type: 'grid', title: 'Last 28 days', dots: [0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+              { type: 'list', title: 'Recent sessions', rows: [
+                { t: 'Breathing \u2014 box 4-4-4-4', s: 'Yesterday 22:05', r: '10 min' },
+                { t: 'Body scan', s: 'Sunday 21:40', r: '15 min' },
+                { t: 'Unguided timer', s: 'Saturday 22:10', r: '10 min' }] }] },
+          { id: 'journal', label: 'Journal', purpose: 'Capture your life.',
+            features: ['Morning Journal', 'Night Journal', 'Gratitude', 'Daily Reflection', 'Quotes', 'Photos', 'Voice Notes', 'Mood Tracking', 'Life Events', 'AI Reflection'],
+            ai: ['You mentioned \u201cstartup\u201d in 9 entries this month \u2014 want a summary?'],
+            blocks: [
+              { type: 'stats', items: [{ k: 'Entries', v: '214', n: 'this year' }, { k: 'Gratitude streak', v: '9 days', n: '3 noted today' }, { k: 'Words', v: '86k', n: 'this year' }] },
+              { type: 'chart', title: 'Mood \u2014 last 7 days', vals: [{ l: 'Thu', v: 7, d: '7' }, { l: 'Fri', v: 8, d: '8' }, { l: 'Sat', v: 6, d: '6' }, { l: 'Sun', v: 7, d: '7' }, { l: 'Mon', v: 8, d: '8' }, { l: 'Tue', v: 9, d: '9' }, { l: 'Wed', v: 8, d: '8' }] },
+              { type: 'list', title: 'Recent entries', rows: [
+                { t: 'Evening reflection', s: 'Yesterday 21:15 \u00b7 mood 8/10', r: '412 words' },
+                { t: 'Morning pages', s: 'Yesterday 07:40', r: '230 words' },
+                { t: 'On the startup idea', s: 'Sunday \u00b7 #startup', r: '688 words' }] }] },
+          { id: 'ssleep', label: 'Sleep & Rest', purpose: 'Sleep as it affects the mind.',
+            features: ['Sleep Journal', 'Dream Notes', 'Sleep Tips', 'Recovery', 'Consistency', 'AI Suggestions'],
+            ai: ['Journaling before bed correlates with your best sleep scores.'],
+            blocks: [
+              { type: 'stats', items: [{ k: 'Consistency', v: '74%', n: 'bedtime' }, { k: 'Dream notes', v: '23', n: 'this year' }, { k: 'Wind-down', v: '32 min', n: 'avg before bed' }] },
+              { type: 'list', title: 'Sleep journal', rows: [
+                { t: 'Woke rested \u2014 vivid dream about sailing', s: 'Today \u00b7 dream note', r: '81%' },
+                { t: 'Late screens, restless first hour', s: 'Monday', r: '64%' },
+                { t: 'Best night in weeks after leg day', s: 'Sunday', r: '89%' }] },
+              { type: 'bars', title: 'Recovery signals', rows: [{ l: 'Journaling before bed \u2192 sleep quality', v: '+9%', p: 72 }, { l: 'Screens after 22:00 \u2192 sleep quality', v: '\u22127%', p: 38 }] }] }] }
+    ];
+  }
+
+  coachFor(page) {
+    var byKey = {
+      home: ['You slept 6h 40m \u2014 50 minutes under target. I moved your deep-work block to the morning, while focus is highest.', 'One free hour at 20:30 \u2014 enough to finish AWS module 7.'],
+      inbox: ['5 items arrived since this morning. I classified all of them \u2014 two are high-confidence, just confirm.'],
+      timeline: ['Try asking: \u201cWhich habits correlate with my productive days?\u201d or \u201cWhat was my best training month?\u201d'],
+      body: ['Recovery is at 72% \u2014 green light for push day at 18:00.', 'Hydration is behind pace. 900 ml before your workout.'],
+      mind: ['Your deep-work average rose 18 minutes this week.', 'Dining spend is 25% over budget \u2014 I drafted an adjusted July plan.'],
+      spirit: ['Day 12 of your meditation streak. Evenings after 21:30 have your highest completion rate.']
+    };
+    var key = page.split('.')[0];
+    return byKey[page] || byKey[key] || ['I\u2019m watching this area \u2014 log a few days of data and I\u2019ll start finding patterns.'];
+  }
+
+  renderVals() {
+    var page = this.state.page;
+    var Ps = this.pillars();
+    var vars = this.themeVars();
+
+    var rootStyle = Object.assign({ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--b)', color: 'var(--t)', fontFamily: "'Instrument Sans',system-ui,sans-serif", WebkitFontSmoothing: 'antialiased' }, vars);
+
+    var topNav = [
+      { id: 'home', label: 'Home', glyph: '\u2302' },
+      { id: 'inbox', label: 'Inbox', glyph: '\u25E9', badge: '5' },
+      { id: 'timeline', label: 'Timeline', glyph: '\u2261' }
+    ].map(n => Object.assign(n, { style: this.navStyle(page === n.id), go: this.go(n.id) }));
+
+    var navPillars = Ps.map(p => ({
+      label: p.label, score: p.score, go: this.go(p.id),
+      headStyle: Object.assign(this.navStyle(page === p.id), { fontWeight: 600, color: page === p.id ? 'var(--t)' : 'var(--t)' }),
+      dotStyle: this.dot(p.acc),
+      modules: p.modules.map(m => ({ label: m.label, go: this.go(p.id + '.' + m.id), style: this.navStyle(page === p.id + '.' + m.id) }))
+    }));
+
+    var scores = Ps.map(p => ({
+      label: p.label, score: p.score, note: p.note, go: this.go(p.id), dotStyle: this.dot(p.acc),
+      cardStyle: { padding: '18px 20px', borderRadius: '14px', background: 'var(--s)', border: '1px solid var(--br)', boxShadow: 'var(--sh)', cursor: 'pointer' },
+      barStyle: { width: p.score + '%', height: '100%', borderRadius: '2px', background: 'var(' + p.acc + ')' }
+    }));
+
+    var focusData = [
+      { t: 'Push day workout', s: 'Body \u00b7 18:00 \u00b7 gym' },
+      { t: 'Finish AWS course \u2014 module 7', s: 'Mind \u00b7 ~45 min' },
+      { t: 'Meditate 10 minutes', s: 'Spirit \u00b7 before bed' }
+    ];
+    var focus = focusData.map((f, i) => {
+      var done = this.state.focusDone[i];
+      return { t: f.t, s: f.s, mark: done ? '\u2713' : '',
+        toggle: () => { var d = this.state.focusDone.slice(); d[i] = !d[i]; this.setState({ focusDone: d }); },
+        checkStyle: { width: '18px', height: '18px', flex: 'none', borderRadius: '99px', border: '1.5px solid ' + (done ? 'transparent' : 'var(--br)'), background: done ? 'var(--t)' : 'transparent', color: 'var(--b)', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+        textStyle: { fontSize: '14px', fontWeight: 500, textDecoration: done ? 'line-through' : 'none', opacity: done ? 0.45 : 1 } };
+    });
+
+    var accOf = { Body: '--ab', Mind: '--am', Spirit: '--as' };
+    var activity = [
+      { time: '07:12', t: 'Morning run \u2014 5.2 km', p: 'Body' },
+      { time: '08:03', t: 'Logged breakfast \u2014 520 kcal', p: 'Body' },
+      { time: '09:30', t: 'Deep work \u2014 90 min, roadmap draft', p: 'Mind' },
+      { time: '12:41', t: 'Expense \u2014 groceries $63.40', p: 'Mind' },
+      { time: '13:05', t: 'Note \u2014 \u201cagents as personal infrastructure\u201d', p: 'Mind' }
+    ].map(a => Object.assign(a, { dotStyle: this.dot(accOf[a.p], 6) }));
+
+    var upcoming = [
+      { t: 'Push day \u2014 gym', s: 'Today \u00b7 18:00', tag: 'Body' },
+      { t: 'AWS course \u00b7 module 7', s: 'Today \u00b7 20:30', tag: 'Mind' },
+      { t: 'Wind-down + meditation', s: 'Today \u00b7 22:00', tag: 'Spirit' },
+      { t: 'Morning walk', s: 'Tomorrow \u00b7 07:00', tag: 'Spirit' }
+    ].map(u => Object.assign(u, { tagStyle: this.tagStyle(accOf[u.tag]) }));
+
+    var pillarObj = Ps.find(p => p.id === page);
+    var pillar = pillarObj ? {
+      label: pillarObj.label, tagline: pillarObj.tagline, score: pillarObj.score, insight: pillarObj.insight, metrics: pillarObj.metrics,
+      barStyle: { width: pillarObj.score + '%', height: '100%', borderRadius: '2px', background: 'var(' + pillarObj.acc + ')' },
+      modules: pillarObj.modules.map(m => ({ label: m.label, purpose: m.purpose, count: m.features.length, go: this.go(pillarObj.id + '.' + m.id) }))
+    } : { metrics: [], modules: [] };
+
+    var mod = { features: [], ai: [], blocks: [] };
+    var isModule = false;
+    if (page.indexOf('.') > -1) {
+      var pid = page.split('.')[0], mid = page.split('.')[1];
+      var pp = Ps.find(p => p.id === pid);
+      var mm = pp && pp.modules.find(m => m.id === mid);
+      if (mm) {
+        isModule = true;
+        mod = { label: mm.label, purpose: mm.purpose, features: mm.features, ai: mm.ai, hasAi: mm.ai.length > 0,
+          blocks: this.buildBlocks(mm.blocks, pp.acc), pillarLabel: pp.label, back: this.go(pid) };
+      }
+    }
+
+    var inboxData = [
+      { src: 'WhatsApp', when: '14:22', text: '\u201cbench 5\u00d75 @ 80 kg, felt strong\u201d', tag: 'Training', p: 'Body' },
+      { src: 'Email', when: '13:50', text: 'Receipt \u2014 AWS certification exam, $150.00', tag: 'Expense', p: 'Mind' },
+      { src: 'Voice', when: '11:34', text: '\u201cIdea: the weekly review could auto-draft itself from my journal\u201d', tag: 'Idea', p: 'Mind' },
+      { src: 'Garmin', when: '07:58', text: 'Sleep sync \u2014 6h 40m, quality 81%', tag: 'Sleep', p: 'Body' },
+      { src: 'Manual', when: '07:31', text: 'Buy protein powder', tag: 'Task', p: 'Mind' }
+    ];
+    var inbox = inboxData.map((it, i) => {
+      var filed = this.state.filed[i];
+      return Object.assign({}, it, {
+        tagStyle: this.tagStyle(accOf[it.p]),
+        btnLabel: filed ? 'Filed \u2713' : 'File to ' + it.tag,
+        file: () => this.setState(s => ({ filed: Object.assign({}, s.filed, { [i]: true }) })),
+        btnStyle: { fontSize: '12.5px', fontWeight: 600, padding: '6px 14px', borderRadius: '8px', border: 'none', cursor: filed ? 'default' : 'pointer', fontFamily: 'inherit', background: filed ? 'var(--hl)' : 'var(--t)', color: filed ? 'var(--m)' : 'var(--b)' }
+      });
+    });
+
+    var tl = [
+      { day: 'Today \u2014 Wednesday, July 2' },
+      { time: '06:45', t: 'Woke up', tag: 'Body', note: 'Sleep 6h 40m \u00b7 quality 81%' },
+      { time: '07:12', t: 'Morning run \u2014 5.2 km', tag: 'Body', note: 'Pace 5:24 /km \u00b7 via Garmin' },
+      { time: '08:03', t: 'Breakfast \u2014 520 kcal', tag: 'Body' },
+      { time: '09:30', t: 'Deep work \u2014 roadmap draft', tag: 'Mind', note: '90 minutes, no interruptions' },
+      { time: '12:41', t: 'Groceries \u2014 $63.40', tag: 'Mind' },
+      { time: '13:05', t: 'Note \u2014 \u201cagents as personal infrastructure\u201d', tag: 'Mind' },
+      { day: 'Yesterday \u2014 Tuesday, July 1' },
+      { time: '18:10', t: 'Pull day \u2014 52 min', tag: 'Body', note: 'New PR: weighted pull-up +20 kg' },
+      { time: '21:15', t: 'Journal \u2014 evening reflection', tag: 'Spirit', note: 'Mood 8/10' },
+      { time: '22:05', t: 'Meditation \u2014 10 min', tag: 'Spirit', note: 'Streak day 12' }
+    ];
+    var timeline = tl.map(e => e.day
+      ? { isDay: true, isEntry: false, label: e.day }
+      : Object.assign({ isDay: false, isEntry: true, dotStyle: this.dot(accOf[e.tag], 7) }, e));
+
+    var coachBase = this.coachFor(page).map(t => ({ text: t, mine: false }));
+    var msgs = coachBase.concat(this.state.chatExtra);
+    var chatMsgs = msgs.map(m => ({ text: m.text,
+      style: m.mine
+        ? { alignSelf: 'flex-end', maxWidth: '86%', fontSize: '13px', lineHeight: 1.5, padding: '9px 13px', borderRadius: '12px 12px 3px 12px', background: 'var(--t)', color: 'var(--b)' }
+        : { alignSelf: 'flex-start', maxWidth: '92%', fontSize: '13px', lineHeight: 1.55, padding: '10px 13px', borderRadius: '3px 12px 12px 12px', background: 'var(--hl)', border: '1px solid var(--br)' } }));
+
+    var send = () => {
+      var v = this.state.chatInput.trim();
+      if (!v) return;
+      this.setState(s => ({ chatExtra: s.chatExtra.concat([{ text: v, mine: true }]), chatInput: '' }));
+      setTimeout(() => this.setState(s => ({ chatExtra: s.chatExtra.concat([{ text: 'Noted \u2014 I\u2019ve factored that in. I\u2019ll surface anything relevant from your timeline as patterns emerge.', mine: false }]) })), 650);
+    };
+
+    var labels = { home: 'Today', inbox: 'Inbox', timeline: 'Timeline' };
+    var contextLabel = labels[page] || (isModule ? mod.label : (pillarObj ? pillarObj.label : 'Today'));
+
+    return {
+      rootStyle, topNav, navPillars,
+      isHome: page === 'home', isPillar: !!pillarObj, isModule, isInbox: page === 'inbox', isTimeline: page === 'timeline',
+      scores, focus, activity, upcoming,
+      homeQuote: 'Protect the 20:30 slot tonight \u2014 finishing module 7 puts the certification two weeks ahead of plan.',
+      pillar, mod,
+      inboxSources: ['WhatsApp', 'Email', 'Voice', 'Manual', 'API', 'Garmin', 'Strava', 'Open Finance'],
+      inbox, timeline,
+      aiOn: this.props.aiPanel ?? true,
+      contextLabel, chatMsgs,
+      chatInput: this.state.chatInput,
+      onChatInput: e => this.setState({ chatInput: e.target.value }),
+      onChatKey: e => { if (e.key === 'Enter') send(); },
+      sendChat: send
+    };
+  }
+}
+</script>
+</body>
+</html>

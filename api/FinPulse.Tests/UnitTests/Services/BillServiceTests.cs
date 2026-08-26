@@ -24,14 +24,13 @@ public class BillServiceTests : ServiceTestBase
         var userId = 1;
         var request = new CreateBillRequest
         {
-            BillName = "Electric Bill",
+            Name = "Electric Bill",
             Category = "Utilities",
             PaymentMethod = "Bank Transfer",
             Amount = 150.00m,
             CurrencyCode = "USD",
-            DueDate = DateTime.UtcNow.AddDays(15),
+            DueDay = 15,
             RecurrenceType = "Monthly",
-            RecurrenceInterval = 1,
             Description = "Monthly electric bill"
         };
 
@@ -42,10 +41,10 @@ public class BillServiceTests : ServiceTestBase
         result.Should().NotBeNull();
         result.Id.Should().BeGreaterThan(0);
         result.UserId.Should().Be(userId);
-        result.BillName.Should().Be(request.BillName);
+        result.Name.Should().Be(request.Name);
         result.Category.Should().Be(request.Category);
         result.Amount.Should().Be(request.Amount);
-        result.DueDate.Should().Be(request.DueDate);
+        result.DueDay.Should().Be(request.DueDay);
         result.RecurrenceType.Should().Be(request.RecurrenceType);
 
         var bill = await Context.Bills.FindAsync(result.Id);
@@ -104,43 +103,42 @@ public class BillServiceTests : ServiceTestBase
     }
 
     [Fact]
-    public async Task GetUserBillsAsync_FiltersByDateRange()
+    public async Task GetUserBillsAsync_FiltersByYearAndMonth()
     {
         // Arrange
         var userId = 1;
-        var startDate = new DateTime(2024, 1, 1);
-        var endDate = new DateTime(2024, 1, 31);
 
-        var billInRange = new BillBuilder()
+        var billActiveInMonth = new BillBuilder()
             .WithUserId(userId)
-            .WithDueDate(new DateTime(2024, 1, 15))
+            .WithCreatedAt(new DateTime(2024, 1, 1))
+            .WithEndDate(null)
             .Build();
-        var billBeforeRange = new BillBuilder()
+        var billCreatedAfterMonth = new BillBuilder()
             .WithUserId(userId)
-            .WithDueDate(new DateTime(2023, 12, 31))
+            .WithCreatedAt(new DateTime(2024, 3, 1))
             .Build();
-        var billAfterRange = new BillBuilder()
+        var billEndedBeforeMonth = new BillBuilder()
             .WithUserId(userId)
-            .WithDueDate(new DateTime(2024, 2, 1))
+            .WithCreatedAt(new DateTime(2023, 1, 1))
+            .WithEndDate(new DateTime(2023, 12, 31))
             .Build();
 
-        await Context.Bills.AddRangeAsync(billInRange, billBeforeRange, billAfterRange);
+        await Context.Bills.AddRangeAsync(billActiveInMonth, billCreatedAfterMonth, billEndedBeforeMonth);
         await Context.SaveChangesAsync();
 
         // Act
-        var result = await _sut.GetUserBillsAsync(userId, startDate, endDate);
+        var result = await _sut.GetUserBillsAsync(userId, year: 2024, month: 1);
 
         // Assert
         result.Should().HaveCount(1);
-        result[0].Id.Should().Be(billInRange.Id);
+        result[0].Id.Should().Be(billActiveInMonth.Id);
     }
 
     [Fact]
-    public async Task GetUserBillsAsync_FiltersByCategory()
+    public async Task GetUserBillsAsync_ReturnsCorrectCategoryPerBill()
     {
         // Arrange
         var userId = 1;
-        var category = "Utilities";
 
         var utilityBill = new BillBuilder()
             .WithUserId(userId)
@@ -155,65 +153,49 @@ public class BillServiceTests : ServiceTestBase
         await Context.SaveChangesAsync();
 
         // Act
-        var result = await _sut.GetUserBillsAsync(userId, category: category);
+        var result = await _sut.GetUserBillsAsync(userId);
 
         // Assert
-        result.Should().HaveCount(1);
-        result[0].Category.Should().Be("Utilities");
+        result.Should().HaveCount(2);
+        result.Should().Contain(b => b.Id == utilityBill.Id && b.Category == "Utilities");
+        result.Should().Contain(b => b.Id == insuranceBill.Id && b.Category == "Insurance");
     }
 
     [Fact]
-    public async Task GetUserBillsAsync_FiltersByPaidStatus_ReturnsOnlyPaidBills()
+    public async Task GetUserBillsAsync_ComputesPaidThisMonth_WhenMatchingExpenseExistsInMonth()
     {
         // Arrange
         var userId = 1;
+        var now = DateTime.UtcNow;
 
         var paidBill = new BillBuilder()
             .WithUserId(userId)
-            .AsPaid(DateTime.UtcNow)
+            .WithName("Electric Bill")
             .Build();
         var unpaidBill = new BillBuilder()
             .WithUserId(userId)
-            .AsUnpaid()
+            .WithName("Water Bill")
             .Build();
 
         await Context.Bills.AddRangeAsync(paidBill, unpaidBill);
+
+        var matchingExpense = new ExpenseBuilder()
+            .WithUserId(userId)
+            .WithDescription("Electric Bill")
+            .WithExpenseDate(now)
+            .Build();
+        await Context.Expenses.AddAsync(matchingExpense);
         await Context.SaveChangesAsync();
 
         // Act
-        var result = await _sut.GetUserBillsAsync(userId, paid: true);
+        var result = await _sut.GetUserBillsAsync(userId, now.Year, now.Month);
 
         // Assert
-        result.Should().HaveCount(1);
-        result[0].Id.Should().Be(paidBill.Id);
-        result[0].PaidDate.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task GetUserBillsAsync_FiltersByPaidStatus_ReturnsOnlyUnpaidBills()
-    {
-        // Arrange
-        var userId = 1;
-
-        var paidBill = new BillBuilder()
-            .WithUserId(userId)
-            .AsPaid(DateTime.UtcNow)
-            .Build();
-        var unpaidBill = new BillBuilder()
-            .WithUserId(userId)
-            .AsUnpaid()
-            .Build();
-
-        await Context.Bills.AddRangeAsync(paidBill, unpaidBill);
-        await Context.SaveChangesAsync();
-
-        // Act
-        var result = await _sut.GetUserBillsAsync(userId, paid: false);
-
-        // Assert
-        result.Should().HaveCount(1);
-        result[0].Id.Should().Be(unpaidBill.Id);
-        result[0].PaidDate.Should().BeNull();
+        result.Should().HaveCount(2);
+        result.Single(b => b.Id == paidBill.Id).PaidThisMonth.Should().BeTrue();
+        result.Single(b => b.Id == paidBill.Id).PaidDate.Should().NotBeNull();
+        result.Single(b => b.Id == unpaidBill.Id).PaidThisMonth.Should().BeFalse();
+        result.Single(b => b.Id == unpaidBill.Id).PaidDate.Should().BeNull();
     }
 
     [Fact]
@@ -240,7 +222,7 @@ public class BillServiceTests : ServiceTestBase
         var userId = 1;
         var bill = new BillBuilder()
             .WithUserId(userId)
-            .WithBillName("Electric Bill")
+            .WithName("Electric Bill")
             .WithAmount(150.00m)
             .Build();
         await Context.Bills.AddAsync(bill);
@@ -248,10 +230,9 @@ public class BillServiceTests : ServiceTestBase
 
         var request = new UpdateBillRequest
         {
-            BillName = "Updated Electric Bill",
+            Name = "Updated Electric Bill",
             Amount = 200.00m,
-            Description = "Updated description",
-            PaidDate = DateTime.UtcNow
+            Description = "Updated description"
         };
 
         // Act
@@ -259,13 +240,12 @@ public class BillServiceTests : ServiceTestBase
 
         // Assert
         result.Should().NotBeNull();
-        result!.BillName.Should().Be("Updated Electric Bill");
+        result!.Name.Should().Be("Updated Electric Bill");
         result.Amount.Should().Be(200.00m);
         result.Description.Should().Be("Updated description");
-        result.PaidDate.Should().NotBeNull();
 
         var updatedBill = await Context.Bills.FindAsync(bill.Id);
-        updatedBill!.BillName.Should().Be("Updated Electric Bill");
+        updatedBill!.Name.Should().Be("Updated Electric Bill");
         updatedBill.Amount.Should().Be(200.00m);
     }
 

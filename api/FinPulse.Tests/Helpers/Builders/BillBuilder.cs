@@ -17,13 +17,13 @@ public class BillBuilder
         {
             Id = 0, // Let EF Core auto-generate
             UserId = _faker.Random.Int(1, 100),
-            BillName = _faker.PickRandom(new[] { "Electric Bill", "Water Bill", "Internet Bill", "Rent", "Insurance Premium" }),
+            Name = _faker.PickRandom(new[] { "Electric Bill", "Water Bill", "Internet Bill", "Rent", "Insurance Premium" }),
             Category = _faker.PickRandom(new[] { "Utilities", "Rent", "Insurance", "Subscription", "Loan" }),
             Amount = _faker.Finance.Amount(50, 1000),
             CurrencyCode = "USD",
             Description = _faker.Lorem.Sentence(),
-            DueDate = _faker.Date.Future(1),
-            PaidDate = null,
+            DueDay = (byte)_faker.Random.Int(1, 28),
+            IsRecurrent = true,
             RecurrenceType = _faker.PickRandom(new string?[] { null, "Monthly", "Quarterly", "Yearly" }),
             CreatedAt = DateTime.UtcNow,
             Status = 1 // Active
@@ -42,9 +42,9 @@ public class BillBuilder
         return this;
     }
 
-    public BillBuilder WithBillName(string billName)
+    public BillBuilder WithName(string name)
     {
-        _bill.BillName = billName;
+        _bill.Name = name;
         return this;
     }
 
@@ -72,21 +72,15 @@ public class BillBuilder
         return this;
     }
 
-    public BillBuilder WithDueDate(DateTime dueDate)
+    public BillBuilder WithDueDay(byte dueDay)
     {
-        _bill.DueDate = dueDate;
+        _bill.DueDay = dueDay;
         return this;
     }
 
-    public BillBuilder AsPaid(DateTime? paidDate = null)
+    public BillBuilder WithEndDate(DateTime? endDate)
     {
-        _bill.PaidDate = paidDate ?? DateTime.UtcNow;
-        return this;
-    }
-
-    public BillBuilder AsUnpaid()
-    {
-        _bill.PaidDate = null;
+        _bill.EndDate = endDate;
         return this;
     }
 

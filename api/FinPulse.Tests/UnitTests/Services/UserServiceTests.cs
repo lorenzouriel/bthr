@@ -38,7 +38,6 @@ public class UserServiceTests : ServiceTestBase
         // Assert
         result.Should().NotBeNull();
         result.UserId.Should().BeGreaterThan(0);
-        result.Password.Should().Be(request.Password);
 
         var user = await Context.Users.FindAsync(result.UserId);
         user.Should().NotBeNull();

@@ -45,4 +45,13 @@ public class User
     public virtual ICollection<Budget> Budgets { get; set; } = new List<Budget>();
     public virtual ICollection<Goal> Goals { get; set; } = new List<Goal>();
     public virtual ICollection<Investment> Investments { get; set; } = new List<Investment>();
+    public virtual ICollection<WeeklyRoutine> WeeklyRoutines { get; set; } = new List<WeeklyRoutine>();
+    public virtual ICollection<Workout> Workouts { get; set; } = new List<Workout>();
+    public virtual ICollection<PersonalRecord> PersonalRecords { get; set; } = new List<PersonalRecord>();
+    public virtual ICollection<Meal> Meals { get; set; } = new List<Meal>();
+    public virtual ICollection<WaterIntake> WaterIntakes { get; set; } = new List<WaterIntake>();
+    public virtual ICollection<BodyMetric> BodyMetrics { get; set; } = new List<BodyMetric>();
+    public virtual ICollection<SleepLog> SleepLogs { get; set; } = new List<SleepLog>();
+    public virtual ICollection<MeditationSession> MeditationSessions { get; set; } = new List<MeditationSession>();
+    public virtual ICollection<JournalEntry> JournalEntries { get; set; } = new List<JournalEntry>();
 }

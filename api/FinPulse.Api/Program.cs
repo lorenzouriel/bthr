@@ -126,6 +126,15 @@ builder.Services.AddScoped<IBillService, BillService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<IGoalService, GoalService>();
 builder.Services.AddScoped<IInvestmentService, InvestmentService>();
+builder.Services.AddScoped<IWeeklyRoutineService, WeeklyRoutineService>();
+builder.Services.AddScoped<IWorkoutService, WorkoutService>();
+builder.Services.AddScoped<IPersonalRecordService, PersonalRecordService>();
+builder.Services.AddScoped<IMealService, MealService>();
+builder.Services.AddScoped<IWaterIntakeService, WaterIntakeService>();
+builder.Services.AddScoped<IBodyMetricService, BodyMetricService>();
+builder.Services.AddScoped<ISleepLogService, SleepLogService>();
+builder.Services.AddScoped<IMeditationSessionService, MeditationSessionService>();
+builder.Services.AddScoped<IJournalEntryService, JournalEntryService>();
 
 // Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();

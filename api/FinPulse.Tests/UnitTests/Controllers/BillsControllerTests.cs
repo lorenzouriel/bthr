@@ -30,16 +30,16 @@ public class BillsControllerTests : ControllerTestBase
 
         var expectedBills = new List<BillResponse>
         {
-            new BillResponse { Id = 1, UserId = userId, BillName = "Electric Bill", Category = "Utilities", Amount = 100.00m, PaidDate = null },
-            new BillResponse { Id = 2, UserId = userId, BillName = "Rent Payment", Category = "Rent", Amount = 1500.00m, PaidDate = DateTime.UtcNow }
+            new BillResponse { Id = 1, UserId = userId, Name = "Electric Bill", Category = "Utilities", Amount = 100.00m },
+            new BillResponse { Id = 2, UserId = userId, Name = "Rent Payment", Category = "Rent", Amount = 1500.00m }
         };
 
         _billServiceMock
-            .Setup(x => x.GetUserBillsAsync(userId, null, null, null, null))
+            .Setup(x => x.GetUserBillsAsync(userId, null, null))
             .ReturnsAsync(expectedBills);
 
         // Act
-        var result = await _sut.GetBills(userId);
+        var result = await _sut.GetBills(userId, null, null);
 
         // Assert
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
@@ -54,35 +54,33 @@ public class BillsControllerTests : ControllerTestBase
         SetupControllerContext(_sut, userId: 1);
 
         // Act
-        var result = await _sut.GetBills(userId: 2);
+        var result = await _sut.GetBills(userId: 2, year: null, month: null);
 
         // Assert
         result.Should().BeOfType<ForbidResult>();
     }
 
     [Fact]
-    public async Task GetBills_WithFilters_Returns200OkWithFilteredBills()
+    public async Task GetBills_WithYearAndMonth_Returns200OkWithFilteredBills()
     {
         // Arrange
         const int userId = 1;
         SetupControllerContext(_sut, userId);
 
-        var startDate = new DateTime(2024, 1, 1);
-        var endDate = new DateTime(2024, 12, 31);
-        const string category = "Utilities";
-        const bool paid = false;
+        const int year = 2024;
+        const int month = 6;
 
         var expectedBills = new List<BillResponse>
         {
-            new BillResponse { Id = 1, UserId = userId, BillName = "Utility Bill", Category = category, Amount = 100.00m, PaidDate = null }
+            new BillResponse { Id = 1, UserId = userId, Name = "Utility Bill", Category = "Utilities", Amount = 100.00m }
         };
 
         _billServiceMock
-            .Setup(x => x.GetUserBillsAsync(userId, startDate, endDate, category, paid))
+            .Setup(x => x.GetUserBillsAsync(userId, year, month))
             .ReturnsAsync(expectedBills);
 
         // Act
-        var result = await _sut.GetBills(userId, startDate, endDate, category, paid);
+        var result = await _sut.GetBills(userId, year, month);
 
         // Assert
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
@@ -97,11 +95,11 @@ public class BillsControllerTests : ControllerTestBase
         SetupControllerContext(_sut, userId);
 
         _billServiceMock
-            .Setup(x => x.GetUserBillsAsync(userId, null, null, null, null))
+            .Setup(x => x.GetUserBillsAsync(userId, null, null))
             .ReturnsAsync(new List<BillResponse>());
 
         // Act
-        var result = await _sut.GetBills(userId);
+        var result = await _sut.GetBills(userId, null, null);
 
         // Assert
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
@@ -122,28 +120,26 @@ public class BillsControllerTests : ControllerTestBase
 
         var request = new CreateBillRequest
         {
-            BillName = "Electric Bill",
+            Name = "Electric Bill",
             Category = "Utilities",
             PaymentMethod = "Bank Transfer",
             CurrencyCode = "USD",
             Amount = 100.00m,
             Description = "Electric bill",
-            DueDate = DateTime.UtcNow.AddDays(7),
-            PaidDate = null
+            DueDay = 15
         };
 
         var expectedResponse = new BillResponse
         {
             Id = 1,
             UserId = userId,
-            BillName = request.BillName,
+            Name = request.Name,
             Category = request.Category,
             PaymentMethod = request.PaymentMethod,
             CurrencyCode = request.CurrencyCode,
             Amount = request.Amount,
             Description = request.Description,
-            DueDate = request.DueDate,
-            PaidDate = request.PaidDate
+            DueDay = request.DueDay
         };
 
         _billServiceMock
@@ -167,13 +163,12 @@ public class BillsControllerTests : ControllerTestBase
 
         var request = new CreateBillRequest
         {
-            BillName = "Electric Bill",
+            Name = "Electric Bill",
             Category = "Utilities",
             PaymentMethod = "Bank Transfer",
             CurrencyCode = "USD",
             Amount = 100.00m,
-            DueDate = DateTime.UtcNow.AddDays(7),
-            PaidDate = null
+            DueDay = 15
         };
 
         // Act
@@ -197,18 +192,16 @@ public class BillsControllerTests : ControllerTestBase
 
         var request = new UpdateBillRequest
         {
-            Amount = 150.00m,
-            PaidDate = DateTime.UtcNow
+            Amount = 150.00m
         };
 
         var expectedResponse = new BillResponse
         {
             Id = billId,
             UserId = userId,
-            BillName = "Electric Bill",
+            Name = "Electric Bill",
             Category = "Utilities",
-            Amount = 150.00m,
-            PaidDate = DateTime.UtcNow
+            Amount = 150.00m
         };
 
         _billServiceMock
@@ -232,7 +225,7 @@ public class BillsControllerTests : ControllerTestBase
 
         var request = new UpdateBillRequest
         {
-            PaidDate = DateTime.UtcNow
+            Amount = 150.00m
         };
 
         // Act
@@ -252,7 +245,7 @@ public class BillsControllerTests : ControllerTestBase
 
         var request = new UpdateBillRequest
         {
-            PaidDate = DateTime.UtcNow
+            Amount = 150.00m
         };
 
         _billServiceMock
@@ -277,7 +270,7 @@ public class BillsControllerTests : ControllerTestBase
 
         var request = new UpdateBillRequest
         {
-            PaidDate = DateTime.UtcNow
+            Amount = 150.00m
         };
 
         _billServiceMock
@@ -289,6 +282,62 @@ public class BillsControllerTests : ControllerTestBase
 
         // Assert
         result.Should().BeOfType<ForbidResult>();
+    }
+
+    #endregion
+
+    #region DeleteBill Tests
+
+    [Fact]
+    public async Task DeleteBill_WhenUserOwnsResourceAndBillExists_Returns200Ok()
+    {
+        // Arrange
+        const int userId = 1;
+        const int billId = 1;
+        SetupControllerContext(_sut, userId);
+
+        _billServiceMock
+            .Setup(x => x.DeleteBillAsync(userId, billId))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _sut.DeleteBill(userId, billId);
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
+    }
+
+    [Fact]
+    public async Task DeleteBill_WhenUserDoesNotOwnResource_Returns403Forbidden()
+    {
+        // Arrange
+        SetupControllerContext(_sut, userId: 1);
+
+        // Act
+        var result = await _sut.DeleteBill(userId: 2, billId: 1);
+
+        // Assert
+        result.Should().BeOfType<ForbidResult>();
+    }
+
+    [Fact]
+    public async Task DeleteBill_WhenBillDoesNotExist_Returns404NotFound()
+    {
+        // Arrange
+        const int userId = 1;
+        const int billId = 999;
+        SetupControllerContext(_sut, userId);
+
+        _billServiceMock
+            .Setup(x => x.DeleteBillAsync(userId, billId))
+            .ReturnsAsync(false);
+
+        // Act
+        var result = await _sut.DeleteBill(userId, billId);
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
     }
 
     #endregion

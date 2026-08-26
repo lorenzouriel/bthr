@@ -17,6 +17,15 @@ public class ApplicationDbContext : DbContext
     public DbSet<Budget> Budgets { get; set; }
     public DbSet<Goal> Goals { get; set; }
     public DbSet<Investment> Investments { get; set; }
+    public DbSet<WeeklyRoutine> WeeklyRoutines { get; set; }
+    public DbSet<Workout> Workouts { get; set; }
+    public DbSet<PersonalRecord> PersonalRecords { get; set; }
+    public DbSet<Meal> Meals { get; set; }
+    public DbSet<WaterIntake> WaterIntakes { get; set; }
+    public DbSet<BodyMetric> BodyMetrics { get; set; }
+    public DbSet<SleepLog> SleepLogs { get; set; }
+    public DbSet<MeditationSession> MeditationSessions { get; set; }
+    public DbSet<JournalEntry> JournalEntries { get; set; }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -93,6 +102,96 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
             entity.HasOne(e => e.User)
                   .WithMany(u => u.Investments)
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // WeeklyRoutine configuration
+        modelBuilder.Entity<WeeklyRoutine>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.WeeklyRoutines)
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Workout configuration
+        modelBuilder.Entity<Workout>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.Workouts)
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // PersonalRecord configuration
+        modelBuilder.Entity<PersonalRecord>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.PersonalRecords)
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Meal configuration
+        modelBuilder.Entity<Meal>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.Meals)
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // WaterIntake configuration
+        modelBuilder.Entity<WaterIntake>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.WaterIntakes)
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // BodyMetric configuration
+        modelBuilder.Entity<BodyMetric>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.BodyMetrics)
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // SleepLog configuration
+        modelBuilder.Entity<SleepLog>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.SleepLogs)
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // MeditationSession configuration
+        modelBuilder.Entity<MeditationSession>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.MeditationSessions)
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // JournalEntry configuration
+        modelBuilder.Entity<JournalEntry>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.JournalEntries)
                   .HasForeignKey(e => e.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
         });

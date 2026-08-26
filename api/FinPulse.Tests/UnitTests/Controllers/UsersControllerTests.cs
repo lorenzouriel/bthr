@@ -17,14 +17,15 @@ public class UsersControllerTests : ServiceTestBase
     public UsersControllerTests()
     {
         _userServiceMock = new Mock<IUserService>();
-        _sut = new UsersController(_userServiceMock.Object, Context);
+        _sut = new UsersController(_userServiceMock.Object);
     }
 
-    private void SetupControllerContext(int userId)
+    private void SetupControllerContext(int userId, bool isAdmin = false)
     {
         var claims = new System.Security.Claims.Claim[]
         {
-            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, userId.ToString())
+            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, userId.ToString()),
+            new System.Security.Claims.Claim("admin", isAdmin ? "true" : "false")
         };
 
         var identity = new System.Security.Claims.ClaimsIdentity(claims, "TestAuth");
@@ -46,7 +47,7 @@ public class UsersControllerTests : ServiceTestBase
         await Context.Users.AddAsync(adminUser);
         await Context.SaveChangesAsync();
 
-        SetupControllerContext(userId: 1);
+        SetupControllerContext(userId: 1, isAdmin: true);
 
         var expectedUsers = new List<UserProfileResponse>
         {
@@ -92,7 +93,7 @@ public class UsersControllerTests : ServiceTestBase
         await Context.Users.AddAsync(adminUser);
         await Context.SaveChangesAsync();
 
-        SetupControllerContext(userId: 1);
+        SetupControllerContext(userId: 1, isAdmin: true);
 
         _userServiceMock
             .Setup(x => x.GetAllUsersAsync())
@@ -119,7 +120,7 @@ public class UsersControllerTests : ServiceTestBase
         await Context.Users.AddAsync(adminUser);
         await Context.SaveChangesAsync();
 
-        SetupControllerContext(userId: 1);
+        SetupControllerContext(userId: 1, isAdmin: true);
 
         var expectedUser = new UserProfileResponse
         {
@@ -166,7 +167,7 @@ public class UsersControllerTests : ServiceTestBase
         await Context.Users.AddAsync(adminUser);
         await Context.SaveChangesAsync();
 
-        SetupControllerContext(userId: 1);
+        SetupControllerContext(userId: 1, isAdmin: true);
 
         _userServiceMock
             .Setup(x => x.GetUserByIdAsync(999))
@@ -192,7 +193,7 @@ public class UsersControllerTests : ServiceTestBase
         await Context.Users.AddAsync(adminUser);
         await Context.SaveChangesAsync();
 
-        SetupControllerContext(userId: 1);
+        SetupControllerContext(userId: 1, isAdmin: true);
 
         var request = new UpdateUserRequest
         {
@@ -250,7 +251,7 @@ public class UsersControllerTests : ServiceTestBase
         await Context.Users.AddAsync(adminUser);
         await Context.SaveChangesAsync();
 
-        SetupControllerContext(userId: 1);
+        SetupControllerContext(userId: 1, isAdmin: true);
 
         var request = new UpdateUserRequest
         {
@@ -277,7 +278,7 @@ public class UsersControllerTests : ServiceTestBase
         await Context.Users.AddAsync(adminUser);
         await Context.SaveChangesAsync();
 
-        SetupControllerContext(userId: 1);
+        SetupControllerContext(userId: 1, isAdmin: true);
 
         var request = new UpdateUserRequest
         {
@@ -308,7 +309,7 @@ public class UsersControllerTests : ServiceTestBase
         await Context.Users.AddAsync(adminUser);
         await Context.SaveChangesAsync();
 
-        SetupControllerContext(userId: 1);
+        SetupControllerContext(userId: 1, isAdmin: true);
 
         _userServiceMock
             .Setup(x => x.DeleteUserAsync(2))
@@ -350,7 +351,7 @@ public class UsersControllerTests : ServiceTestBase
         await Context.Users.AddAsync(adminUser);
         await Context.SaveChangesAsync();
 
-        SetupControllerContext(userId: 1);
+        SetupControllerContext(userId: 1, isAdmin: true);
 
         _userServiceMock
             .Setup(x => x.DeleteUserAsync(999))

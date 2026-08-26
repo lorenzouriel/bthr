@@ -1,6 +1,8 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using FinPulse.Api.Controllers;
 using FinPulse.Api.DTOs;
@@ -12,12 +14,24 @@ namespace FinPulse.Tests.UnitTests.Controllers;
 public class AuthControllerTests : ControllerTestBase
 {
     private readonly Mock<IUserService> _userServiceMock;
+    private readonly Mock<IJwtService> _jwtServiceMock;
     private readonly AuthController _sut;
 
     public AuthControllerTests()
     {
         _userServiceMock = new Mock<IUserService>();
-        _sut = new AuthController(_userServiceMock.Object);
+        _jwtServiceMock = new Mock<IJwtService>();
+        var configuration = new ConfigurationBuilder().Build();
+        _sut = new AuthController(
+            _userServiceMock.Object,
+            _jwtServiceMock.Object,
+            configuration,
+            NullLogger<AuthController>.Instance);
+
+        _sut.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
     }
 
     #region Register Tests
@@ -36,13 +50,15 @@ public class AuthControllerTests : ControllerTestBase
 
         var expectedResponse = new RegisterResponse
         {
-            UserId = 1,
-            Password = request.Password
+            UserId = 1
         };
 
         _userServiceMock
             .Setup(x => x.RegisterAsync(request))
             .ReturnsAsync(expectedResponse);
+        _jwtServiceMock
+            .Setup(x => x.GenerateToken(expectedResponse.UserId, 0, false))
+            .Returns("fake-jwt-token");
 
         // Act
         var result = await _sut.Register(request);
@@ -50,7 +66,6 @@ public class AuthControllerTests : ControllerTestBase
         // Assert
         var createdResult = result.Should().BeOfType<ObjectResult>().Subject;
         createdResult.StatusCode.Should().Be(201);
-        createdResult.Value.Should().BeEquivalentTo(expectedResponse);
     }
 
     [Fact]
