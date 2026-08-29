@@ -1,0 +1,15 @@
+# Environment files with credentials
+.env
+.env.local
+.env.*.local
+
+# Docker overrides
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
