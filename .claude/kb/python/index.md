@@ -22,6 +22,7 @@
 | [patterns/clean-architecture.md](patterns/clean-architecture.md) | Clean code structure, naming, module organization, uv |
 | [patterns/error-handling.md](patterns/error-handling.md) | Exception hierarchy, custom errors, recovery patterns |
 | [patterns/functional-patterns.md](patterns/functional-patterns.md) | Comprehensions, map, filter, reduce, functools |
+| [patterns/real-time-pipelines.md](patterns/real-time-pipelines.md) | asyncio backpressure, aiokafka, idempotency, DLQ, structured concurrency |
 
 ### Specs (Machine-Readable)
 

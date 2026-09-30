@@ -1,8 +1,8 @@
 # Knowledge Base Index
 # Machine-readable registry for KB domains
 
-version: "2.2"
-last_updated: "2026-04-14"
+version: "2.5"
+last_updated: "2026-09-16"
 
 # File Size Limits (SINGLE SOURCE OF TRUTH)
 limits:
@@ -38,7 +38,7 @@ shared:
     path: shared/component-model.md
     description: "Canonical component layering — agents execute, skills teach how, commands are entrypoints, KBs are source-of-truth; referenced by the authoring skills and the SDD components"
 
-# Domain Registry — 24 Domains (23 named + shared anti-patterns)
+# Domain Registry — 27 named domains (shared/ holds anti-patterns.md and component-model.md, referenced across domains)
 domains:
 
   # ─── Core Data Engineering ─────────────────────────────────────────
@@ -189,6 +189,95 @@ domains:
         path: patterns/cross-dialect.md
         confidence: 0.90
 
+  sql-server:
+    name: sql-server
+    description: "SQL Server / T-SQL engine internals and DBA operations — architecture, indexing, query internals, HA/DR, security, maintenance"
+    path: sql-server/
+    mcp_validated: "2026-09-16"
+    entry_points:
+      index: index.md
+      quick_reference: quick-reference.md
+    concepts:
+      - name: engine-architecture
+        path: concepts/engine-architecture.md
+        confidence: 0.95
+      - name: query-processing
+        path: concepts/query-processing.md
+        confidence: 0.95
+      - name: indexing-internals
+        path: concepts/indexing-internals.md
+        confidence: 0.95
+      - name: transactions-and-isolation
+        path: concepts/transactions-and-isolation.md
+        confidence: 0.95
+      - name: query-store
+        path: concepts/query-store.md
+        confidence: 0.95
+      - name: specialized-table-types
+        path: concepts/specialized-table-types.md
+        confidence: 0.90
+      - name: security-model
+        path: concepts/security-model.md
+        confidence: 0.95
+      - name: recovery-and-ha-dr
+        path: concepts/recovery-and-ha-dr.md
+        confidence: 0.95
+      - name: external-data-access
+        path: concepts/external-data-access.md
+        confidence: 0.90
+      - name: native-search-and-ai-features
+        path: concepts/native-search-and-ai-features.md
+        confidence: 0.85
+    patterns:
+      - name: query-optimization-techniques
+        path: patterns/query-optimization-techniques.md
+        confidence: 0.95
+      - name: join-algorithms
+        path: patterns/join-algorithms.md
+        confidence: 0.90
+      - name: error-handling
+        path: patterns/error-handling.md
+        confidence: 0.95
+      - name: routine-selection
+        path: patterns/routine-selection.md
+        confidence: 0.90
+      - name: advanced-tsql-querying
+        path: patterns/advanced-tsql-querying.md
+        confidence: 0.90
+      - name: index-maintenance-playbook
+        path: patterns/index-maintenance-playbook.md
+        confidence: 0.90
+      - name: backup-restore-strategy
+        path: patterns/backup-restore-strategy.md
+        confidence: 0.95
+      - name: always-on-setup
+        path: patterns/always-on-setup.md
+        confidence: 0.90
+      - name: monitoring-and-alerting
+        path: patterns/monitoring-and-alerting.md
+        confidence: 0.90
+      - name: capacity-and-storage-design
+        path: patterns/capacity-and-storage-design.md
+        confidence: 0.90
+      - name: database-ci-cd
+        path: patterns/database-ci-cd.md
+        confidence: 0.85
+      - name: azure-sql-tuning
+        path: patterns/azure-sql-tuning.md
+        confidence: 0.90
+      - name: rag-in-tsql
+        path: patterns/rag-in-tsql.md
+        confidence: 0.85
+    reference:
+      - name: dba-field-guide
+        path: reference/dba-field-guide.md
+      - name: troubleshooting-cheat-sheet
+        path: reference/troubleshooting-cheat-sheet.md
+      - name: ha-dr-field-guide
+        path: reference/ha-dr-field-guide.md
+      - name: security-compliance-layers
+        path: reference/security-compliance-layers.md
+
   streaming:
     name: streaming
     description: "Stream processing — Flink, Kafka, Spark Streaming, RisingWave, Materialize, CDC"
@@ -222,6 +311,12 @@ domains:
         confidence: 0.90
       - name: cdc-patterns
         path: patterns/cdc-patterns.md
+        confidence: 0.90
+      - name: high-availability-throughput
+        path: patterns/high-availability-throughput.md
+        confidence: 0.90
+      - name: production-best-practices
+        path: patterns/production-best-practices.md
         confidence: 0.90
 
   # ─── Data Design & Quality ─────────────────────────────────────────
@@ -407,9 +502,9 @@ domains:
 
   aws:
     name: aws
-    description: "AWS data engineering — Lambda, S3, Glue, Redshift, MWAA, SAM deployment"
+    description: "AWS data engineering and container ops — Lambda, S3, Glue, Redshift, MWAA, SAM deployment, ECS Fargate, SQS, ElastiCache, CloudWatch EMF"
     path: aws/
-    mcp_validated: "2026-03-26"
+    mcp_validated: "2026-09-17"
     entry_points:
       index: index.md
       quick_reference: lambda/quick-reference.md
@@ -438,6 +533,18 @@ domains:
       - name: environments
         path: deployment/concepts/environments.md
         confidence: 0.90
+      - name: ecs-fargate
+        path: containers/concepts/ecs-fargate.md
+        confidence: 0.90
+      - name: sqs-queues
+        path: containers/concepts/sqs-queues.md
+        confidence: 0.90
+      - name: elasticache-redis
+        path: containers/concepts/elasticache-redis.md
+        confidence: 0.90
+      - name: cloudwatch-observability
+        path: containers/concepts/cloudwatch-observability.md
+        confidence: 0.85
     patterns:
       - name: file-processing
         path: lambda/patterns/file-processing.md
@@ -460,6 +567,18 @@ domains:
       - name: local-testing
         path: deployment/patterns/local-testing.md
         confidence: 0.90
+      - name: docker-multistage-build
+        path: containers/patterns/docker-multistage-build.md
+        confidence: 0.90
+      - name: sqs-retry-dlq
+        path: containers/patterns/sqs-retry-dlq.md
+        confidence: 0.90
+      - name: redis-caching
+        path: containers/patterns/redis-caching.md
+        confidence: 0.90
+      - name: github-actions-ci
+        path: containers/patterns/github-actions-ci.md
+        confidence: 0.85
 
   gcp:
     name: gcp
@@ -975,6 +1094,85 @@ domains:
       - name: functional-patterns
         path: patterns/functional-patterns.md
         confidence: 0.90
+      - name: real-time-pipelines
+        path: patterns/real-time-pipelines.md
+        confidence: 0.85
+
+  javascript:
+    name: javascript
+    description: "JavaScript/TypeScript patterns — types, generators, async, module structure, npm tooling"
+    path: javascript/
+    mcp_validated: "2026-03-26"
+    entry_points:
+      index: index.md
+      quick_reference: quick-reference.md
+    concepts:
+      - name: classes-and-types
+        path: concepts/classes-and-types.md
+        confidence: 0.95
+      - name: type-hints
+        path: concepts/type-hints.md
+        confidence: 0.95
+      - name: generators
+        path: concepts/generators.md
+        confidence: 0.95
+      - name: resource-management
+        path: concepts/resource-management.md
+        confidence: 0.90
+    patterns:
+      - name: clean-architecture
+        path: patterns/clean-architecture.md
+        confidence: 0.90
+      - name: error-handling
+        path: patterns/error-handling.md
+        confidence: 0.90
+      - name: file-parser
+        path: patterns/file-parser.md
+        confidence: 0.90
+      - name: functional-patterns
+        path: patterns/functional-patterns.md
+        confidence: 0.90
+      - name: streaming-pipelines
+        path: patterns/streaming-pipelines.md
+        confidence: 0.85
+
+  dotnet:
+    name: dotnet
+    description: "C#/.NET patterns — records, nullable reference types, pattern matching, async/await, Clean Architecture"
+    path: dotnet/
+    mcp_validated: "2026-04-14"
+    entry_points:
+      index: index.md
+      quick_reference: quick-reference.md
+    concepts:
+      - name: records
+        path: concepts/records.md
+        confidence: 0.95
+      - name: nullable-reference-types
+        path: concepts/nullable-reference-types.md
+        confidence: 0.95
+      - name: pattern-matching
+        path: concepts/pattern-matching.md
+        confidence: 0.90
+      - name: async-await
+        path: concepts/async-await.md
+        confidence: 0.95
+    patterns:
+      - name: clean-architecture
+        path: patterns/clean-architecture.md
+        confidence: 0.90
+      - name: error-handling
+        path: patterns/error-handling.md
+        confidence: 0.90
+      - name: file-parser
+        path: patterns/file-parser.md
+        confidence: 0.90
+      - name: functional-patterns
+        path: patterns/functional-patterns.md
+        confidence: 0.90
+      - name: real-time-pipelines
+        path: patterns/real-time-pipelines.md
+        confidence: 0.85
 
   testing:
     name: testing
@@ -1091,3 +1289,34 @@ domains:
       - name: webhook-edge-function
         path: patterns/webhook-edge-function.md
         confidence: 0.95
+
+  # ─── Project & Delivery Management ─────────────────────────────────
+
+  project-management:
+    name: project-management
+    description: "PMBOK-lite project documentation — process groups, the six-folder doc structure, stakeholder mapping, SDD handoff"
+    path: project-management/
+    mcp_validated: null
+    entry_points:
+      index: index.md
+      quick_reference: quick-reference.md
+    concepts:
+      - name: phases
+        path: concepts/phases.md
+        confidence: 0.85
+      - name: document-purposes
+        path: concepts/document-purposes.md
+        confidence: 0.85
+      - name: stakeholder-mapping
+        path: concepts/stakeholder-mapping.md
+        confidence: 0.80
+    patterns:
+      - name: scaffold-structure
+        path: patterns/scaffold-structure.md
+        confidence: 0.85
+      - name: document-lifecycle
+        path: patterns/document-lifecycle.md
+        confidence: 0.80
+      - name: sdd-integration
+        path: patterns/sdd-integration.md
+        confidence: 0.80

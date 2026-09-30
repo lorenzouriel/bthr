@@ -74,6 +74,19 @@
 | Join isolation | Isolate high-amplification joins from other operators |
 | Window clause | Enhanced SQL WINDOW clause support |
 
+## Production HA Baseline
+
+| Setting | Value | System |
+|---------|-------|--------|
+| Replication factor | `3` across 3 AZs | Kafka |
+| `min.insync.replicas` | `2` | Kafka |
+| `acks` (producer) | `all` | Kafka |
+| JobManager replicas | `>= 2` (HA services) | Flink |
+| Checkpoint interval | `1-5 min` | Flink |
+| State backend | RocksDB, incremental | Flink |
+
+See [patterns/high-availability-throughput.md](patterns/high-availability-throughput.md) and [patterns/production-best-practices.md](patterns/production-best-practices.md) for the full guidance and sources.
+
 ## Common Pitfalls
 
 | Don't | Do |

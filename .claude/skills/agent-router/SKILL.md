@@ -1,6 +1,6 @@
 ---
 name: agent-router
-description: Intelligent agent routing -- automatically matches tasks to the best specialist agent based on file patterns, intent keywords, and domain context. Loaded every session to give Claude explicit routing rules for all 58 AgentSpec agents.
+description: Intelligent agent routing -- automatically matches tasks to the best specialist agent based on file patterns, intent keywords, and domain context. Loaded every session to give Claude explicit routing rules for all 68 AgentSpec agents.
 ---
 
 <!-- =========================================================================
@@ -14,7 +14,7 @@ description: Intelligent agent routing -- automatically matches tasks to the bes
 
 Explicit routing rules for matching tasks to the correct specialist agent. Generated from each agent's frontmatter, so any change to an agent's `description`, `kb_domains`, or `escalation_rules` flows here automatically.
 
-**Agent count:** 58  |  **Categories:** 8  |  **Content hash:** `d2970b1b988f`
+**Agent count:** 68  |  **Categories:** 10  |  **Content hash:** `manual-edit` (generator script not present in this lab; hand-synced)
 
 ## A. Agents by Category
 
@@ -40,6 +40,7 @@ Explicit routing rules for matching tasks to the correct specialist agent. Gener
 | `ai-data-engineer-cloud` | T3 | sonnet | `gcp`, `aws`, `terraform`, `data-quality`, `cloud-platforms` | `ai-data-engineer-gcp`, `aws-data-architect`, `user` |
 | `ai-data-engineer-gcp` | T2 | sonnet | `gcp`, `terraform`, `cloud-platforms`, `data-quality` | `aws-data-architect`, `user` |
 | `ai-prompt-specialist-gcp` | T3 | sonnet | `prompt-engineering`, `genai`, `pydantic`, `gcp` | `gcp-data-architect`, `user` |
+| `aws-container-ops` | T2 | sonnet | `aws` | `aws-deployer`, `aws-lambda-architect`, `javascript-developer`, `ci-cd-specialist` |
 | `aws-data-architect` | T1 | sonnet | `aws`, `terraform`, `data-quality` | — |
 | `aws-deployer` | T3 | sonnet | `aws`, `terraform` | `aws-lambda-architect`, `ci-cd-specialist`, `user` |
 | `aws-lambda-architect` | T3 | sonnet | `aws`, `terraform` | `aws-deployer`, `lambda-builder`, `user` |
@@ -66,7 +67,9 @@ Explicit routing rules for matching tasks to the correct specialist agent. Gener
 | `spark-specialist` | T2 | opus | `spark`, `sql-patterns`, `cloud-platforms` | `pipeline-architect`, `dbt-specialist`, `lakehouse-architect` |
 | `spark-streaming-architect` | T3 | sonnet | `spark`, `streaming`, `lakehouse` | `spark-engineer`, `streaming-engineer`, `airflow-specialist` |
 | `spark-troubleshooter` | T1 | sonnet | `spark`, `sql-patterns` | — |
-| `sql-optimizer` | T2 | sonnet | `sql-patterns`, `data-modeling`, `dbt` | `spark-engineer`, `schema-designer`, `dbt-specialist` |
+| `sql-optimizer` | T2 | sonnet | `sql-patterns`, `data-modeling`, `dbt` | `sql-server-specialist`, `sql-server-dba`, `spark-engineer`, `schema-designer`, `dbt-specialist` |
+| `sql-server-dba` | T2 | sonnet | `sql-server` | `sql-server-specialist`, `sql-optimizer`, `data-platform-engineer`, `ci-cd-specialist` |
+| `sql-server-specialist` | T2 | sonnet | `sql-server`, `sql-patterns` | `sql-optimizer`, `sql-server-dba`, `schema-designer`, `dbt-specialist` |
 | `streaming-engineer` | T2 | sonnet | `streaming`, `spark`, `sql-patterns` | `pipeline-architect`, `dbt-specialist`, `lakehouse-architect`, `ai-data-engineer` |
 
 ### Developer Tools
@@ -76,6 +79,7 @@ Explicit routing rules for matching tasks to the correct specialist agent. Gener
 |-------|------|-------|-----------|--------------|
 | `codebase-explorer` | T2 | sonnet | — | `python-developer`, `the-planner` |
 | `meeting-analyst` | T2 | sonnet | — | `the-planner`, `pipeline-architect` |
+| `project-docs-manager` | T2 | sonnet | `project-management` | `define-agent`, `meeting-analyst` |
 | `prompt-crafter` | T1 | sonnet | `python` | — |
 | `shell-script-specialist` | T2 | sonnet | — | `python-developer`, `ci-cd-specialist` |
 
@@ -102,6 +106,24 @@ Explicit routing rules for matching tasks to the correct specialist agent. Gener
 | `code-reviewer` | T2 | sonnet | `data-quality`, `sql-patterns`, `dbt` | — |
 | `llm-specialist` | T3 | opus | `prompt-engineering`, `pydantic`, `genai` | — |
 | `python-developer` | T1 | sonnet | `python`, `pydantic`, `testing` | — |
+
+### JavaScript & TypeScript
+*JS/TS dev, types, generators, async, npm ecosystem*
+
+| Agent | Tier | Model | KB Domains | Escalates To |
+|-------|------|-------|-----------|--------------|
+| `javascript-developer` | T2 | sonnet | `javascript` | `user` |
+
+### C# & .NET
+*C#/.NET dev, review, cleanup, documentation, ASP.NET Core/EF Core platform depth*
+
+| Agent | Tier | Model | KB Domains | Escalates To |
+|-------|------|-------|-----------|--------------|
+| `dotnet-code-cleaner` | T2 | sonnet | `dotnet` | `user`, `dotnet-code-reviewer` |
+| `dotnet-code-documenter` | T2 | sonnet | `dotnet` | `user` |
+| `dotnet-code-reviewer` | T2 | sonnet | `dotnet` | `user`, `dotnet-specialist` |
+| `dotnet-developer` | T1 | sonnet | `dotnet`, `testing` | — |
+| `dotnet-specialist` | T3 | sonnet | `dotnet` | `dotnet-developer`, `dotnet-code-reviewer`, `user` |
 
 ### Testing & Contracts
 *pytest, data quality, ODCS contracts*
@@ -132,22 +154,26 @@ Which agents know which domain. Use this when the user names a technology.
 |-----------|--------|
 | `ai-data-engineering` | `ai-data-engineer`, `genai-architect`, `qdrant-specialist`, `supabase-specialist` |
 | `airflow` | `airflow-specialist`, `pipeline-architect` |
-| `aws` | `ai-data-engineer-cloud`, `aws-data-architect`, `aws-deployer`, `aws-lambda-architect`, `ci-cd-specialist`, `lambda-builder` |
+| `aws` | `ai-data-engineer-cloud`, `aws-container-ops`, `aws-data-architect`, `aws-deployer`, `aws-lambda-architect`, `ci-cd-specialist`, `lambda-builder` |
 | `cloud-platforms` | `ai-data-engineer-cloud`, `ai-data-engineer-gcp`, `data-platform-engineer`, `gcp-data-architect`, `spark-performance-analyzer`, `spark-specialist` |
 | `data-modeling` | `data-contracts-engineer`, `data-platform-engineer`, `data-quality-analyst`, `lakehouse-architect`, `medallion-architect`, `schema-designer`, `sql-optimizer`, `supabase-specialist` |
 | `data-quality` | `ai-data-engineer`, `ai-data-engineer-cloud`, `ai-data-engineer-gcp`, `airflow-specialist`, `aws-data-architect`, `code-reviewer`, `data-contracts-engineer`, `data-quality-analyst`, `dbt-specialist`, `gcp-data-architect`, `lakeflow-expert`, `lakeflow-pipeline-builder`, `lakeflow-specialist`, `medallion-architect`, `pipeline-architect`, `schema-designer`, `test-generator` |
 | `dbt` | `code-reviewer`, `data-quality-analyst`, `dbt-specialist`, `pipeline-architect`, `sql-optimizer`, `test-generator` |
+| `dotnet` | `dotnet-code-cleaner`, `dotnet-code-documenter`, `dotnet-code-reviewer`, `dotnet-developer`, `dotnet-specialist` |
 | `gcp` | `ai-data-engineer-cloud`, `ai-data-engineer-gcp`, `ai-prompt-specialist-gcp`, `gcp-data-architect` |
 | `genai` | `ai-prompt-specialist`, `ai-prompt-specialist-gcp`, `genai-architect`, `llm-specialist`, `qdrant-specialist` |
+| `javascript` | `javascript-developer` |
 | `lakeflow` | `ci-cd-specialist`, `lakeflow-architect`, `lakeflow-expert`, `lakeflow-pipeline-builder`, `lakeflow-specialist` |
 | `lakehouse` | `data-platform-engineer`, `lakeflow-architect`, `lakeflow-expert`, `lakeflow-pipeline-builder`, `lakeflow-specialist`, `lakehouse-architect`, `medallion-architect`, `spark-performance-analyzer`, `spark-streaming-architect` |
 | `medallion` | `lakeflow-architect`, `lakeflow-expert`, `lakeflow-pipeline-builder`, `medallion-architect` |
 | `microsoft-fabric` | `fabric-ai-specialist`, `fabric-architect`, `fabric-cicd-specialist`, `fabric-logging-specialist`, `fabric-pipeline-developer`, `fabric-security-specialist` |
+| `project-management` | `project-docs-manager` |
 | `prompt-engineering` | `ai-prompt-specialist`, `ai-prompt-specialist-gcp`, `genai-architect`, `llm-specialist` |
 | `pydantic` | `ai-prompt-specialist`, `ai-prompt-specialist-gcp`, `llm-specialist`, `python-developer` |
 | `python` | `code-cleaner`, `code-documenter`, `lambda-builder`, `prompt-crafter`, `python-developer` |
 | `spark` | `lakeflow-architect`, `lakeflow-specialist`, `lakehouse-architect`, `spark-engineer`, `spark-performance-analyzer`, `spark-specialist`, `spark-streaming-architect`, `spark-troubleshooter`, `streaming-engineer` |
-| `sql-patterns` | `airflow-specialist`, `code-reviewer`, `dbt-specialist`, `schema-designer`, `spark-engineer`, `spark-specialist`, `spark-troubleshooter`, `sql-optimizer`, `streaming-engineer` |
+| `sql-patterns` | `airflow-specialist`, `code-reviewer`, `dbt-specialist`, `schema-designer`, `spark-engineer`, `spark-specialist`, `spark-troubleshooter`, `sql-optimizer`, `sql-server-specialist`, `streaming-engineer` |
+| `sql-server` | `sql-server-dba`, `sql-server-specialist` |
 | `streaming` | `ai-data-engineer`, `spark-engineer`, `spark-streaming-architect`, `streaming-engineer` |
 | `supabase` | `supabase-specialist` |
 | `terraform` | `ai-data-engineer-cloud`, `ai-data-engineer-gcp`, `aws-data-architect`, `aws-deployer`, `aws-lambda-architect`, `ci-cd-specialist`, `gcp-data-architect` |
@@ -162,6 +188,7 @@ Single-sentence purpose per agent, derived from frontmatter `description`.
 - **`ai-prompt-specialist`** — Prompt engineering specialist for LLMs — extraction, structured output, chain-of-thought, few-shot.
 - **`ai-prompt-specialist-gcp`** — Elite Prompt Engineering architect for Google Gemini, Vertex AI, and multi-modal document extraction systems. Masters structured extraction, OCR optimization, and production prompt pipelines. Uses KB + MCP validation.
 - **`airflow-specialist`** — Apache Airflow 3.0 SME for DAG development, asset-aware scheduling, and event-driven pipelines.
+- **`aws-container-ops`** — ECS Fargate container-service operator — task sizing, SQS retry/DLQ routing, ElastiCache Redis caching, CloudWatch EMF metrics, Docker multi-stage builds, and GitHub Actions CI for long-running Node/TypeScript consumers and services.
 - **`aws-data-architect`** — AWS data architecture specialist for Lambda, S3, Glue, Redshift, MWAA, and serverless data pipelines.
 - **`aws-deployer`** — Executes AWS CLI and SAM CLI deployment commands with validation. Uses KB + MCP validation for safe deployments.
 - **`aws-lambda-architect`** — Creates SAM templates with embedded least-privilege IAM policies. Uses KB + MCP validation for secure Lambda deployments.
@@ -178,6 +205,11 @@ Single-sentence purpose per agent, derived from frontmatter `description`.
 - **`dbt-specialist`** — dbt Core and dbt Cloud specialist for model development, testing, macros, and project management.
 - **`define-agent`** — Requirements extraction and validation specialist (Phase 1).
 - **`design-agent`** — Architecture and technical specification specialist (Phase 2).
+- **`dotnet-code-cleaner`** — C#/.NET code cleaning specialist for removing noise and applying modern language idioms.
+- **`dotnet-code-documenter`** — Documentation specialist for C#/.NET projects — READMEs, API docs, and XML doc comments.
+- **`dotnet-code-reviewer`** — Expert C#/.NET code review specialist ensuring quality, security, and maintainability.
+- **`dotnet-developer`** — C# code architect for .NET services and libraries — records, nullable reference types, pattern matching, async/await, Clean Architecture.
+- **`dotnet-specialist`** — ASP.NET Core and EF Core platform specialist for minimal APIs, dependency injection, migrations, and framework-version-specific guidance. Uses KB + Context7 MCP validation for current, version-accurate answers.
 - **`fabric-ai-specialist`** — Expert in Microsoft Fabric AI capabilities - Copilot, ML models, AI Skills, and Azure OpenAI integration.
 - **`fabric-architect`** — Strategic Fabric solution architect for end-to-end architectures using KB + MCP validation.
 - **`fabric-cicd-specialist`** — Expert in Microsoft Fabric CI/CD, Git integration, and deployment pipelines.
@@ -187,6 +219,7 @@ Single-sentence purpose per agent, derived from frontmatter `description`.
 - **`gcp-data-architect`** — Google Cloud data architecture specialist for BigQuery, Cloud Run, Pub/Sub, GCS, Dataflow, and Vertex AI.
 - **`genai-architect`** — GenAI Systems Architect for multi-agent orchestration, agentic workflows, and production AI systems.
 - **`iterate-agent`** — Cross-phase document updater with cascade awareness (All Phases).
+- **`javascript-developer`** — JavaScript/TypeScript code architect — modern ES2023+ patterns, TypeScript types, async/await, functional composition, npm ecosystem.
 - **`kb-architect`** — Knowledge base architect for creating validated, structured KB domains.
 - **`lakeflow-architect`** — Databricks Lakeflow expert for building Medallion architecture pipelines. Creates Bronze/Silver/Gold layers with DLT. Uses KB + MCP validation.
 - **`lakeflow-expert`** — Databricks Lakeflow (DLT) SME for pipeline development, CDC, data quality, and production deployment. Uses KB + MCP validation.
@@ -198,6 +231,7 @@ Single-sentence purpose per agent, derived from frontmatter `description`.
 - **`medallion-architect`** — Medallion Architecture specialist for Bronze/Silver/Gold layer design and data quality progression.
 - **`meeting-analyst`** — Master communication analyst that transforms meetings into structured, actionable documentation.
 - **`pipeline-architect`** — Orchestration specialist for Airflow, Dagster, and pipeline design patterns.
+- **`project-docs-manager`** — Scaffolds and maintains a project's PMBOK-lite documentation set — the six-folder structure (terms-and-charter, stakeholders, planning, execution pointer, communication, closing) — and drafts or updates the document each phase calls for.
 - **`prompt-crafter`** — PROMPT.md builder with SDD-lite phases and Agent Matching Engine.
 - **`python-developer`** — Python code architect for data engineering systems — clean patterns, dataclasses, type hints, generators.
 - **`qdrant-specialist`** — Elite Qdrant vector database specialist for collection management, point operations, payload filtering, search optimization, and RAG pipeline integration.
@@ -210,6 +244,8 @@ Single-sentence purpose per agent, derived from frontmatter `description`.
 - **`spark-streaming-architect`** — Spark Structured Streaming expert for real-time pipelines, Kafka integration, and stream processing. Uses KB + MCP validation.
 - **`spark-troubleshooter`** — Spark debugging specialist for diagnosing OOM errors, data skew, shuffle failures, and job hangs.
 - **`sql-optimizer`** — Cross-dialect SQL optimization specialist for query plans, window functions, and performance tuning.
+- **`sql-server-dba`** — SQL Server DBA operations specialist for backup/restore, high availability and disaster recovery, security/compliance, and maintenance.
+- **`sql-server-specialist`** — SQL Server / T-SQL specialist for query optimization, execution plans, indexing strategy, and engine-internals-aware development.
 - **`streaming-engineer`** — Stream processing specialist for Flink, Kafka, Spark Streaming, RisingWave, and CDC pipelines.
 - **`supabase-specialist`** — Elite Supabase specialist for pgvector, RLS, Edge Functions, Auth, Realtime, and database design.
 - **`test-generator`** — Test automation expert for Python. Generates pytest unit tests, integration tests, and fixtures.

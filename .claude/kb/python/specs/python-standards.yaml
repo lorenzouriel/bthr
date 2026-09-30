@@ -125,6 +125,4 @@ ruff:
       - "ANN"  # flake8-annotations
       - "C4"   # flake8-comprehensions
       - "PT"   # flake8-pytest-style
-    ignore:
-      - "ANN101"  # missing self annotation
-      - "ANN102"  # missing cls annotation
+    ignore: []

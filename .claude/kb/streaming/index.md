@@ -23,6 +23,8 @@
 | [patterns/kafka-producer-consumer.md](patterns/kafka-producer-consumer.md) | Idempotency, DLQ, transactions |
 | [patterns/spark-streaming-patterns.md](patterns/spark-streaming-patterns.md) | foreachBatch, watermarks, stream joins |
 | [patterns/cdc-patterns.md](patterns/cdc-patterns.md) | Debezium, Flink CDC, Delta CDF |
+| [patterns/high-availability-throughput.md](patterns/high-availability-throughput.md) | Kafka/Flink HA sizing, replication, multi-AZ/multi-region, throughput tuning |
+| [patterns/production-best-practices.md](patterns/production-best-practices.md) | Idempotency, schema contracts, DLQ, observability, testing |
 
 ---
 
@@ -46,3 +48,4 @@
 |-------|---------------|----------|
 | streaming-engineer | All files | Stream pipeline design |
 | pipeline-architect | patterns/cdc-patterns.md | CDC pipeline orchestration |
+| spark-streaming-architect | patterns/high-availability-throughput.md, patterns/production-best-practices.md | Production HA/DR sizing, SLOs |

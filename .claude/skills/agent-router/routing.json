@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "agent_count": 58,
+  "agent_count": 68,
   "agents": [
     {
       "name": "ai-data-engineer",
@@ -107,6 +107,23 @@
         "spark-engineer",
         "dbt-specialist",
         "streaming-engineer"
+      ]
+    },
+    {
+      "name": "aws-container-ops",
+      "category": "cloud",
+      "path": ".claude/agents/cloud/aws-container-ops.md",
+      "tier": "T2",
+      "model": "sonnet",
+      "description": "ECS Fargate container-service operator — task sizing, SQS retry/DLQ routing, ElastiCache Redis caching, CloudWatch EMF metrics, Docker multi-stage builds, and GitHub Actions CI for long-running Node/TypeScript consumers and services.",
+      "kb_domains": [
+        "aws"
+      ],
+      "escalates_to": [
+        "aws-deployer",
+        "aws-lambda-architect",
+        "javascript-developer",
+        "ci-cd-specialist"
       ]
     },
     {
@@ -347,6 +364,79 @@
       ]
     },
     {
+      "name": "dotnet-code-cleaner",
+      "category": "dotnet",
+      "path": ".claude/agents/dotnet/dotnet-code-cleaner.md",
+      "tier": "T2",
+      "model": "sonnet",
+      "description": "C#/.NET code cleaning specialist for removing noise and applying modern language idioms.",
+      "kb_domains": [
+        "dotnet"
+      ],
+      "escalates_to": [
+        "user",
+        "dotnet-code-reviewer"
+      ]
+    },
+    {
+      "name": "dotnet-code-documenter",
+      "category": "dotnet",
+      "path": ".claude/agents/dotnet/dotnet-code-documenter.md",
+      "tier": "T2",
+      "model": "sonnet",
+      "description": "Documentation specialist for C#/.NET projects — READMEs, API docs, and XML doc comments.",
+      "kb_domains": [
+        "dotnet"
+      ],
+      "escalates_to": [
+        "user"
+      ]
+    },
+    {
+      "name": "dotnet-code-reviewer",
+      "category": "dotnet",
+      "path": ".claude/agents/dotnet/dotnet-code-reviewer.md",
+      "tier": "T2",
+      "model": "sonnet",
+      "description": "Expert C#/.NET code review specialist ensuring quality, security, and maintainability.",
+      "kb_domains": [
+        "dotnet"
+      ],
+      "escalates_to": [
+        "user",
+        "dotnet-specialist"
+      ]
+    },
+    {
+      "name": "dotnet-developer",
+      "category": "dotnet",
+      "path": ".claude/agents/dotnet/dotnet-developer.md",
+      "tier": "T1",
+      "model": "sonnet",
+      "description": "C# code architect for .NET services and libraries — records, nullable reference types, pattern matching, async/await, Clean Architecture.",
+      "kb_domains": [
+        "dotnet",
+        "testing"
+      ],
+      "escalates_to": []
+    },
+    {
+      "name": "dotnet-specialist",
+      "category": "dotnet",
+      "path": ".claude/agents/dotnet/dotnet-specialist.md",
+      "tier": "T3",
+      "model": "sonnet",
+      "description": "ASP.NET Core and EF Core platform specialist for minimal APIs, dependency injection, migrations, and framework-version-specific guidance. Uses KB + Context7 MCP validation for current, version-accurate answers.",
+      "kb_domains": [
+        "dotnet"
+      ],
+      "escalates_to": [
+        "dotnet-developer",
+        "dotnet-code-reviewer",
+        "user"
+      ]
+    },
+    {
       "name": "fabric-ai-specialist",
       "category": "platform",
       "path": ".claude/agents/platform/fabric-ai-specialist.md",
@@ -477,6 +567,20 @@
         "define-agent",
         "design-agent",
         "build-agent"
+      ]
+    },
+    {
+      "name": "javascript-developer",
+      "category": "javascript",
+      "path": ".claude/agents/javascript/javascript-developer.md",
+      "tier": "T2",
+      "model": "sonnet",
+      "description": "JavaScript/TypeScript code architect — modern ES2023+ patterns, TypeScript types, async/await, functional composition, npm ecosystem.",
+      "kb_domains": [
+        "javascript"
+      ],
+      "escalates_to": [
+        "user"
       ]
     },
     {
@@ -660,6 +764,21 @@
       ]
     },
     {
+      "name": "project-docs-manager",
+      "category": "dev",
+      "path": ".claude/agents/dev/project-docs-manager.md",
+      "tier": "T2",
+      "model": "sonnet",
+      "description": "Scaffolds and maintains a project's PMBOK-lite documentation set — the six-folder structure (terms-and-charter, stakeholders, planning, execution pointer, communication, closing) — and drafts or updates the document each phase calls for.",
+      "kb_domains": [
+        "project-management"
+      ],
+      "escalates_to": [
+        "define-agent",
+        "meeting-analyst"
+      ]
+    },
+    {
       "name": "prompt-crafter",
       "category": "dev",
       "path": ".claude/agents/dev/prompt-crafter.md",
@@ -840,7 +959,44 @@
         "dbt"
       ],
       "escalates_to": [
+        "sql-server-specialist",
+        "sql-server-dba",
         "spark-engineer",
+        "schema-designer",
+        "dbt-specialist"
+      ]
+    },
+    {
+      "name": "sql-server-dba",
+      "category": "data-engineering",
+      "path": ".claude/agents/data-engineering/sql-server-dba.md",
+      "tier": "T2",
+      "model": "sonnet",
+      "description": "SQL Server DBA operations specialist for backup/restore, high availability and disaster recovery, security/compliance, and maintenance.",
+      "kb_domains": [
+        "sql-server"
+      ],
+      "escalates_to": [
+        "sql-server-specialist",
+        "sql-optimizer",
+        "data-platform-engineer",
+        "ci-cd-specialist"
+      ]
+    },
+    {
+      "name": "sql-server-specialist",
+      "category": "data-engineering",
+      "path": ".claude/agents/data-engineering/sql-server-specialist.md",
+      "tier": "T2",
+      "model": "sonnet",
+      "description": "SQL Server / T-SQL specialist for query optimization, execution plans, indexing strategy, and engine-internals-aware development.",
+      "kb_domains": [
+        "sql-server",
+        "sql-patterns"
+      ],
+      "escalates_to": [
+        "sql-optimizer",
+        "sql-server-dba",
         "schema-designer",
         "dbt-specialist"
       ]
@@ -937,6 +1093,14 @@
     "python": {
       "label": "Python & Code Quality",
       "description": "Python dev, review, cleanup, documentation, LLM prompts"
+    },
+    "javascript": {
+      "label": "JavaScript & TypeScript",
+      "description": "JS/TS dev, types, generators, async, npm ecosystem"
+    },
+    "dotnet": {
+      "label": "C# & .NET",
+      "description": "C#/.NET dev, review, cleanup, documentation, ASP.NET Core/EF Core platform depth"
     },
     "test": {
       "label": "Testing & Contracts",

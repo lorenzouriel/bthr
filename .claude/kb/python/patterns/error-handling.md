@@ -92,17 +92,17 @@ def retry(
     catch: tuple[type[Exception], ...] = (Exception,),
 ) -> T:
     """Retry a callable with exponential backoff."""
-    last_error: Exception | None = None
+    if max_attempts < 1:
+        raise ValueError("max_attempts must be >= 1")
     for attempt in range(1, max_attempts + 1):
         try:
             return fn(*args)
-        except catch as e:
-            last_error = e
+        except catch:
             if attempt == max_attempts:
-                break
+                raise
             wait = delay * (backoff ** (attempt - 1))
             time.sleep(wait)
-    raise last_error
+    raise AssertionError("unreachable")
 ```
 
 ## Result Pattern (No Exceptions)
