@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F6}
+*{box-sizing:border-box}
+a{color:inherit}a:hover{opacity:.75}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(120,128,140,.25);border-radius:5px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+@keyframes mfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+input::placeholder,textarea::placeholder{color:inherit;opacity:.4}
+input[type=number]::-webkit-inner-spin-button{opacity:.4}
+</style>
+</helmet>
+
+<div style="{{ rootStyle }}">
+
+  <nav style="width:236px;flex:none;display:flex;flex-direction:column;padding:20px 12px 14px;border-right:1px solid var(--br);overflow-y:auto">
+    <div style="display:flex;align-items:baseline;gap:8px;padding:0 10px 18px">
+      <span style="font-family:'Newsreader',serif;font-style:italic;font-weight:400;font-size:21px">Meridian</span>
+      <span style="font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--m)">personal OS</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ topNav }}" as="it" hint-placeholder-count="3">
+        <div style="{{ it.style }}" onClick="{{ it.go }}">
+          <span style="width:16px;text-align:center;font-size:12px;opacity:0.85">{{ it.glyph }}</span>
+          <span style="flex:1">{{ it.label }}</span>
+          <sc-if value="{{ it.badge }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:10.5px;font-weight:600;padding:1px 7px;border-radius:99px;background:var(--hl);color:var(--m)">{{ it.badge }}</span>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <sc-for list="{{ navPillars }}" as="p" hint-placeholder-count="4">
+      <div style="display:flex;flex-direction:column;gap:2px;margin-top:18px">
+        <div style="{{ p.headStyle }}" onClick="{{ p.go }}">
+          <span style="{{ p.dotStyle }}"></span>
+          <span>{{ p.label }}</span>
+          <span style="margin-left:auto;font-family:'Newsreader',serif;font-size:13px;color:var(--m)">{{ p.score }}</span>
+        </div>
+        <sc-for list="{{ p.modules }}" as="it" hint-placeholder-count="3">
+          <div style="{{ it.style }}" onClick="{{ it.go }}">
+            <span style="width:16px"></span>
+            <span>{{ it.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+    <div style="margin-top:auto;padding-top:18px;display:flex;flex-direction:column;gap:10px">
+      <div style="{{ settingsNav.style }}" onClick="{{ settingsNav.go }}">
+        <span style="width:16px;text-align:center;font-size:12px">⚙</span><span>Settings &amp; goals</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:0 10px">
+        <div style="width:28px;height:28px;border-radius:99px;background:var(--hl);border:1px solid var(--br);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:var(--m)">{{ initials }}</div>
+        <div style="display:flex;flex-direction:column">
+          <span style="font-size:12.5px;font-weight:600">{{ userName }}</span>
+          <span style="font-size:11px;color:var(--m)">{{ dayOfYear }}</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main style="flex:1;overflow-y:auto;min-width:0;position:relative">
+
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="Home" style="max-width:920px;margin:0 auto;padding:48px 44px 96px;animation:mfade .35s ease">
+        <p style="margin:0;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m)">{{ todayLabel }}</p>
+        <h1 style="margin:6px 0 0;font-family:'Newsreader',serif;font-weight:400;font-size:34px;letter-spacing:-0.01em">{{ greeting }}</h1>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-top:30px">
+          <sc-for list="{{ scores }}" as="s" hint-placeholder-count="4">
+            <div style="padding:18px 20px;border-radius:14px;background:var(--s);border:1px solid var(--br);box-shadow:var(--sh);cursor:pointer" onClick="{{ s.go }}">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="{{ s.dotStyle }}"></span>
+                <span style="font-size:12.5px;font-weight:600;color:var(--m)">{{ s.label }}</span>
+              </div>
+              <div style="font-family:'Newsreader',serif;font-weight:300;font-size:42px;line-height:1.1;margin-top:10px">{{ s.score }}<span style="font-size:17px;color:var(--m)">%</span></div>
+              <div style="height:3px;border-radius:2px;background:var(--hl);margin-top:12px;overflow:hidden"><div style="{{ s.barStyle }}"></div></div>
+              <div style="font-size:11.5px;color:var(--m);margin-top:8px">{{ s.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <h2 style="margin:36px 0 12px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m)">Quick log</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ quickButtons }}" as="q" hint-placeholder-count="8">
+            <button onClick="{{ q.go }}" style="font-family:inherit;font-size:13px;font-weight:500;padding:8px 14px;border-radius:99px;border:1px solid var(--br);background:var(--s);color:var(--t);cursor:pointer;display:flex;align-items:center;gap:7px">
+              <span style="{{ q.dotStyle }}"></span>{{ q.label }}
+            </button>
+          </sc-for>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:36px;margin-top:38px">
+          <div>
+            <h2 style="margin:0 0 10px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m)">Today's tasks</h2>
+            <div style="display:flex;gap:8px;margin-bottom:6px">
+              <input value="{{ newTask }}" onChange="{{ onNewTask }}" onKeyDown="{{ onNewTaskKey }}" placeholder="Add a task and press Enter" style="flex:1;min-width:0;font-family:inherit;font-size:13.5px;padding:9px 12px;border-radius:9px;border:1px solid var(--br);background:var(--s);color:var(--t);outline:none">
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ homeTasks }}" as="r" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid var(--br)">
+                  <span style="{{ r.checkStyle }}" onClick="{{ r.toggle }}">{{ r.mark }}</span>
+                  <div style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+                    <span style="{{ r.tStyle }}">{{ r.t }}</span>
+                    <span style="font-size:11.5px;color:var(--m)">{{ r.s }}</span>
+                  </div>
+                </div>
+              </sc-for>
+              <sc-if value="{{ noHomeTasks }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:8px 0;font-size:13px;color:var(--m)">Nothing open. Enjoy it.</p>
+              </sc-if>
+            </div>
+          </div>
+          <div>
+            <h2 style="margin:0 0 10px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m)">Logged today</h2>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ todayLog }}" as="a" hint-placeholder-count="5">
+                <div style="display:flex;align-items:baseline;gap:12px;padding:7px 2px">
+                  <span style="width:40px;flex:none;font-size:11.5px;color:var(--m);font-variant-numeric:tabular-nums">{{ a.time }}</span>
+                  <span style="{{ a.dotStyle }}"></span>
+                  <span style="font-size:13.5px;flex:1;min-width:0">{{ a.t }}</span>
+                  <span style="font-size:12px;color:var(--m);font-variant-numeric:tabular-nums">{{ a.r }}</span>
+                </div>
+              </sc-for>
+              <sc-if value="{{ noTodayLog }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:8px 0;font-size:13px;color:var(--m)">Nothing yet — hit + to log your first thing.</p>
+              </sc-if>
+            </div>
+            <div style="margin-top:24px;padding:16px 18px;border-radius:12px;border:1px solid var(--br);background:var(--hl)">
+              <p style="margin:0;font-family:'Newsreader',serif;font-style:italic;font-size:15.5px;line-height:1.5">{{ homeBrief }}</p>
+              <p style="margin:8px 0 0;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--m)">Coach · from your data</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPillar }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Pillar" style="max-width:920px;margin:0 auto;padding:48px 44px 96px;animation:mfade .35s ease">
+        <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+          <h1 style="margin:0;font-family:'Newsreader',serif;font-weight:400;font-size:34px">{{ pillar.label }}</h1>
+          <span style="font-size:13px;color:var(--m)">{{ pillar.tagline }}</span>
+          <span style="margin-left:auto;font-family:'Newsreader',serif;font-weight:300;font-size:34px">{{ pillar.score }}<span style="font-size:16px;color:var(--m)">%</span></span>
+        </div>
+        <div style="height:3px;border-radius:2px;background:var(--hl);margin-top:14px;overflow:hidden"><div style="{{ pillar.barStyle }}"></div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:28px">
+          <sc-for list="{{ pillar.metrics }}" as="mt" hint-placeholder-count="6">
+            <div style="padding:16px 18px;border-radius:12px;background:var(--s);border:1px solid var(--br);box-shadow:var(--sh)">
+              <div style="font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--m)">{{ mt.k }}</div>
+              <div style="font-family:'Newsreader',serif;font-weight:300;font-size:26px;margin-top:6px">{{ mt.v }}</div>
+              <div style="font-size:11.5px;color:var(--m);margin-top:2px">{{ mt.n }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:24px;padding:16px 18px;border-radius:12px;border:1px solid var(--br);background:var(--hl)">
+          <p style="margin:0;font-family:'Newsreader',serif;font-style:italic;font-size:15.5px;line-height:1.5">{{ pillar.insight }}</p>
+          <p style="margin:8px 0 0;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--m)">Coach · from your data</p>
+        </div>
+        <h2 style="margin:34px 0 14px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m)">Modules</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+          <sc-for list="{{ pillar.modules }}" as="md" hint-placeholder-count="3">
+            <div style="padding:18px;border-radius:12px;background:var(--s);border:1px solid var(--br);box-shadow:var(--sh);cursor:pointer;transition:transform .15s ease" style-hover="transform:translateY(-2px)" onClick="{{ md.go }}">
+              <div style="font-size:14.5px;font-weight:600">{{ md.label }}</div>
+              <div style="font-size:12.5px;color:var(--m);margin-top:4px;line-height:1.45">{{ md.purpose }}</div>
+              <div style="font-size:12px;margin-top:12px;font-weight:500">{{ md.summary }} →</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isModule }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Module" style="max-width:920px;margin:0 auto;padding:48px 44px 96px;animation:mfade .35s ease">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--m)">
+          <span style="cursor:pointer" onClick="{{ mod.back }}">{{ mod.pillarLabel }}</span><span>/</span>
+          <span style="color:var(--t);font-weight:600">{{ mod.label }}</span>
+        </div>
+        <h1 style="margin:10px 0 0;font-family:'Newsreader',serif;font-weight:400;font-size:34px">{{ mod.label }}</h1>
+        <p style="margin:6px 0 0;font-size:14.5px;color:var(--m)">{{ mod.purpose }}</p>
+
+        <div style="display:flex;flex-direction:column;gap:30px;margin-top:28px">
+          <sc-for list="{{ mod.blocks }}" as="b" hint-placeholder-count="3">
+            <div>
+              <sc-if value="{{ b.title }}" hint-placeholder-val="{{ false }}">
+                <h2 style="margin:0 0 12px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m)">{{ b.title }}</h2>
+              </sc-if>
+
+              <sc-if value="{{ b.isDaynav }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <button onClick="{{ b.prev }}" style="font-family:inherit;font-size:14px;width:32px;height:32px;border-radius:8px;border:1px solid var(--br);background:var(--s);color:var(--t);cursor:pointer">‹</button>
+                  <span style="font-size:15px;font-weight:600;min-width:150px;text-align:center">{{ b.label }}</span>
+                  <button onClick="{{ b.next }}" style="{{ b.nextStyle }}">›</button>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isForm }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:18px 20px;border-radius:14px;background:var(--s);border:1px solid var(--br);box-shadow:var(--sh)">
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+                    <span style="font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m);margin-right:4px">Log</span>
+                    <sc-for list="{{ b.form.chips }}" as="ch" hint-placeholder-count="1">
+                      <button style="{{ ch.style }}" onClick="{{ ch.pick }}">{{ ch.label }}</button>
+                    </sc-for>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">
+                    <sc-for list="{{ b.form.fields }}" as="fd" hint-placeholder-count="4">
+                      <label style="{{ fd.wrapStyle }}">
+                        <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--m)">{{ fd.label }}</span>
+                        <sc-if value="{{ fd.isInput }}" hint-placeholder-val="{{ true }}">
+                          <input type="{{ fd.inputType }}" step="any" value="{{ fd.value }}" onChange="{{ fd.onChange }}" onKeyDown="{{ fd.onKey }}" placeholder="{{ fd.ph }}" style="width:100%;font-family:inherit;font-size:13.5px;padding:8px 10px;border-radius:8px;border:1px solid var(--br);background:var(--b);color:var(--t);outline:none">
+                        </sc-if>
+                        <sc-if value="{{ fd.isSelect }}" hint-placeholder-val="{{ false }}">
+                          <select value="{{ fd.value }}" onChange="{{ fd.onChange }}" style="width:100%;font-family:inherit;font-size:13.5px;padding:8px 10px;border-radius:8px;border:1px solid var(--br);background:var(--b);color:var(--t);outline:none">
+                            <sc-for list="{{ fd.options }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+                          </select>
+                        </sc-if>
+                        <sc-if value="{{ fd.isArea }}" hint-placeholder-val="{{ false }}">
+                          <textarea value="{{ fd.value }}" onChange="{{ fd.onChange }}" placeholder="{{ fd.ph }}" rows="3" style="width:100%;font-family:inherit;font-size:13.5px;line-height:1.5;padding:8px 10px;border-radius:8px;border:1px solid var(--br);background:var(--b);color:var(--t);outline:none;resize:vertical"></textarea>
+                        </sc-if>
+                      </label>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+                    <span style="font-size:12px;color:var(--m);flex:1">{{ b.form.err }}</span>
+                    <button onClick="{{ b.form.submit }}" style="font-family:inherit;font-size:13px;font-weight:600;padding:9px 18px;border-radius:9px;border:none;background:var(--t);color:var(--b);cursor:pointer">{{ b.form.cta }}</button>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isActions }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ b.buttons }}" as="q" hint-placeholder-count="2">
+                    <button onClick="{{ q.go }}" style="font-family:inherit;font-size:13px;font-weight:500;padding:8px 14px;border-radius:99px;border:1px solid var(--br);background:var(--s);color:var(--t);cursor:pointer">{{ q.label }}</button>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isStats }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px">
+                  <sc-for list="{{ b.items }}" as="mt" hint-placeholder-count="3">
+                    <div style="padding:16px 18px;border-radius:12px;background:var(--s);border:1px solid var(--br);box-shadow:var(--sh)">
+                      <div style="font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--m)">{{ mt.k }}</div>
+                      <div style="font-family:'Newsreader',serif;font-weight:300;font-size:26px;margin-top:6px">{{ mt.v }}</div>
+                      <div style="font-size:11.5px;color:var(--m);margin-top:2px">{{ mt.n }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isBars }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column">
+                  <sc-for list="{{ b.rows }}" as="r" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;gap:7px;padding:11px 2px;border-bottom:1px solid var(--br)">
+                      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+                        <span style="font-size:13.5px;font-weight:500">{{ r.label }}</span>
+                        <span style="font-size:12px;color:var(--m);font-variant-numeric:tabular-nums">{{ r.val }}</span>
+                      </div>
+                      <div style="height:4px;border-radius:2px;background:var(--hl);overflow:hidden"><div style="{{ r.barStyle }}"></div></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isChart }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:12px;padding:20px 20px 14px;border-radius:12px;background:var(--s);border:1px solid var(--br);box-shadow:var(--sh)">
+                  <sc-for list="{{ b.cols }}" as="c" hint-placeholder-count="7">
+                    <div style="flex:1;display:flex;flex-direction:column;gap:7px;height:150px;min-width:0">
+                      <div style="flex:1;display:flex;align-items:flex-end"><div style="{{ c.barStyle }}"></div></div>
+                      <div style="text-align:center;font-size:11px;font-variant-numeric:tabular-nums">{{ c.v }}</div>
+                      <div style="text-align:center;font-size:10.5px;color:var(--m)">{{ c.l }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isHabits }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:2px;padding:12px 18px;border-radius:12px;background:var(--s);border:1px solid var(--br);box-shadow:var(--sh)">
+                  <sc-for list="{{ b.rows }}" as="h" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;gap:14px;padding:7px 0;flex-wrap:wrap">
+                      <span style="font-size:13.5px;font-weight:500;width:140px;flex:none">{{ h.name }}</span>
+                      <div style="display:flex;gap:4px;flex:1;min-width:0">
+                        <sc-for list="{{ h.dots }}" as="d" hint-placeholder-count="14"><span style="{{ d.style }}"></span></sc-for>
+                      </div>
+                      <button onClick="{{ h.toggle }}" style="{{ h.btnStyle }}">{{ h.btnLabel }}</button>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isGrid }}" hint-placeholder-val="{{ false }}">
+                <div style="display:inline-flex;flex-wrap:wrap;gap:6px;padding:18px;border-radius:12px;background:var(--s);border:1px solid var(--br);box-shadow:var(--sh);max-width:322px">
+                  <sc-for list="{{ b.dots }}" as="d" hint-placeholder-count="28"><span style="{{ d.style }}"></span></sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isKanban }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;align-items:start">
+                  <sc-for list="{{ b.cols }}" as="col" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;gap:10px">
+                      <div style="font-size:11.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--m)">{{ col.title }} · {{ col.count }}</div>
+                      <sc-for list="{{ col.cards }}" as="cd" hint-placeholder-count="2">
+                        <div style="padding:13px 15px;border-radius:10px;background:var(--s);border:1px solid var(--br);box-shadow:var(--sh)">
+                          <div style="display:flex;gap:8px;align-items:flex-start">
+                            <div style="font-size:13.5px;font-weight:500;flex:1">{{ cd.t }}</div>
+                            <button onClick="{{ cd.del }}" title="Delete" style="border:none;background:none;color:var(--m);cursor:pointer;font-size:15px;line-height:1;padding:0">×</button>
+                          </div>
+                          <div style="font-size:11.5px;color:var(--m);margin-top:3px">{{ cd.s }}</div>
+                          <sc-if value="{{ cd.next }}" hint-placeholder-val="{{ false }}">
+                            <button onClick="{{ cd.move }}" style="margin-top:10px;font-family:inherit;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:7px;border:1px solid var(--br);background:transparent;color:var(--t);cursor:pointer">→ {{ cd.next }}</button>
+                          </sc-if>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ b.isList }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column">
+                  <sc-for list="{{ b.rows }}" as="r" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid var(--br)">
+                      <sc-if value="{{ r.hasCheck }}" hint-placeholder-val="{{ false }}">
+                        <span style="{{ r.checkStyle }}" onClick="{{ r.toggle }}">{{ r.mark }}</span>
+                      </sc-if>
+                      <div style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+                        <span style="{{ r.tStyle }}">{{ r.t }}</span>
+                        <span style="font-size:11.5px;color:var(--m)">{{ r.s }}</span>
+                      </div>
+                      <span style="font-size:12.5px;color:var(--m);font-variant-numeric:tabular-nums;flex:none;text-align:right">{{ r.r }}</span>
+                      <button onClick="{{ r.del }}" title="Delete" style="border:none;background:none;color:var(--m);cursor:pointer;font-size:16px;line-height:1;padding:2px 4px;opacity:.55" style-hover="opacity:1">×</button>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ b.isEmpty }}" hint-placeholder-val="{{ false }}">
+                    <p style="margin:6px 0;font-size:13px;color:var(--m)">{{ b.empty }}</p>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isInbox }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Inbox" style="max-width:760px;margin:0 auto;padding:48px 44px 96px;animation:mfade .35s ease">
+        <h1 style="margin:0;font-family:'Newsreader',serif;font-weight:400;font-size:34px">Inbox</h1>
+        <p style="margin:6px 0 0;font-size:14.5px;color:var(--m)">Type anything the way you'd text it. Meridian files it to the right place.</p>
+        <div style="margin-top:22px;padding:6px;border-radius:14px;background:var(--s);border:1px solid var(--br);box-shadow:var(--sh);display:flex;gap:6px">
+          <input value="{{ nl }}" onChange="{{ onNl }}" onKeyDown="{{ onNlKey }}" placeholder="oats 520 kcal 30p · spent $14 lunch · slept 7h30 · ran 5k 28 min" style="flex:1;min-width:0;font-family:inherit;font-size:15px;padding:12px 14px;border:none;background:transparent;color:var(--t);outline:none">
+          <button onClick="{{ fileNl }}" style="font-family:inherit;font-size:13px;font-weight:600;padding:0 18px;border-radius:10px;border:none;background:var(--t);color:var(--b);cursor:pointer">File ↵</button>
+        </div>
+        <sc-if value="{{ nlPreview }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:0 6px;font-size:13px">
+            <span style="color:var(--m)">Will file as</span>
+            <span style="{{ nlPreview.tagStyle }}">{{ nlPreview.type }}</span>
+            <span style="font-weight:500">{{ nlPreview.t }}</span>
+            <span style="color:var(--m)">{{ nlPreview.r }}</span>
+          </div>
+        </sc-if>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
+          <sc-for list="{{ nlExamples }}" as="x" hint-placeholder-count="6">
+            <button onClick="{{ x.use }}" style="font-family:inherit;font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--br);background:transparent;color:var(--m);cursor:pointer">{{ x.text }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ hasPending }}" hint-placeholder-val="{{ false }}">
+          <h2 style="margin:36px 0 12px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m)">Waiting for you · from connected sources</h2>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <sc-for list="{{ pending }}" as="it" hint-placeholder-count="3">
+            <div style="padding:16px 18px;border-radius:12px;background:var(--s);border:1px solid var(--br);box-shadow:var(--sh)">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--m)">{{ it.src }}</span>
+                <span style="{{ it.tagStyle }}">→ {{ it.type }}</span>
+              </div>
+              <p style="margin:8px 0 0;font-size:14px;line-height:1.5">{{ it.text }}</p>
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <button onClick="{{ it.file }}" style="font-size:12.5px;font-weight:600;padding:6px 14px;border-radius:8px;border:none;background:var(--t);color:var(--b);cursor:pointer;font-family:inherit">File as {{ it.type }}</button>
+                <button onClick="{{ it.edit }}" style="font-size:12.5px;font-weight:500;padding:6px 14px;border-radius:8px;border:1px solid var(--br);background:transparent;color:var(--t);cursor:pointer;font-family:inherit">Edit</button>
+                <button onClick="{{ it.dismiss }}" style="font-size:12.5px;font-weight:500;padding:6px 14px;border-radius:8px;border:none;background:transparent;color:var(--m);cursor:pointer;font-family:inherit">Dismiss</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <h2 style="margin:36px 0 10px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m)">Filed from inbox</h2>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ filedRows }}" as="r" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid var(--br)">
+              <span style="{{ r.tagStyle }}">{{ r.type }}</span>
+              <div style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+                <span style="font-size:14px;font-weight:500">{{ r.t }}</span>
+                <span style="font-size:11.5px;color:var(--m)">{{ r.s }}</span>
+              </div>
+              <span style="font-size:12.5px;color:var(--m)">{{ r.r }}</span>
+              <button onClick="{{ r.del }}" title="Undo" style="border:none;background:none;color:var(--m);cursor:pointer;font-size:16px;padding:2px 4px">×</button>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noFiled }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:6px 0;font-size:13px;color:var(--m)">Nothing filed from the inbox yet.</p>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isTimeline }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Timeline" style="max-width:720px;margin:0 auto;padding:48px 44px 96px;animation:mfade .35s ease">
+        <h1 style="margin:0;font-family:'Newsreader',serif;font-weight:400;font-size:34px">Timeline</h1>
+        <p style="margin:6px 0 0;font-size:14.5px;color:var(--m)">Every entry you've logged, newest first.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:20px">
+          <sc-for list="{{ tlChips }}" as="ch" hint-placeholder-count="5">
+            <button style="{{ ch.style }}" onClick="{{ ch.pick }}">{{ ch.label }}</button>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;margin-top:10px">
+          <sc-for list="{{ timeline }}" as="e" hint-placeholder-count="8">
+            <sc-if value="{{ e.isDay }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m);padding:24px 0 8px">{{ e.label }}</div>
+            </sc-if>
+            <sc-if value="{{ e.isEntry }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:16px">
+                <div style="width:44px;flex:none;text-align:right;font-size:12px;color:var(--m);font-variant-numeric:tabular-nums;padding-top:13px">{{ e.time }}</div>
+                <div style="display:flex;flex-direction:column;align-items:center;flex:none">
+                  <div style="width:1px;flex:1;background:var(--br)"></div>
+                  <span style="{{ e.dotStyle }}"></span>
+                  <div style="width:1px;flex:1;background:var(--br)"></div>
+                </div>
+                <div style="flex:1;padding:9px 0;display:flex;gap:10px;align-items:center;min-width:0">
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+                      <span style="font-size:14px;font-weight:500">{{ e.t }}</span>
+                      <span style="font-size:11.5px;color:var(--m)">{{ e.type }}</span>
+                    </div>
+                    <sc-if value="{{ e.s }}" hint-placeholder-val="{{ false }}">
+                      <div style="font-size:12.5px;color:var(--m);margin-top:1px">{{ e.s }}</div>
+                    </sc-if>
+                  </div>
+                  <span style="font-size:12.5px;color:var(--m);font-variant-numeric:tabular-nums">{{ e.r }}</span>
+                  <button onClick="{{ e.del }}" title="Delete" style="border:none;background:none;color:var(--m);cursor:pointer;font-size:16px;padding:2px 4px;opacity:.5" style-hover="opacity:1">×</button>
+                </div>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Settings" style="max-width:760px;margin:0 auto;padding:48px 44px 96px;animation:mfade .35s ease">
+        <h1 style="margin:0;font-family:'Newsreader',serif;font-weight:400;font-size:34px">Settings &amp; goals</h1>
+        <p style="margin:6px 0 0;font-size:14.5px;color:var(--m)">Your targets drive every score and coach insight. Changes save instantly.</p>
+        <div style="display:flex;flex-direction:column;gap:30px;margin-top:28px">
+          <sc-for list="{{ settingsGroups }}" as="g" hint-placeholder-count="3">
+            <div>
+              <h2 style="margin:0 0 12px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m)">{{ g.title }}</h2>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;padding:18px 20px;border-radius:14px;background:var(--s);border:1px solid var(--br);box-shadow:var(--sh)">
+                <sc-for list="{{ g.fields }}" as="fd" hint-placeholder-count="4">
+                  <label style="{{ fd.wrapStyle }}">
+                    <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--m)">{{ fd.label }}</span>
+                    <sc-if value="{{ fd.isInput }}" hint-placeholder-val="{{ true }}">
+                      <input type="{{ fd.inputType }}" step="any" value="{{ fd.value }}" onChange="{{ fd.onChange }}" placeholder="{{ fd.ph }}" style="width:100%;font-family:inherit;font-size:13.5px;padding:8px 10px;border-radius:8px;border:1px solid var(--br);background:var(--b);color:var(--t);outline:none">
+                    </sc-if>
+                    <sc-if value="{{ fd.isSelect }}" hint-placeholder-val="{{ false }}">
+                      <select value="{{ fd.value }}" onChange="{{ fd.onChange }}" style="width:100%;font-family:inherit;font-size:13.5px;padding:8px 10px;border-radius:8px;border:1px solid var(--br);background:var(--b);color:var(--t);outline:none">
+                        <sc-for list="{{ fd.options }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+                      </select>
+                    </sc-if>
+                  </label>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+          <div>
+            <h2 style="margin:0 0 12px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m)">Your data · {{ entryCount }} entries, stored in this browser</h2>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <button onClick="{{ exportData }}" style="font-family:inherit;font-size:13px;font-weight:600;padding:9px 16px;border-radius:9px;border:none;background:var(--t);color:var(--b);cursor:pointer">Export JSON</button>
+              <button onClick="{{ resetDemo }}" style="font-family:inherit;font-size:13px;font-weight:500;padding:9px 16px;border-radius:9px;border:1px solid var(--br);background:var(--s);color:var(--t);cursor:pointer">Reset to demo data</button>
+              <button onClick="{{ clearAll }}" style="font-family:inherit;font-size:13px;font-weight:500;padding:9px 16px;border-radius:9px;border:1px solid var(--br);background:var(--s);color:var(--t);cursor:pointer">{{ clearLabel }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <button onClick="{{ openModal }}" title="Quick log" style="{{ fabStyle }}">+</button>
+  </main>
+
+  <sc-if value="{{ aiOn }}" hint-placeholder-val="{{ true }}">
+    <aside style="width:312px;flex:none;display:flex;flex-direction:column;border-left:1px solid var(--br);background:var(--s)">
+      <div style="padding:20px 20px 14px;border-bottom:1px solid var(--br);display:flex;align-items:baseline;gap:8px">
+        <span style="font-family:'Newsreader',serif;font-style:italic;font-size:17px">Coach</span>
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--m)">{{ contextLabel }}</span>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ chatMsgs }}" as="msg" hint-placeholder-count="3">
+          <div style="{{ msg.style }}">{{ msg.text }}</div>
+        </sc-for>
+      </div>
+      <div style="padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px">
+        <sc-for list="{{ chatSuggest }}" as="x" hint-placeholder-count="3">
+          <button onClick="{{ x.ask }}" style="font-family:inherit;font-size:11.5px;padding:4px 9px;border-radius:99px;border:1px solid var(--br);background:transparent;color:var(--m);cursor:pointer">{{ x.text }}</button>
+        </sc-for>
+      </div>
+      <div style="padding:12px 16px 14px;display:flex;gap:8px">
+        <input value="{{ chatInput }}" onChange="{{ onChatInput }}" onKeyDown="{{ onChatKey }}" placeholder="Ask about your data…" style="flex:1;min-width:0;font-family:inherit;font-size:13px;padding:9px 12px;border-radius:9px;border:1px solid var(--br);background:var(--b);color:var(--t);outline:none">
+        <button onClick="{{ sendChat }}" style="font-family:inherit;font-size:13px;font-weight:600;padding:9px 14px;border-radius:9px;border:none;background:var(--t);color:var(--b);cursor:pointer">↑</button>
+      </div>
+    </aside>
+  </sc-if>
+
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ modalBackdrop }}" style="position:fixed;inset:0;background:rgba(10,12,16,0.4);display:flex;align-items:flex-start;justify-content:center;padding:8vh 16px;z-index:50;animation:mfade .2s ease">
+      <div style="width:640px;max-width:100%;max-height:84vh;overflow-y:auto;padding:22px 24px;border-radius:16px;background:var(--s);color:var(--t);border:1px solid var(--br);box-shadow:0 20px 60px rgba(0,0,0,0.25)">
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <span style="font-family:'Newsreader',serif;font-size:22px">Quick log</span>
+          <span style="font-size:12px;color:var(--m)">Esc to close</span>
+          <button onClick="{{ closeModal }}" style="margin-left:auto;border:none;background:none;color:var(--m);font-size:20px;cursor:pointer">×</button>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:6px;padding:4px;border-radius:11px;border:1px solid var(--br);background:var(--b)">
+          <input value="{{ nl }}" onChange="{{ onNl }}" onKeyDown="{{ onNlKey }}" placeholder="Just type it — 'chicken bowl 680 kcal 48p' or '$63 groceries'" style="flex:1;min-width:0;font-family:inherit;font-size:14px;padding:9px 10px;border:none;background:transparent;color:var(--t);outline:none">
+        </div>
+        <sc-if value="{{ nlPreview }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12.5px">
+            <span style="color:var(--m)">↵ files as</span>
+            <span style="{{ nlPreview.tagStyle }}">{{ nlPreview.type }}</span>
+            <span style="font-weight:500">{{ nlPreview.t }}</span>
+            <span style="color:var(--m)">{{ nlPreview.r }}</span>
+          </div>
+        </sc-if>
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--m);margin:20px 0 10px">Or pick a type</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">
+          <sc-for list="{{ modal.chips }}" as="ch" hint-placeholder-count="10">
+            <button style="{{ ch.style }}" onClick="{{ ch.pick }}">{{ ch.label }}</button>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">
+          <sc-for list="{{ modal.fields }}" as="fd" hint-placeholder-count="4">
+            <label style="{{ fd.wrapStyle }}">
+              <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--m)">{{ fd.label }}</span>
+              <sc-if value="{{ fd.isInput }}" hint-placeholder-val="{{ true }}">
+                <input type="{{ fd.inputType }}" step="any" value="{{ fd.value }}" onChange="{{ fd.onChange }}" onKeyDown="{{ fd.onKey }}" placeholder="{{ fd.ph }}" style="width:100%;font-family:inherit;font-size:13.5px;padding:8px 10px;border-radius:8px;border:1px solid var(--br);background:var(--b);color:var(--t);outline:none">
+              </sc-if>
+              <sc-if value="{{ fd.isSelect }}" hint-placeholder-val="{{ false }}">
+                <select value="{{ fd.value }}" onChange="{{ fd.onChange }}" style="width:100%;font-family:inherit;font-size:13.5px;padding:8px 10px;border-radius:8px;border:1px solid var(--br);background:var(--b);color:var(--t);outline:none">
+                  <sc-for list="{{ fd.options }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+                </select>
+              </sc-if>
+              <sc-if value="{{ fd.isArea }}" hint-placeholder-val="{{ false }}">
+                <textarea value="{{ fd.value }}" onChange="{{ fd.onChange }}" placeholder="{{ fd.ph }}" rows="3" style="width:100%;font-family:inherit;font-size:13.5px;line-height:1.5;padding:8px 10px;border-radius:8px;border:1px solid var(--br);background:var(--b);color:var(--t);outline:none;resize:vertical"></textarea>
+              </sc-if>
+            </label>
+          </sc-for>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:18px">
+          <span style="font-size:12px;color:var(--m);flex:1">{{ modal.err }}</span>
+          <button onClick="{{ closeModal }}" style="font-family:inherit;font-size:13px;font-weight:500;padding:9px 16px;border-radius:9px;border:1px solid var(--br);background:transparent;color:var(--t);cursor:pointer">Cancel</button>
+          <button onClick="{{ modal.submit }}" style="font-family:inherit;font-size:13px;font-weight:600;padding:9px 18px;border-radius:9px;border:none;background:var(--t);color:var(--b);cursor:pointer">{{ modal.cta }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:14px;padding:10px 12px 10px 16px;border-radius:12px;background:var(--t);color:var(--b);font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,0.2);animation:mfade .2s ease">
+      <span>{{ toast.text }}</span>
+      <sc-if value="{{ toast.canUndo }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ toast.undo }}" style="font-family:inherit;font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:7px;border:1px solid rgba(255,255,255,0.25);background:transparent;color:inherit;cursor:pointer">Undo</button>
+      </sc-if>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Porcelain&quot;,&quot;Ink&quot;,&quot;Dusk&quot;],&quot;default&quot;:&quot;Porcelain&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Appearance&quot;},&quot;pillarAccents&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Appearance&quot;},&quot;aiPanel&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { page: 'home', db: this.loadDb(), forms: {}, errs: {}, modType: {}, modal: null, toast: null, nl: '', chat: [], chatInput: '', dayOff: 0, tlFilter: 'all', confirmClear: false, newTask: '' };
+
+  loadDb() {
+    try { var d = JSON.parse(localStorage.getItem('meridian.app.v1')); if (d && d.entries) return d; } catch (e) {}
+    return this.seed();
+  }
+  componentDidMount() {
+    this.save();
+    this._esc = e => { if (e.key === 'Escape' && this.state.modal) this.setState({ modal: null }); };
+    window.addEventListener('keydown', this._esc);
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this._esc); clearTimeout(this._tt); }
+  componentDidUpdate(pp, ps) { if (ps.db !== this.state.db) this.save(); }
+  save() { try { localStorage.setItem('meridian.app.v1', JSON.stringify(this.state.db)); } catch (e) {} }
+
+  pad(n) { return String(n).padStart(2, '0'); }
+  dk(d) { d = new Date(d); return d.getFullYear() + '-' + this.pad(d.getMonth() + 1) + '-' + this.pad(d.getDate()); }
+  hm(d) { d = new Date(d); return this.pad(d.getHours()) + ':' + this.pad(d.getMinutes()); }
+  n(x) { return Math.round(+x || 0).toLocaleString('en-US'); }
+  money(v, cur) { return (cur || '$') + (Math.abs(+v || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  hrs(h) { h = +h || 0; var H = Math.floor(h), M = Math.round((h - H) * 60); return H + 'h' + (M ? ' ' + this.pad(M) + 'm' : ''); }
+  offKey(off) { var d = new Date(); d.setDate(d.getDate() - off); return this.dk(d); }
+  dayLabel(k) {
+    if (k === this.offKey(0)) return 'Today';
+    if (k === this.offKey(1)) return 'Yesterday';
+    return new Date(k + 'T12:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+  uid() { return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+  seed() {
+    var E = [], now = new Date(), i = 0;
+    var at = (ago, h, m) => { var d = new Date(now); d.setDate(d.getDate() - ago); d.setHours(h, m || 0, 0, 0); return d; };
+    var add = (type, d, o, keepFuture) => { if (!keepFuture && d > now) return; E.push(Object.assign({ id: 's' + (i++), type: type, ts: d.toISOString() }, o)); };
+    var B = [['Oats, eggs & berries', 520, 32, 62, 14], ['Greek yogurt & granola', 410, 28, 52, 10], ['Eggs on sourdough', 460, 26, 38, 22]];
+    var L = [['Chicken rice bowl', 680, 48, 78, 16], ['Tuna salad wrap', 590, 40, 55, 20], ['Beef & quinoa bowl', 720, 46, 70, 24]];
+    var S = [['Protein shake', 240, 30, 12, 5], ['Apple & peanut butter', 260, 7, 28, 14]];
+    var D = [['Salmon & vegetables', 640, 42, 30, 34], ['Turkey ragù pasta', 760, 44, 92, 20], ['Tofu stir-fry & rice', 610, 30, 80, 16]];
+    var meal = (ago, h, m, arr, kind) => add('meal', at(ago, h, m), { name: arr[0], meal: kind, kcal: arr[1], p: arr[2], c: arr[3], f: arr[4] });
+    var sleepH = [6.7, 6.8, 7.1, 6.4, 7.5, 6.9, 7.2], moods = [8, 9, 8, 7, 6, 8, 7];
+    var habits = ['Meditate', 'Read 20 min', 'Walk outside', 'No sugar'];
+    for (var d = 6; d >= 0; d--) {
+      meal(d, 8, 3, B[d % 3], 'Breakfast'); meal(d, 12, 30, L[d % 3], 'Lunch'); meal(d, 15, 40, S[d % 2], 'Snack'); meal(d, 19, 30, D[d % 3], 'Dinner');
+      [9, 11, 14, 17].forEach((h, k) => add('water', at(d, h, 10), { ml: k === 3 && d % 2 ? 250 : 500 }));
+      add('weight', at(d, 7, 0), { kg: +(78.2 + d * 0.11).toFixed(1) });
+      add('sleep', at(d, 6, 45), { hours: sleepH[d], q: Math.round(70 + sleepH[d] * 2 + (d % 3) * 3), bed: d % 2 ? '23:40' : '23:10' });
+      add('focus', at(d, 9, 30), { what: ['Roadmap draft', 'Client proposal', 'Code review', 'Writing', 'Roadmap draft', 'Planning', 'Research'][d], min: [90, 60, 75, 30, 45, 120, 90][d] });
+      if (d !== 4) add('meditation', at(d, 22, 5), { kind: d % 2 ? 'Breathing' : 'Timer', min: d % 3 ? 10 : 15 });
+      add('journal', at(d, 21, 15), { mood: moods[d], grat: ['Morning light', 'A long call with Mom', 'Finished a hard workout', 'Quiet Sunday', 'Good coffee', 'Shipping the draft', 'Friends over'][d], text: ['Felt focused. Kept the phone away until noon.', 'Energy dipped after lunch, walk helped.', 'Productive but rushed. Need to protect evenings.', 'Slow day, needed it.', 'Slept badly, irritable in the morning.', 'Great training session, strong all day.', 'Ok day. Too many meetings.'][d] });
+      habits.forEach((h, k) => { if ((d * 7 + k * 3) % 5 !== 0) add('habit', at(d, 20, k), { name: h }); });
+    }
+    [[6, 'Push day', 'Strength', 48], [4, 'Leg day', 'Strength', 64, null, 'Squat 5×5 @ 100 kg'], [3, 'Easy run', 'Run', 31, 5.2], [1, 'Pull day', 'Strength', 52, null, 'PR: weighted pull-up +20 kg']].forEach(w => add('workout', at(w[0], 18, 10), { name: w[1], kind: w[2], min: w[3], km: w[4] || '', notes: w[5] || '' }));
+    add('workout', at(0, 7, 12), { name: 'Morning run', kind: 'Run', min: 28, km: 5.0, notes: 'Pace 5:36 /km' });
+    [['Roadmap draft — deep work', 'P1', 1, 0], ['AWS course — module 7', 'P2', 0, 0], ['Review monthly budget', 'P3', 0, 0], ['Email accountant', 'P3', 1, 0], ['Book dentist appointment', 'P2', 0, 1], ['Prepare Friday slides', 'P1', 1, 1]].forEach(t => add('task', at(t[3], 8, 0), { text: t[0], prio: t[1], done: !!t[2] }, true));
+    [['Meridian roadmap', 'In progress', 7], ['AWS certification', 'In progress', 40], ['Home gym setup', 'Backlog', ''], ['Blog redesign', 'Backlog', ''], ['Q3 personal review', 'Done', '']].forEach(p => { var due = p[2] === '' ? '' : this.dk(at(-p[2], 12)); add('project', at(20, 10), { name: p[0], status: p[1], due: due }, true); });
+    [['Agents as personal infrastructure', '#ai #systems', 'What if every life domain had a small agent watching the data?', 0], ['Weekly review template v3', '#systems', 'Wins, misses, energy, next week’s three bets.', 2], ['Zettelkasten pruning rules', '#pkm', 'Merge notes with fewer than 2 links after 90 days.', 4], ['Startup idea: habit insurance', '#ideas', 'Pay to stake money on habits.', 5]].forEach(x => add('note', at(x[3], 13, 5), { title: x[0], tags: x[1], body: x[2] }));
+    [[0, 'AWS — module 6', 'Course', 45], [1, 'Deep Work', 'Book', 30], [2, 'Spanish', 'Language', 20], [3, 'AWS — module 5', 'Course', 50], [5, 'Spanish', 'Language', 20], [6, 'Latent Space — agents episode', 'Podcast', 62]].forEach(x => add('study', at(x[0], 20, 30), { subject: x[1], kind: x[2], min: x[3] }));
+    var X = [['Groceries — Whole Foods', 'Groceries', 63.4], ['Coffee', 'Dining', 4.8], ['Uber', 'Transport', 18.4], ['Lunch out', 'Dining', 14.5], ['Pharmacy', 'Health', 22], ['Dinner with friends', 'Dining', 62], ['Books', 'Shopping', 28], ['Fuel', 'Transport', 40], ['Groceries — market', 'Groceries', 41.2], ['Coffee', 'Dining', 5.2]];
+    for (var a = 0; a < 30; a++) {
+      var dd = at(a, 12, 41);
+      add('expense', dd, { desc: X[a % X.length][0], cat: X[a % X.length][1], amount: X[a % X.length][2] });
+      if (a % 3 === 0) add('expense', at(a, 18, 20), { desc: X[(a + 5) % X.length][0], cat: X[(a + 5) % X.length][1], amount: X[(a + 5) % X.length][2] });
+      if (dd.getDate() === 1) { add('income', at(a, 9), { desc: 'Salary — Acme Inc.', amount: 5400 }); add('expense', at(a, 9, 30), { desc: 'Rent', cat: 'Housing', amount: 1600 }); }
+      if (dd.getDate() === 5) add('expense', at(a, 8), { desc: 'Spotify', cat: 'Subscriptions', amount: 11.99 });
+      if (dd.getDate() === 12) add('expense', at(a, 8), { desc: 'Netflix', cat: 'Subscriptions', amount: 15.49 });
+      if (dd.getDate() === 15) add('income', at(a, 10), { desc: 'Freelance invoice', amount: 850 });
+    }
+    return {
+      v: 1, name: 'Daniel Costa', currency: '$', entries: E,
+      goals: { kcal: 2400, p: 160, c: 280, f: 80, water: 2500, sleep: 7.5, workouts: 5, focus: 120 },
+      budgets: { Groceries: 600, Dining: 350, Transport: 150, Housing: 1600, Subscriptions: 60, Health: 120, Shopping: 200, Other: 150 },
+      habits: habits,
+      pending: [
+        { id: 'p1', src: 'WhatsApp', text: 'bench 5x5 80kg 45 min' },
+        { id: 'p2', src: 'Email', text: 'Receipt — Uber $18.40' },
+        { id: 'p3', src: 'Voice', text: 'idea: weekly review could auto-draft itself from my journal' },
+        { id: 'p4', src: 'Manual', text: 'buy protein powder' }
+      ]
+    };
+  }
+
+  // ---------- config ----------
+  meta() {
+    return {
+      meal: ['Meal', 'body', 'nutrition'], water: ['Water', 'body', 'nutrition'], weight: ['Weight', 'body', 'nutrition'],
+      workout: ['Workout', 'body', 'training'], sleep: ['Sleep', 'body', 'sleep'],
+      task: ['Task', 'mind', 'focus'], focus: ['Deep work', 'mind', 'focus'], habit: ['Habit', 'mind', 'focus'],
+      project: ['Project', 'mind', 'projects'], note: ['Note', 'mind', 'knowledge'], study: ['Study', 'mind', 'learning'],
+      expense: ['Expense', 'money', 'finance'], income: ['Income', 'money', 'finance'],
+      meditation: ['Meditation', 'spirit', 'meditation'], journal: ['Journal', 'spirit', 'journal']
+    };
+  }
+  fieldDefs(type, db) {
+    var F = {
+      meal: [['name', 'Food', 'text', 'Oats with berries', 1], ['meal', 'Meal', 'select', ['Breakfast', 'Lunch', 'Dinner', 'Snack']], ['kcal', 'Calories', 'number', 'kcal'], ['p', 'Protein (g)', 'number', 'g'], ['c', 'Carbs (g)', 'number', 'g'], ['f', 'Fat (g)', 'number', 'g']],
+      water: [['ml', 'Amount (ml)', 'number', '250']],
+      weight: [['kg', 'Weight (kg)', 'number', '78.2']],
+      workout: [['name', 'Workout', 'text', 'Push day', 1], ['kind', 'Type', 'select', ['Strength', 'Run', 'Cardio', 'Mobility', 'Sport']], ['min', 'Minutes', 'number', '45'], ['km', 'Distance (km)', 'number', 'optional'], ['notes', 'Notes', 'text', 'Bench 5×5 @ 80 kg', 1]],
+      sleep: [['hours', 'Hours slept', 'number', '7.5'], ['q', 'Quality (%)', 'number', '80'], ['bed', 'Bedtime', 'time', '']],
+      task: [['text', 'Task', 'text', 'What needs doing?', 1], ['prio', 'Priority', 'select', ['P1', 'P2', 'P3']]],
+      focus: [['what', 'Worked on', 'text', 'Roadmap draft', 1], ['min', 'Minutes', 'number', '50']],
+      project: [['name', 'Project', 'text', 'Home gym setup', 1], ['status', 'Status', 'select', ['Backlog', 'In progress', 'Done']], ['due', 'Due', 'date', '']],
+      note: [['title', 'Title', 'text', 'An idea worth keeping', 1], ['tags', 'Tags', 'text', '#ai #systems'], ['body', 'Note', 'area', 'Write it down…', 1]],
+      study: [['subject', 'Subject', 'text', 'AWS — module 7', 1], ['kind', 'Type', 'select', ['Course', 'Book', 'Article', 'Podcast', 'Language', 'Flashcards']], ['min', 'Minutes', 'number', '45']],
+      expense: [['desc', 'Description', 'text', 'Groceries', 1], ['amount', 'Amount', 'number', '0.00'], ['cat', 'Category', 'select', Object.keys(db.budgets)]],
+      income: [['desc', 'Description', 'text', 'Salary', 1], ['amount', 'Amount', 'number', '0.00']],
+      meditation: [['kind', 'Type', 'select', ['Timer', 'Guided', 'Breathing', 'Body scan']], ['min', 'Minutes', 'number', '10']],
+      journal: [['mood', 'Mood (1–10)', 'number', '8'], ['grat', 'Grateful for', 'text', 'Morning sun', 1], ['text', 'Entry', 'area', 'How was today?', 1]]
+    }[type] || [];
+    var fs = F.map(f => ({ k: f[0], label: f[1], kind: f[2], ph: Array.isArray(f[3]) ? '' : f[3], options: Array.isArray(f[3]) ? f[3] : null, wide: !!f[4] }));
+    if (type !== 'task' && type !== 'project') fs.push({ k: 'date', label: 'Date', kind: 'date' }, { k: 'time', label: 'Time', kind: 'time' });
+    return fs;
+  }
+  req() { return { meal: ['name', 'kcal'], water: ['ml'], weight: ['kg'], workout: ['name'], sleep: ['hours'], task: ['text'], focus: ['min'], project: ['name'], note: ['title'], study: ['subject'], expense: ['desc', 'amount'], income: ['amount'], meditation: ['min'], journal: ['mood'] }; }
+  mods() {
+    return {
+      nutrition: { p: 'body', label: 'Nutrition', purpose: 'Log meals, macros, water and weight.', types: ['meal', 'water', 'weight'] },
+      training: { p: 'body', label: 'Training', purpose: 'Log workouts and stay consistent.', types: ['workout'] },
+      sleep: { p: 'body', label: 'Sleep', purpose: 'Log how long and how well you slept.', types: ['sleep'] },
+      focus: { p: 'mind', label: 'Focus', purpose: 'Tasks, deep work and daily habits.', types: ['task', 'focus'] },
+      projects: { p: 'mind', label: 'Projects', purpose: 'Everything you’re building, on one board.', types: ['project'] },
+      knowledge: { p: 'mind', label: 'Knowledge', purpose: 'Notes and ideas — your second brain.', types: ['note'] },
+      learning: { p: 'mind', label: 'Learning', purpose: 'Study sessions, books, courses, languages.', types: ['study'] },
+      finance: { p: 'money', label: 'Finance', purpose: 'Expenses, income and monthly budgets.', types: ['expense', 'income'] },
+      meditation: { p: 'spirit', label: 'Meditation', purpose: 'Log sessions and keep the streak.', types: ['meditation'] },
+      journal: { p: 'spirit', label: 'Journal', purpose: 'Mood, gratitude and reflection.', types: ['journal'] }
+    };
+  }
+  pillarDefs() {
+    return [
+      { id: 'body', label: 'Body', acc: '--ab', tagline: 'Physical health & performance', mods: ['nutrition', 'training', 'sleep'] },
+      { id: 'mind', label: 'Mind', acc: '--am', tagline: 'Productivity & knowledge', mods: ['focus', 'projects', 'knowledge', 'learning'] },
+      { id: 'money', label: 'Money', acc: '--aw', tagline: 'Your personal CFO', mods: ['finance'] },
+      { id: 'spirit', label: 'Spirit', acc: '--as', tagline: 'Clarity & emotional wellbeing', mods: ['meditation', 'journal'] }
+    ];
+  }
+  accOf(p) { return { body: '--ab', mind: '--am', money: '--aw', spirit: '--as' }[p] || '--ab'; }
+
+  themeVars() {
+    var name = this.props.theme ?? 'Porcelain';
+    var T = {
+      Porcelain: { '--b': '#F3F4F6', '--s': '#FFFFFF', '--t': '#1B1F24', '--m': '#6B7280', '--br': 'rgba(27,31,36,0.09)', '--hl': 'rgba(27,31,36,0.045)', '--sh': '0 1px 2px rgba(27,31,36,0.05)' },
+      Ink: { '--b': '#FBFBFC', '--s': '#FBFBFC', '--t': '#17191C', '--m': '#5F656D', '--br': 'rgba(23,25,28,0.16)', '--hl': 'rgba(23,25,28,0.055)', '--sh': 'none' },
+      Dusk: { '--b': '#131519', '--s': '#1B1E24', '--t': '#E7EAEE', '--m': '#8D95A1', '--br': 'rgba(231,234,238,0.1)', '--hl': 'rgba(231,234,238,0.055)', '--sh': '0 1px 3px rgba(0,0,0,0.35)' }
+    }[name] || {};
+    var dark = name === 'Dusk', L = dark ? 0.74 : 0.55, C = 0.09, ok = h => 'oklch(' + L + ' ' + C + ' ' + h + ')';
+    if (this.props.pillarAccents ?? true) { T['--ab'] = ok(245); T['--am'] = ok(305); T['--as'] = ok(165); T['--aw'] = ok(70); }
+    else { var g = dark ? 'oklch(0.8 0.02 250)' : 'oklch(0.4 0.02 250)'; T['--ab'] = T['--am'] = T['--as'] = T['--aw'] = g; }
+    return T;
+  }
+  dot(acc, size) { size = size || 7; return { width: size + 'px', height: size + 'px', borderRadius: '99px', background: 'var(' + acc + ')', flex: 'none', display: 'inline-block' }; }
+  navStyle(active) { return { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '13.5px', userSelect: 'none', fontWeight: active ? 600 : 500, color: active ? 'var(--t)' : 'var(--m)', background: active ? 'var(--hl)' : 'transparent' }; }
+  tagStyle(acc) { return { fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', padding: '3px 9px', borderRadius: '99px', color: 'var(' + acc + ')', border: '1px solid var(--br)', flex: 'none', whiteSpace: 'nowrap' }; }
+  chipStyle(on) { return { fontFamily: 'inherit', fontSize: '12.5px', fontWeight: on ? 600 : 500, padding: '5px 12px', borderRadius: '99px', cursor: 'pointer', border: '1px solid ' + (on ? 'var(--t)' : 'var(--br)'), background: on ? 'var(--t)' : 'transparent', color: on ? 'var(--b)' : 'var(--t)' }; }
+  checkStyle(done) { return { width: '18px', height: '18px', flex: 'none', borderRadius: '99px', cursor: 'pointer', border: '1.5px solid ' + (done ? 'transparent' : 'var(--m)'), background: done ? 'var(--t)' : 'transparent', color: 'var(--b)', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }; }
+  go(page) { return () => this.setState({ page: page, chat: [], dayOff: 0 }); }
+
+  // ---------- data ops ----------
+  upd(fn) { this.setState(s => ({ db: fn(s.db) })); }
+  addEntry(e, msg) {
+    this.upd(db => Object.assign({}, db, { entries: db.entries.concat([e]) }));
+    this.toast(msg || 'Logged', e.id);
+  }
+  delEntry(id, silent) {
+    var e = this.state.db.entries.find(x => x.id === id);
+    this.upd(db => Object.assign({}, db, { entries: db.entries.filter(x => x.id !== id) }));
+    if (!silent && e) this.toast('Deleted ' + this.meta()[e.type][0].toLowerCase(), null, e);
+  }
+  patchEntry(id, patch) { this.upd(db => Object.assign({}, db, { entries: db.entries.map(x => x.id === id ? Object.assign({}, x, patch) : x) })); }
+  toast(text, undoId, restore) {
+    clearTimeout(this._tt);
+    this.setState({ toast: { text: text, undoId: undoId, restore: restore } });
+    this._tt = setTimeout(() => this.setState({ toast: null }), 4500);
+  }
+  undoToast() {
+    var t = this.state.toast; if (!t) return;
+    if (t.undoId) this.delEntry(t.undoId, true);
+    if (t.restore) this.upd(db => Object.assign({}, db, { entries: db.entries.concat([t.restore]) }));
+    this.setState({ toast: null });
+  }
+  summary(e, cur) {
+    var m = v => this.money(v, cur);
+    switch (e.type) {
+      case 'meal': return { t: e.name, s: e.meal + (e.p || e.c || e.f ? ' · P ' + this.n(e.p) + ' · C ' + this.n(e.c) + ' · F ' + this.n(e.f) : ''), r: this.n(e.kcal) + ' kcal' };
+      case 'water': return { t: 'Water', s: '', r: this.n(e.ml) + ' ml' };
+      case 'weight': return { t: 'Weight', s: '', r: e.kg + ' kg' };
+      case 'workout': return { t: e.name, s: [e.kind, e.km ? e.km + ' km' : '', e.notes].filter(Boolean).join(' · '), r: e.min ? e.min + ' min' : '' };
+      case 'sleep': return { t: 'Slept ' + this.hrs(e.hours), s: [e.q ? 'quality ' + e.q + '%' : '', e.bed ? 'bed ' + e.bed : ''].filter(Boolean).join(' · '), r: '' };
+      case 'task': return { t: e.text, s: e.prio + (e.done ? ' · done' : ''), r: '' };
+      case 'focus': return { t: e.what || 'Deep work', s: 'Deep work', r: e.min + ' min' };
+      case 'habit': return { t: e.name, s: 'Habit', r: '✓' };
+      case 'project': return { t: e.name, s: e.status + (e.due ? ' · due ' + this.dayLabel(e.due) : ''), r: '' };
+      case 'note': return { t: e.title, s: [e.tags, (e.body || '').slice(0, 70)].filter(Boolean).join(' · '), r: '' };
+      case 'study': return { t: e.subject, s: e.kind, r: e.min ? e.min + ' min' : '' };
+      case 'expense': return { t: e.desc, s: e.cat, r: '−' + m(e.amount) };
+      case 'income': return { t: e.desc || 'Income', s: 'Income', r: '+' + m(e.amount) };
+      case 'meditation': return { t: e.kind || 'Meditation', s: 'Meditation', r: e.min + ' min' };
+      case 'journal': return { t: e.text ? (e.text.length > 64 ? e.text.slice(0, 64) + '…' : e.text) : 'Journal entry', s: ['mood ' + e.mood + '/10', e.grat ? 'grateful: ' + e.grat : ''].filter(Boolean).join(' · '), r: '' };
+    }
+    return { t: e.type, s: '', r: '' };
+  }
+
+  // ---------- forms ----------
+  defaults(type, dayKey) {
+    var h = new Date().getHours(), d = {};
+    this.fieldDefs(type, this.state.db).forEach(f => { if (f.options) d[f.k] = f.options[0]; });
+    if (type === 'meal') d.meal = h < 11 ? 'Breakfast' : h < 15 ? 'Lunch' : h < 18 ? 'Snack' : 'Dinner';
+    if (type === 'water') d.ml = '250';
+    if (type === 'meditation') d.min = '10';
+    if (type === 'task') d.prio = 'P2';
+    if (type === 'sleep') { d.q = '80'; }
+    d.date = dayKey || this.dk(new Date()); d.time = this.hm(new Date());
+    return d;
+  }
+  formVals(type, dayKey) { return Object.assign(this.defaults(type, dayKey), this.state.forms[type] || {}); }
+  setField(type, k, v) { this.setState(s => ({ forms: Object.assign({}, s.forms, { [type]: Object.assign({}, s.forms[type] || {}, { [k]: v }) }), errs: Object.assign({}, s.errs, { [type]: '' }) })); }
+  submit(type, dayKey) {
+    var db = this.state.db, v = this.formVals(type, dayKey), defs = this.fieldDefs(type, db);
+    var miss = (this.req()[type] || []).filter(k => v[k] === undefined || String(v[k]).trim() === '');
+    if (miss.length) { var lab = defs.find(f => f.k === miss[0]); this.setState(s => ({ errs: Object.assign({}, s.errs, { [type]: 'Add ' + (lab ? lab.label.toLowerCase() : miss[0]) + ' to save.' }) })); return; }
+    var e = { id: this.uid(), type: type };
+    defs.forEach(f => { if (f.k === 'date' || f.k === 'time') return; var x = v[f.k]; if (f.kind === 'number') x = x === '' || x == null ? '' : +x; e[f.k] = typeof x === 'string' ? x.trim() : x; });
+    var ts = v.date ? new Date(v.date + 'T' + (v.time || '12:00')) : new Date();
+    e.ts = (isNaN(ts) ? new Date() : ts).toISOString();
+    if (type === 'task') e.done = false;
+    var sm = this.summary(e, db.currency);
+    this.addEntry(e, 'Logged ' + this.meta()[type][0].toLowerCase() + ' · ' + sm.t + (sm.r ? ' · ' + sm.r : ''));
+    this.setState(s => ({ forms: Object.assign({}, s.forms, { [type]: {} }), modal: s.modal ? null : s.modal, errs: Object.assign({}, s.errs, { [type]: '' }) }));
+  }
+  formView(type, types, pick, dayKey) {
+    var db = this.state.db, v = this.formVals(type, dayKey), M = this.meta();
+    var sub = () => this.submit(type, dayKey);
+    var onKey = e => { if (e.key === 'Enter') sub(); };
+    return {
+      chips: types.length > 1 ? types.map(t => ({ label: M[t][0], style: this.chipStyle(t === type), pick: () => pick(t) })) : [],
+      fields: this.fieldDefs(type, db).map(f => ({
+        label: f.label, value: v[f.k] == null ? '' : v[f.k], ph: f.ph || '', options: f.options || [],
+        isSelect: f.kind === 'select', isArea: f.kind === 'area', isInput: f.kind !== 'select' && f.kind !== 'area',
+        inputType: f.kind === 'text' ? 'text' : f.kind, onKey: onKey,
+        onChange: e => this.setField(type, f.k, e.target.value),
+        wrapStyle: { display: 'flex', flexDirection: 'column', gap: '5px', gridColumn: f.wide ? '1 / -1' : 'auto' }
+      })),
+      err: this.state.errs[type] || '', submit: sub, cta: 'Save ' + M[type][0].toLowerCase()
+    };
+  }
+
+  // ---------- natural language ----------
+  parse(raw, db) {
+    var s = (raw || '').trim(); if (!s) return null;
+    var l = s.toLowerCase();
+    var num = re => { var m = l.match(re); return m ? parseFloat(m[1].replace(',', '.')) : null; };
+    var minutes = () => { var h = l.match(/(\d+(?:[.,]\d+)?)\s*h(?:ours?|rs?)?\b/); var m = num(/(\d+)\s*(?:min|mins|minutes|m)\b/); return (h ? parseFloat(h[1].replace(',', '.')) * 60 : 0) + (m || 0) || null; };
+    var clean = x => x.replace(/\s{2,}/g, ' ').replace(/^[\s,:;—–-]+|[\s,:;—–-]+$/g, '').trim();
+    var cap = x => x ? x.charAt(0).toUpperCase() + x.slice(1) : x;
+    var kcal = num(/(\d+(?:[.,]\d+)?)\s*(?:kcal|cals?|calories)\b/);
+    if (kcal != null) {
+      var mac = k => num(new RegExp('(\\d+(?:[.,]\\d+)?)\\s*g?\\s*(?:' + k + ')\\b')) ?? num(new RegExp('\\b(?:' + k + ')\\s*(\\d+(?:[.,]\\d+)?)'));
+      var mk = (l.match(/\b(breakfast|lunch|dinner|snack)\b/) || [])[1];
+      var name = clean(s.replace(/\d+(?:[.,]\d+)?\s*g?\s*(?:kcal|cals?|calories|protein|prot|carbs?|fat|p|c|f)\b/gi, '').replace(/\b(?:protein|prot|carbs?|fat|p|c|f)\s*\d+(?:[.,]\d+)?/gi, '').replace(/\b(breakfast|lunch|dinner|snack)\b:?/gi, ''));
+      var h = new Date().getHours();
+      return { type: 'meal', vals: { name: cap(name) || 'Meal', meal: mk ? cap(mk) : (h < 11 ? 'Breakfast' : h < 15 ? 'Lunch' : h < 18 ? 'Snack' : 'Dinner'), kcal: kcal, p: mac('p|protein|prot') ?? '', c: mac('c|carbs?') ?? '', f: mac('f|fat') ?? '' } };
+    }
+    var mm = s.match(/(?:r\$|\$|€|£)\s*(\d+(?:[.,]\d{1,2})?)/i) || s.match(/(\d+(?:[.,]\d{1,2})?)\s*(?:r\$|\$|€|£|usd|brl|eur|reais|dollars|bucks)\b/i);
+    if (!mm && /\b(spent|paid|bought|gastei|paguei)\b/.test(l)) mm = s.match(/(\d+(?:[.,]\d{1,2})?)/);
+    if (mm) {
+      var amt = parseFloat(mm[1].replace(',', '.'));
+      var desc = cap(clean(s.replace(mm[0], '').replace(/\b(spent|paid|bought|on|for|gastei|paguei|received|earned|got)\b/gi, '').replace(/receipt\s*[—–-]?/i, '')));
+      if (/\b(salary|income|earned|received|refund|freelance|invoice paid|dividend|salário)\b/.test(l)) return { type: 'income', vals: { desc: desc || 'Income', amount: amt } };
+      var cats = [['Groceries', /grocer|market|supermarket|whole foods|mercado/], ['Dining', /coffee|lunch|dinner|restaurant|cafe|café|bar|pizza|burger|ifood|takeout|breakfast/], ['Transport', /uber|taxi|bus|metro|train|fuel|gas|gasolina|parking|99/], ['Housing', /rent|aluguel|electric|internet|water bill/], ['Subscriptions', /spotify|netflix|subscription|icloud|youtube|prime/], ['Health', /pharmacy|doctor|gym|dentist|farmácia|medic/], ['Shopping', /book|amazon|clothes|shoes|shop/]];
+      var cat = (cats.find(c => c[1].test(l)) || ['Other'])[0];
+      if (!db.budgets[cat]) cat = Object.keys(db.budgets)[0];
+      return { type: 'expense', vals: { desc: desc || cat, amount: amt, cat: cat } };
+    }
+    if (/\b(water|agua|água)\b/.test(l) || /\d\s*ml\b/.test(l)) {
+      var ml = num(/(\d+(?:[.,]\d+)?)\s*ml\b/) ?? ((num(/(\d+(?:[.,]\d+)?)\s*l\b/) || 0) * 1000 || 250);
+      return { type: 'water', vals: { ml: ml } };
+    }
+    if (/\b(slept|sleep|sono|dormi)\b/.test(l)) {
+      var hm = l.match(/(\d+)\s*h\s*(\d+)/), hours = hm ? +hm[1] + +hm[2] / 60 : num(/(\d+(?:[.,]\d+)?)\s*(?:h|hours?|hrs?)?\b/);
+      return { type: 'sleep', vals: { hours: hours ? +hours.toFixed(2) : 7, q: num(/(\d+)\s*%/) ?? '', bed: '' } };
+    }
+    if (/\b(weigh|weight|weighed|peso)\b/.test(l)) return { type: 'weight', vals: { kg: num(/(\d+(?:[.,]\d+)?)/) } };
+    if (/medit|breath|respira/.test(l)) return { type: 'meditation', vals: { kind: /breath|respira/.test(l) ? 'Breathing' : 'Timer', min: minutes() || 10 } };
+    if (/deep work|\bfocus|pomodoro/.test(l)) return { type: 'focus', vals: { what: cap(clean(s.replace(/deep work|focus(ed)?|pomodoro|\d+\s*(min|mins|minutes|m|h)\b|\bon\b/gi, ''))) || 'Deep work', min: minutes() || 25 } };
+    if (/\b(run|ran|jog|bench|squat|deadlift|gym|workout|lift|lifted|push day|pull day|leg day|legs|yoga|swim|swam|bike|biked|cycl\w*|hike|treino|corrida|hiit|press|rowing|pilates|climb\w*)\b/.test(l)) {
+      var kind = /run|ran|jog|corrida/.test(l) ? 'Run' : /yoga|pilates|mobility|stretch/.test(l) ? 'Mobility' : /swim|swam|bike|biked|cycl|hike|hiit|rowing/.test(l) ? 'Cardio' : 'Strength';
+      var km = num(/(\d+(?:[.,]\d+)?)\s*(?:km|k)\b/);
+      return { type: 'workout', vals: { name: cap(clean(s.replace(/\d+\s*(min|mins|minutes)\b/gi, ''))), kind: kind, min: minutes() || '', km: km ?? '', notes: '' } };
+    }
+    if (/\b(study|studied|read|reading|course|class|lesson|flashcards?|podcast|lecture|estudei)\b/.test(l)) {
+      var sk = /podcast/.test(l) ? 'Podcast' : /read|book/.test(l) ? 'Book' : /flashcard/.test(l) ? 'Flashcards' : /spanish|english|french|german|language|duolingo/.test(l) ? 'Language' : 'Course';
+      return { type: 'study', vals: { subject: cap(clean(s.replace(/\b(studied|study|read|reading)\b|\d+\s*(min|mins|minutes|m|h)\b/gi, ''))) || 'Study', kind: sk, min: minutes() || '' } };
+    }
+    if (/\bmood\b|grateful|gratitude|journal|\bfeel|\bfelt\b/.test(l)) {
+      var md = num(/mood\s*[:=]?\s*(\d+)/) ?? num(/(\d+)\s*\/\s*10/) ?? 7;
+      var gm = s.match(/grateful (?:for )?(.+)/i);
+      return { type: 'journal', vals: { mood: Math.min(10, md), grat: gm ? clean(gm[1]) : '', text: s } };
+    }
+    if (/^(idea|note|nota)\b[:\s]*/i.test(s)) {
+      var body = s.replace(/^(idea|note|nota)\b[:\s]*/i, '');
+      return { type: 'note', vals: { title: cap(body.length > 60 ? body.slice(0, 60) + '…' : body), tags: /^idea/i.test(s) ? '#ideas' : '', body: body } };
+    }
+    if (/^(todo|task|tarefa)\b[:\s]*/i.test(s)) return { type: 'task', vals: { text: cap(s.replace(/^(todo|task|tarefa)\b[:\s]*/i, '')), prio: 'P2' } };
+    if (/^(buy|call|email|book|schedule|pay|fix|remind|send|finish|review|write|prepare|clean|order|cancel|renew)\b/i.test(s)) return { type: 'task', vals: { text: cap(s), prio: 'P2' } };
+    return { type: 'note', vals: { title: cap(s.length > 60 ? s.slice(0, 60) + '…' : s), tags: '', body: s } };
+  }
+  fileParsed(p, src) {
+    if (!p) return;
+    var e = Object.assign({ id: this.uid(), type: p.type, ts: new Date().toISOString(), src: src || 'inbox' }, p.vals);
+    if (p.type === 'task') e.done = false;
+    var sm = this.summary(e, this.state.db.currency);
+    this.addEntry(e, 'Filed to ' + this.mods()[this.meta()[p.type][2]].label + ' · ' + sm.t + (sm.r ? ' · ' + sm.r : ''));
+  }
+
+  // ---------- stats ----------
+  stats(db) {
+    var now = new Date(), E = db.entries, G = db.goals, today = this.dk(now);
+    var by = {}; E.forEach(e => { var k = this.dk(e.ts); (by[k] = by[k] || []).push(e); });
+    var of = (k, t) => (by[k] || []).filter(e => e.type === t);
+    var sum = (a, f) => a.reduce((x, e) => x + (+e[f] || 0), 0);
+    var last7 = [6, 5, 4, 3, 2, 1, 0].map(o => this.offKey(o));
+    var inDays = (t, days) => E.filter(e => e.type === t && (now - new Date(e.ts)) < days * 864e5 && new Date(e.ts) <= now);
+    var desc = a => a.slice().sort((x, y) => x.ts < y.ts ? 1 : -1);
+    var latest = t => desc(E.filter(e => e.type === t))[0];
+    var nut = k => { var m = of(k, 'meal'); return { kcal: sum(m, 'kcal'), p: sum(m, 'p'), c: sum(m, 'c'), f: sum(m, 'f'), water: sum(of(k, 'water'), 'ml'), meals: m.length }; };
+    var streak = t => { var o = of(today, t).length ? 0 : 1, c = 0; while (of(this.offKey(o), t).length) { c++; o++; } return c; };
+    var ym = today.slice(0, 7), monthOf = t => E.filter(e => e.type === t && this.dk(e.ts).slice(0, 7) === ym);
+    var mExp = monthOf('expense'), mInc = monthOf('income');
+    var byCat = {}; mExp.forEach(e => byCat[e.cat] = (byCat[e.cat] || 0) + (+e.amount || 0));
+    var budgetTotal = Object.keys(db.budgets).reduce((a, k) => a + (+db.budgets[k] || 0), 0);
+    var dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(), dom = now.getDate();
+    var spent = sum(mExp, 'amount'), income = sum(mInc, 'amount');
+    var FIXED = ['Housing', 'Subscriptions'], isFixed = c => FIXED.indexOf(c) > -1;
+    var fixedSpent = sum(mExp.filter(e => isFixed(e.cat)), 'amount'), varSpent = spent - fixedSpent;
+    var fixedBudget = Object.keys(db.budgets).filter(isFixed).reduce((a, k) => a + (+db.budgets[k] || 0), 0);
+    var varBudget = Object.keys(db.budgets).filter(k => !isFixed(k)).reduce((a, k) => a + (+db.budgets[k] || 0), 0);
+    var tasks = E.filter(e => e.type === 'task');
+    var open = tasks.filter(t => !t.done).sort((a, b) => a.prio < b.prio ? -1 : a.prio > b.prio ? 1 : 0);
+    var doneToday = tasks.filter(t => t.done && (t.doneAt ? this.dk(t.doneAt) : this.dk(t.ts)) === today);
+    var habitsToday = db.habits.filter(h => of(today, 'habit').some(e => e.name === h)).length;
+    var sl = latest('sleep'), s7 = inDays('sleep', 7), wt = desc(E.filter(e => e.type === 'weight'));
+    var j7 = inDays('journal', 7), mood7 = j7.length ? sum(j7, 'mood') / j7.length : 0;
+    var nT = nut(today), kcal7 = last7.map(k => nut(k).kcal).filter(Boolean);
+    var S = {
+      today, by, of, last7, inDays, desc, latest, nut, streak, monthOf,
+      nutT: nT, kcal7: kcal7.length ? kcal7.reduce((a, b) => a + b, 0) / kcal7.length : 0,
+      weight: wt[0] ? wt[0].kg : null, weightDelta: wt[0] && wt.find(w => (now - new Date(w.ts)) > 6 * 864e5) ? +(wt[0].kg - wt.find(w => (now - new Date(w.ts)) > 6 * 864e5).kg).toFixed(1) : null,
+      sleepLast: sl ? +sl.hours : 0, sleepLastE: sl, sleep7: s7.length ? sum(s7, 'hours') / s7.length : 0, sleepQ7: s7.length ? sum(s7, 'q') / s7.length : 0,
+      workWeek: inDays('workout', 7).length, workMinWeek: sum(inDays('workout', 7), 'min'), lastWorkout: latest('workout'),
+      open, doneToday, focusToday: sum(of(today, 'focus'), 'min'), habitsToday,
+      projects: E.filter(e => e.type === 'project'), notesWeek: inDays('note', 7).length, notesTotal: E.filter(e => e.type === 'note').length,
+      studyWeek: sum(inDays('study', 7), 'min'), studySessionsWeek: inDays('study', 7).length,
+      spent, income, byCat, budgetTotal, dim, dom, pace: varBudget * dom / dim, varSpent, fixedSpent, fixedBudget, projected: fixedSpent + (dom ? varSpent / dom * dim : 0),
+      medStreak: streak('meditation'), medToday: of(today, 'meditation').length > 0, medMonth: monthOf('meditation'),
+      jToday: of(today, 'journal').length > 0, mood7, jMonth: monthOf('journal').length, jStreak: streak('journal'), studyStreak: streak('study')
+    };
+    var cl = x => Math.max(0, Math.min(1, x || 0)), avg = a => Math.round(a.reduce((x, y) => x + y, 0) / a.length * 100);
+    S.scores = {
+      body: avg([cl(nT.kcal / G.kcal), cl(nT.water / G.water), cl(S.sleepLast / G.sleep), cl(S.workWeek / G.workouts)]),
+      mind: avg([cl(S.doneToday.length / ((S.doneToday.length + Math.min(3, open.length)) || 1)), cl(S.focusToday / G.focus), cl(S.habitsToday / (db.habits.length || 1)), cl(S.studyWeek / 180)]),
+      money: Math.round((varSpent <= S.pace ? 1 : cl(S.pace / varSpent)) * (fixedSpent <= fixedBudget * 1.05 ? 1 : cl(fixedBudget / fixedSpent)) * 100),
+      spirit: avg([S.medToday ? 1 : 0, S.jToday ? 1 : 0, cl(mood7 / 10)])
+    };
+    return S;
+  }
+
+  insights(ctx, S, db) {
+    var G = db.goals, m = v => this.money(v, db.currency), n = x => this.n(x), o = [];
+    var NT = S.nutT;
+    var I = {
+      nutrition: () => {
+        var left = G.kcal - NT.kcal;
+        o.push(left > 0 ? n(left) + ' kcal left today. Protein is at ' + n(NT.p) + ' of ' + G.p + ' g' + (NT.p < G.p ? ' — aim for ' + n(G.p - NT.p) + ' g more.' : ' — target hit.') : 'You’re ' + n(-left) + ' kcal over today’s target.');
+        if (NT.water < G.water) o.push('Water: ' + (NT.water / 1000).toFixed(1) + ' L so far — ' + n(G.water - NT.water) + ' ml to go.');
+        if (S.kcal7) o.push('Your 7-day average is ' + n(S.kcal7) + ' kcal' + (S.weightDelta != null ? ', weight ' + (S.weightDelta <= 0 ? 'down ' : 'up ') + Math.abs(S.weightDelta) + ' kg this week.' : '.'));
+      },
+      training: () => {
+        o.push(S.workWeek + ' of ' + G.workouts + ' sessions in the last 7 days, ' + n(S.workMinWeek) + ' minutes total.');
+        if (S.lastWorkout) { var d = Math.floor((new Date() - new Date(S.lastWorkout.ts)) / 864e5); o.push(d === 0 ? 'You trained today — ' + S.lastWorkout.name + '. Prioritise protein and sleep tonight.' : 'Last session was ' + d + ' day' + (d > 1 ? 's' : '') + ' ago (' + S.lastWorkout.name + ').'); }
+      },
+      sleep: () => {
+        if (S.sleepLast) o.push('Last night: ' + this.hrs(S.sleepLast) + (S.sleepLast < G.sleep ? ' — ' + Math.round((G.sleep - S.sleepLast) * 60) + ' min under your target.' : ' — on target.'));
+        if (S.sleep7) o.push('7-day average ' + this.hrs(S.sleep7) + ', quality ' + Math.round(S.sleepQ7) + '%.');
+      },
+      focus: () => {
+        if (S.open[0]) o.push('Top open task: “' + S.open[0].text + '” (' + S.open[0].prio + '). ' + S.open.length + ' open in total.');
+        o.push(S.focusToday + ' of ' + G.focus + ' deep-work minutes today. ' + S.habitsToday + '/' + db.habits.length + ' habits done.');
+      },
+      projects: () => {
+        var ip = S.projects.filter(p => p.status === 'In progress'), od = S.projects.filter(p => p.due && p.status !== 'Done' && p.due < S.today);
+        o.push(ip.length + ' project' + (ip.length === 1 ? '' : 's') + ' in progress.' + (od.length ? ' ' + od.length + ' overdue: ' + od.map(p => p.name).join(', ') + '.' : ''));
+        var soon = S.projects.filter(p => p.due && p.status !== 'Done' && p.due >= S.today).sort((a, b) => a.due < b.due ? -1 : 1)[0];
+        if (soon) o.push('Next deadline: ' + soon.name + ' — ' + this.dayLabel(soon.due) + '.');
+      },
+      knowledge: () => {
+        o.push(S.notesTotal + ' notes, ' + S.notesWeek + ' added this week.');
+        var tags = {}; db.entries.filter(e => e.type === 'note').forEach(e => (e.tags || '').split(/\s+/).filter(Boolean).forEach(t => tags[t] = (tags[t] || 0) + 1));
+        var top = Object.keys(tags).sort((a, b) => tags[b] - tags[a])[0];
+        if (top) o.push('Your most-used tag is ' + top + ' (' + tags[top] + ' notes).');
+      },
+      learning: () => {
+        o.push(S.studyWeek + ' study minutes across ' + S.studySessionsWeek + ' sessions this week.' + (S.studyStreak ? ' ' + S.studyStreak + '-day streak.' : ''));
+      },
+      finance: () => {
+        o.push('Spent ' + m(S.spent) + ' of ' + m(S.budgetTotal) + ' this month. At this pace you’ll end near ' + m(S.projected) + '.');
+        var over = Object.keys(db.budgets).filter(k => k !== 'Housing' && k !== 'Subscriptions' && (S.byCat[k] || 0) > db.budgets[k] * S.dom / S.dim * 1.1 && S.byCat[k] > 0);
+        if (over.length) o.push(over.join(', ') + (over.length > 1 ? ' are' : ' is') + ' running ahead of budget pace.');
+        if (S.income) o.push('Income this month: ' + m(S.income) + ' — savings rate so far ' + Math.round((S.income - S.spent) / S.income * 100) + '%.');
+      },
+      meditation: () => { o.push(S.medStreak ? S.medStreak + '-day streak. ' + (S.medToday ? 'Done today.' : 'Not yet today — 10 minutes keeps it alive.') : 'No streak right now. Start with 5 minutes tonight.'); },
+      journal: () => {
+        if (S.mood7) o.push('Average mood this week: ' + S.mood7.toFixed(1) + '/10.');
+        o.push(S.jToday ? 'You’ve journaled today.' : 'No entry yet today — even one line counts.');
+      }
+    };
+    var run = k => I[k] && I[k]();
+    if (I[ctx]) run(ctx);
+    else if (ctx === 'body') ['nutrition', 'training', 'sleep'].forEach(run);
+    else if (ctx === 'mind') ['focus', 'projects', 'learning'].forEach(run);
+    else if (ctx === 'money') run('finance');
+    else if (ctx === 'spirit') ['meditation', 'journal'].forEach(run);
+    else if (ctx === 'inbox') o.push(db.pending.length ? db.pending.length + ' items waiting from connected sources. I’ve pre-classified them — file or edit.' : 'Inbox zero. Type anything above and I’ll file it.');
+    else if (ctx === 'timeline') o.push(S.inDays ? db.entries.filter(e => (new Date() - new Date(e.ts)) < 7 * 864e5).length + ' entries logged in the last 7 days.' : '');
+    else if (ctx === 'settings') o.push('Every score and insight is computed against these targets — set them honestly.');
+    else { run('nutrition'); o.splice(1); run('finance'); o.splice(2); run('focus'); o.splice(3); run('meditation'); }
+    return o;
+  }
+
+  answer(q, S, db) {
+    var l = q.toLowerCase(), G = db.goals, m = v => this.money(v, db.currency), n = x => this.n(x), NT = S.nutT;
+    if (/calor|kcal|eat|food|meal|protein|carb|fat|macro|nutri/.test(l)) return 'Today: ' + n(NT.kcal) + ' of ' + n(G.kcal) + ' kcal · P ' + n(NT.p) + ' g · C ' + n(NT.c) + ' g · F ' + n(NT.f) + ' g across ' + NT.meals + ' meals. 7-day average ' + n(S.kcal7) + ' kcal.';
+    if (/water|hydrat/.test(l)) return (NT.water / 1000).toFixed(2) + ' L today of ' + (G.water / 1000).toFixed(1) + ' L.';
+    if (/weigh/.test(l)) return S.weight ? 'Latest weight ' + S.weight + ' kg' + (S.weightDelta != null ? ' (' + (S.weightDelta > 0 ? '+' : '') + S.weightDelta + ' kg vs a week ago).' : '.') : 'No weight logged yet.';
+    if (/spen|money|budget|financ|expens|cost|income|sav/.test(l)) { var top = Object.keys(S.byCat).sort((a, b) => S.byCat[b] - S.byCat[a]).slice(0, 3); return 'This month: spent ' + m(S.spent) + ' of ' + m(S.budgetTotal) + ', income ' + m(S.income) + '. Biggest categories: ' + (top.map(k => k + ' ' + m(S.byCat[k])).join(', ') || 'none yet') + '.'; }
+    if (/sleep|slept|rest/.test(l)) return 'Last night ' + this.hrs(S.sleepLast) + '. 7-day average ' + this.hrs(S.sleep7) + ' at ' + Math.round(S.sleepQ7) + '% quality. Target ' + G.sleep + 'h.';
+    if (/train|workout|gym|run|exercis/.test(l)) return S.workWeek + ' workouts in the last 7 days (' + n(S.workMinWeek) + ' min). Goal is ' + G.workouts + ' per week.';
+    if (/mood|journal|feel/.test(l)) return 'Mood averaged ' + (S.mood7 ? S.mood7.toFixed(1) : '—') + '/10 over 7 days. ' + S.jMonth + ' journal entries this month.';
+    if (/medit|mindful|calm/.test(l)) return S.medStreak + '-day meditation streak; ' + n(S.medMonth.reduce((a, e) => a + (+e.min || 0), 0)) + ' minutes this month.';
+    if (/task|todo|do today|focus|deep/.test(l)) return S.open.length + ' open tasks' + (S.open[0] ? ', top: “' + S.open[0].text + '”' : '') + '. ' + S.focusToday + ' deep-work minutes today, ' + S.doneToday.length + ' tasks done.';
+    if (/habit/.test(l)) return S.habitsToday + ' of ' + db.habits.length + ' habits done today.';
+    if (/study|learn|read/.test(l)) return S.studyWeek + ' study minutes this week across ' + S.studySessionsWeek + ' sessions.';
+    return 'Here’s today: Body ' + S.scores.body + '%, Mind ' + S.scores.mind + '%, Money ' + S.scores.money + '%, Spirit ' + S.scores.spirit + '%. Ask me about calories, spending, sleep, training, mood or tasks.';
+  }
+
+  rowOf(e, cur, withDay) {
+    var sm = this.summary(e, cur), k = this.dk(e.ts);
+    return { t: sm.t, s: [withDay ? this.dayLabel(k) + ' ' + this.hm(e.ts) : this.hm(e.ts), sm.s].filter(Boolean).join(' · '), r: sm.r, del: () => this.delEntry(e.id), hasCheck: false, tStyle: { fontSize: '14px', fontWeight: 500 } };
+  }
+  taskRow(e) {
+    var done = !!e.done;
+    return { t: e.text, s: e.prio + (done ? ' · done' : '') + (this.dk(e.ts) !== this.offKey(0) && !done ? ' · from ' + this.dayLabel(this.dk(e.ts)) : ''), r: '', hasCheck: true, mark: done ? '✓' : '',
+      checkStyle: this.checkStyle(done), toggle: () => this.patchEntry(e.id, { done: !done, doneAt: !done ? new Date().toISOString() : null }), del: () => this.delEntry(e.id),
+      tStyle: { fontSize: '14px', fontWeight: 500, textDecoration: done ? 'line-through' : 'none', opacity: done ? 0.45 : 1 } };
+  }
+  chart(title, vals, acc) {
+    var max = Math.max.apply(null, vals.map(v => v.v)) || 1;
+    return { title: title, isChart: true, cols: vals.map(v => ({ l: v.l, v: v.d, barStyle: { height: Math.max(3, Math.round(v.v / max * 100)) + '%', width: '100%', maxWidth: '30px', margin: '0 auto', borderRadius: '4px', background: v.v ? 'var(' + acc + ')' : 'var(--hl)' } })) };
+  }
+  bars(title, rows, acc) { return { title: title, isBars: true, rows: rows.map(r => ({ label: r.l, val: r.v, barStyle: { width: Math.min(100, Math.max(0, r.p)) + '%', height: '100%', borderRadius: '2px', background: r.p > 100 ? 'var(--t)' : 'var(' + acc + ')' } })) }; }
+  list(title, rows, empty) { return { title: title, isList: true, rows: rows, isEmpty: !rows.length, empty: empty || 'Nothing logged yet.' }; }
+  stat(items) { return { isStats: true, items: items }; }
+  wd(k) { return new Date(k + 'T12:00').toLocaleDateString('en-US', { weekday: 'short' }); }
+
+  moduleBlocks(id, S, db) {
+    var M = this.mods()[id], acc = this.accOf(M.p), G = db.goals, cur = db.currency, n = x => this.n(x), m = v => this.money(v, cur);
+    var E = db.entries, byType = t => S.desc(E.filter(e => e.type === t));
+    var curType = this.state.modType[id] || M.types[0];
+    var dayKey = id === 'nutrition' ? this.offKey(this.state.dayOff) : null;
+    var form = { isForm: true, form: this.formView(curType, M.types, t => this.setState(s => ({ modType: Object.assign({}, s.modType, { [id]: t }) })), dayKey) };
+    var B = [];
+    if (id === 'nutrition') {
+      var off = this.state.dayOff, N = S.nut(dayKey);
+      B.push({ isDaynav: true, label: this.dayLabel(dayKey), prev: () => this.setState(s => ({ dayOff: s.dayOff + 1 })), next: () => this.setState(s => ({ dayOff: Math.max(0, s.dayOff - 1) })),
+        nextStyle: { fontFamily: 'inherit', fontSize: '14px', width: '32px', height: '32px', borderRadius: '8px', border: '1px solid var(--br)', background: 'var(--s)', color: 'var(--t)', cursor: off ? 'pointer' : 'default', opacity: off ? 1 : 0.35 } });
+      B.push(this.stat([{ k: 'Calories', v: n(N.kcal), n: 'of ' + n(G.kcal) + ' kcal · ' + n(Math.max(0, G.kcal - N.kcal)) + ' left' }, { k: 'Protein', v: n(N.p) + ' g', n: 'of ' + G.p + ' g' }, { k: 'Water', v: (N.water / 1000).toFixed(1) + ' L', n: 'of ' + (G.water / 1000).toFixed(1) + ' L' }, { k: 'Weight', v: S.weight ? S.weight + ' kg' : '—', n: S.weightDelta != null ? (S.weightDelta > 0 ? '+' : '') + S.weightDelta + ' kg vs last week' : 'log to track' }]));
+      var addWater = ml => () => { var d = new Date(); if (off) { d = new Date(dayKey + 'T' + this.hm(d)); } this.addEntry({ id: this.uid(), type: 'water', ts: d.toISOString(), ml: ml }, '+' + ml + ' ml water'); };
+      B.push({ isActions: true, buttons: [{ label: '+ 250 ml water', go: addWater(250) }, { label: '+ 500 ml water', go: addWater(500) }, { label: '+ 750 ml bottle', go: addWater(750) }] });
+      B.push(form);
+      B.push(this.bars('Macros', [{ l: 'Calories', v: n(N.kcal) + ' / ' + n(G.kcal) + ' kcal', p: N.kcal / G.kcal * 100 }, { l: 'Protein', v: n(N.p) + ' / ' + G.p + ' g', p: N.p / G.p * 100 }, { l: 'Carbs', v: n(N.c) + ' / ' + G.c + ' g', p: N.c / G.c * 100 }, { l: 'Fat', v: n(N.f) + ' / ' + G.f + ' g', p: N.f / G.f * 100 }], acc));
+      var order = { Breakfast: 0, Lunch: 1, Snack: 2, Dinner: 3 };
+      var dayE = (S.by[dayKey] || []).filter(e => M.types.indexOf(e.type) > -1).sort((a, b) => a.ts < b.ts ? -1 : 1);
+      B.push(this.list('Meals · ' + this.dayLabel(dayKey).toLowerCase(), dayE.filter(e => e.type === 'meal').map(e => this.rowOf(e, cur)), 'No meals logged for this day.'));
+      B.push(this.list('Water & weight', dayE.filter(e => e.type !== 'meal').map(e => this.rowOf(e, cur)), 'Nothing logged.'));
+      B.push(this.chart('Calories — last 7 days', S.last7.map(k => ({ l: this.wd(k), v: S.nut(k).kcal, d: S.nut(k).kcal ? n(S.nut(k).kcal) : '—' })), acc));
+    }
+    if (id === 'training') {
+      B.push(this.stat([{ k: 'Sessions', v: S.workWeek + ' / ' + G.workouts, n: 'last 7 days' }, { k: 'Minutes', v: n(S.workMinWeek), n: 'last 7 days' }, { k: 'Distance', v: S.inDays('workout', 7).reduce((a, e) => a + (+e.km || 0), 0).toFixed(1) + ' km', n: 'last 7 days' }]));
+      B.push(form);
+      B.push(this.chart('Minutes trained — last 7 days', S.last7.map(k => { var v = S.of(k, 'workout').reduce((a, e) => a + (+e.min || 0), 0); return { l: this.wd(k), v: v, d: v || '—' }; }), acc));
+      B.push(this.list('Workouts', byType('workout').slice(0, 30).map(e => this.rowOf(e, cur, true))));
+    }
+    if (id === 'sleep') {
+      B.push(this.stat([{ k: 'Last night', v: S.sleepLast ? this.hrs(S.sleepLast) : '—', n: S.sleepLastE && S.sleepLastE.q ? 'quality ' + S.sleepLastE.q + '%' : '' }, { k: '7-day average', v: S.sleep7 ? this.hrs(S.sleep7) : '—', n: 'target ' + this.hrs(G.sleep) }, { k: 'Avg quality', v: S.sleepQ7 ? Math.round(S.sleepQ7) + '%' : '—', n: 'last 7 nights' }]));
+      B.push(form);
+      B.push(this.chart('Hours slept — last 7 nights', S.last7.map(k => { var v = S.of(k, 'sleep').reduce((a, e) => a + (+e.hours || 0), 0); return { l: this.wd(k), v: v, d: v ? v.toFixed(1) : '—' }; }), acc));
+      B.push(this.list('History', byType('sleep').slice(0, 30).map(e => this.rowOf(e, cur, true))));
+    }
+    if (id === 'focus') {
+      B.push(this.stat([{ k: 'Deep work', v: S.focusToday + ' min', n: 'of ' + G.focus + ' today' }, { k: 'Done today', v: String(S.doneToday.length), n: 'tasks' }, { k: 'Open', v: String(S.open.length), n: 'tasks' }, { k: 'Habits', v: S.habitsToday + ' / ' + db.habits.length, n: 'today' }]));
+      B.push(form);
+      B.push(this.list('Tasks', S.open.concat(S.doneToday).map(e => this.taskRow(e)), 'No tasks. Add one above.'));
+      var days14 = []; for (var i = 13; i >= 0; i--) days14.push(this.offKey(i));
+      B.push({ title: 'Habits — last 14 days', isHabits: true, rows: db.habits.map(h => {
+        var hit = k => S.of(k, 'habit').find(e => e.name === h), today = hit(S.today);
+        return { name: h, dots: days14.map(k => ({ style: { width: '14px', height: '14px', borderRadius: '4px', flex: 'none', background: hit(k) ? 'var(' + acc + ')' : 'var(--hl)' } })),
+          btnLabel: today ? 'Done ✓' : 'Mark today', btnStyle: { fontFamily: 'inherit', fontSize: '12px', fontWeight: 600, padding: '5px 11px', borderRadius: '8px', cursor: 'pointer', border: today ? '1px solid var(--br)' : 'none', background: today ? 'transparent' : 'var(--t)', color: today ? 'var(--m)' : 'var(--b)', flex: 'none' },
+          toggle: () => today ? this.delEntry(today.id, true) : this.addEntry({ id: this.uid(), type: 'habit', ts: new Date().toISOString(), name: h }, h + ' ✓') };
+      }) });
+      B.push(this.list('Deep-work sessions', byType('focus').slice(0, 20).map(e => this.rowOf(e, cur, true))));
+    }
+    if (id === 'projects') {
+      B.push(form);
+      var cols = ['Backlog', 'In progress', 'Done'];
+      B.push({ title: 'Board', isKanban: true, cols: cols.map((c, ci) => { var cards = S.projects.filter(p => p.status === c); return { title: c, count: cards.length,
+        cards: cards.map(p => ({ t: p.name, s: p.due ? 'Due ' + this.dayLabel(p.due) + (p.due < S.today && c !== 'Done' ? ' · overdue' : '') : 'No deadline', next: cols[ci + 1] || '', move: () => this.patchEntry(p.id, { status: cols[ci + 1] }), del: () => this.delEntry(p.id) })) }; }) });
+    }
+    if (id === 'knowledge') {
+      B.push(this.stat([{ k: 'Notes', v: String(S.notesTotal), n: 'total' }, { k: 'This week', v: String(S.notesWeek), n: 'new notes' }]));
+      B.push(form);
+      B.push(this.list('Notes', byType('note').map(e => this.rowOf(e, cur, true))));
+    }
+    if (id === 'learning') {
+      B.push(this.stat([{ k: 'This week', v: S.studyWeek + ' min', n: S.studySessionsWeek + ' sessions' }, { k: 'Streak', v: S.studyStreak + ' days', n: 'current' }]));
+      B.push(form);
+      var subj = {}; S.inDays('study', 30).forEach(e => subj[e.subject] = (subj[e.subject] || 0) + (+e.min || 0));
+      var mx = Math.max.apply(null, Object.values(subj).concat([1]));
+      B.push(this.bars('Time by subject — 30 days', Object.keys(subj).sort((a, b) => subj[b] - subj[a]).map(k => ({ l: k, v: subj[k] + ' min', p: subj[k] / mx * 100 })), acc));
+      B.push(this.list('Sessions', byType('study').slice(0, 30).map(e => this.rowOf(e, cur, true))));
+    }
+    if (id === 'finance') {
+      var monthName = new Date().toLocaleDateString('en-US', { month: 'long' });
+      B.push(this.stat([{ k: 'Spent — ' + monthName, v: m(S.spent), n: 'of ' + m(S.budgetTotal) + ' budget' }, { k: 'Income', v: m(S.income), n: monthName }, { k: 'Net', v: (S.income - S.spent < 0 ? '−' : '') + m(S.income - S.spent), n: S.income ? Math.round((S.income - S.spent) / S.income * 100) + '% savings rate' : 'no income logged' }, { k: 'Projected', v: m(S.projected), n: 'month-end spend' }]));
+      B.push(form);
+      B.push(this.bars('Budgets — ' + monthName, Object.keys(db.budgets).map(k => { var sp = S.byCat[k] || 0, b = +db.budgets[k] || 0; return { l: k, v: m(sp) + ' / ' + m(b) + (sp > b ? ' · over' : ''), p: b ? sp / b * 100 : 0 }; }), acc));
+      B.push(this.chart('Spending — last 7 days', S.last7.map(k => { var v = S.of(k, 'expense').reduce((a, e) => a + (+e.amount || 0), 0); return { l: this.wd(k), v: v, d: v ? (cur || '$') + Math.round(v) : '—' }; }), acc));
+      B.push(this.list('Transactions', S.desc(E.filter(e => e.type === 'expense' || e.type === 'income')).slice(0, 50).map(e => this.rowOf(e, cur, true))));
+    }
+    if (id === 'meditation') {
+      B.push(this.stat([{ k: 'Streak', v: S.medStreak + ' days', n: S.medToday ? 'done today' : 'not yet today' }, { k: 'This month', v: n(S.medMonth.reduce((a, e) => a + (+e.min || 0), 0)) + ' min', n: S.medMonth.length + ' sessions' }]));
+      B.push({ isActions: true, buttons: [5, 10, 15, 20].map(mn => ({ label: '+ ' + mn + ' min session', go: () => this.addEntry({ id: this.uid(), type: 'meditation', ts: new Date().toISOString(), kind: 'Timer', min: mn }, 'Logged ' + mn + ' min meditation') })) });
+      B.push(form);
+      var d28 = []; for (var j = 27; j >= 0; j--) d28.push(this.offKey(j));
+      B.push({ title: 'Last 28 days', isGrid: true, dots: d28.map(k => ({ style: { width: '15px', height: '15px', borderRadius: '4px', flex: 'none', background: S.of(k, 'meditation').length ? 'var(' + acc + ')' : 'var(--hl)' } })) });
+      B.push(this.list('Sessions', byType('meditation').slice(0, 30).map(e => this.rowOf(e, cur, true))));
+    }
+    if (id === 'journal') {
+      B.push(this.stat([{ k: 'Mood — 7 days', v: S.mood7 ? S.mood7.toFixed(1) : '—', n: 'average of 10' }, { k: 'Entries', v: String(S.jMonth), n: 'this month' }, { k: 'Streak', v: S.jStreak + ' days', n: S.jToday ? 'written today' : 'not yet today' }]));
+      B.push(form);
+      B.push(this.chart('Mood — last 7 days', S.last7.map(k => { var a = S.of(k, 'journal'), v = a.length ? a.reduce((x, e) => x + (+e.mood || 0), 0) / a.length : 0; return { l: this.wd(k), v: v, d: v ? v.toFixed(0) : '—' }; }), acc));
+      B.push(this.list('Entries', byType('journal').slice(0, 30).map(e => this.rowOf(e, cur, true))));
+    }
+    return B.map(b => Object.assign({ title: '', isDaynav: false, isForm: false, isActions: false, isStats: false, isBars: false, isChart: false, isHabits: false, isGrid: false, isKanban: false, isList: false, isEmpty: false }, b));
+  }
+
+  pillarMetrics(id, S, db) {
+    var G = db.goals, n = x => this.n(x), m = v => this.money(v, db.currency), NT = S.nutT;
+    if (id === 'body') return [{ k: 'Calories', v: n(NT.kcal), n: 'of ' + n(G.kcal) + ' kcal' }, { k: 'Protein', v: n(NT.p) + ' g', n: 'of ' + G.p + ' g' }, { k: 'Water', v: (NT.water / 1000).toFixed(1) + ' L', n: 'of ' + (G.water / 1000).toFixed(1) + ' L' }, { k: 'Weight', v: S.weight ? S.weight + ' kg' : '—', n: S.weightDelta != null ? (S.weightDelta > 0 ? '+' : '') + S.weightDelta + ' kg this week' : '' }, { k: 'Sleep', v: S.sleepLast ? this.hrs(S.sleepLast) : '—', n: 'last night' }, { k: 'Training', v: S.workWeek + ' / ' + G.workouts, n: 'sessions, last 7 days' }];
+    if (id === 'mind') return [{ k: 'Deep work', v: S.focusToday + ' min', n: 'today' }, { k: 'Tasks', v: S.doneToday.length + ' done', n: S.open.length + ' open' }, { k: 'Habits', v: S.habitsToday + ' / ' + db.habits.length, n: 'today' }, { k: 'Projects', v: String(S.projects.filter(p => p.status === 'In progress').length), n: 'in progress' }, { k: 'Notes', v: String(S.notesWeek), n: 'this week' }, { k: 'Study', v: S.studyWeek + ' min', n: 'this week' }];
+    if (id === 'money') { var top = Object.keys(S.byCat).sort((a, b) => S.byCat[b] - S.byCat[a])[0]; return [{ k: 'Spent', v: m(S.spent), n: 'this month' }, { k: 'Budget left', v: m(Math.max(0, S.budgetTotal - S.spent)), n: 'of ' + m(S.budgetTotal) }, { k: 'Income', v: m(S.income), n: 'this month' }, { k: 'Net', v: (S.income - S.spent < 0 ? '−' : '') + m(S.income - S.spent), n: 'this month' }, { k: 'Projected', v: m(S.projected), n: 'month-end spend' }, { k: 'Top category', v: top || '—', n: top ? m(S.byCat[top]) : '' }]; }
+    return [{ k: 'Mood', v: S.mood7 ? S.mood7.toFixed(1) : '—', n: '7-day average' }, { k: 'Meditation', v: S.medStreak + ' days', n: 'streak' }, { k: 'Mindful minutes', v: n(S.medMonth.reduce((a, e) => a + (+e.min || 0), 0)), n: 'this month' }, { k: 'Journal', v: String(S.jMonth), n: 'entries this month' }];
+  }
+  modSummary(id, S, db) {
+    var m = v => this.money(v, db.currency);
+    return { nutrition: this.n(S.nutT.kcal) + ' kcal today', training: S.workWeek + ' sessions this week', sleep: S.sleepLast ? this.hrs(S.sleepLast) + ' last night' : 'Log sleep', focus: S.open.length + ' open tasks', projects: S.projects.filter(p => p.status === 'In progress').length + ' in progress', knowledge: S.notesTotal + ' notes', learning: S.studyWeek + ' min this week', finance: m(S.spent) + ' this month', meditation: S.medStreak + '-day streak', journal: S.mood7 ? 'Mood ' + S.mood7.toFixed(1) : 'Write today' }[id];
+  }
+
+  renderVals() {
+    var db = this.state.db, page = this.state.page, S = this.stats(db), cur = db.currency, M = this.meta(), MODS = this.mods(), PIL = this.pillarDefs();
+    var rootStyle = Object.assign({ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--b)', color: 'var(--t)', fontFamily: "'Instrument Sans',system-ui,sans-serif", WebkitFontSmoothing: 'antialiased' }, this.themeVars());
+    var aiOn = this.props.aiPanel ?? true;
+    var openModal = t => () => this.setState({ modal: { type: t || 'meal' }, nl: '' });
+
+    var topNav = [{ id: 'home', label: 'Home', glyph: '⌂' }, { id: 'inbox', label: 'Inbox', glyph: '◩', badge: db.pending.length ? String(db.pending.length) : '' }, { id: 'timeline', label: 'Timeline', glyph: '≡' }]
+      .map(x => Object.assign(x, { style: this.navStyle(page === x.id), go: this.go(x.id) }));
+    var navPillars = PIL.map(p => ({ label: p.label, score: S.scores[p.id], go: this.go(p.id), dotStyle: this.dot(p.acc),
+      headStyle: Object.assign(this.navStyle(page === p.id), { fontWeight: 600, color: 'var(--t)' }),
+      modules: p.mods.length > 1 || p.id === 'money' ? p.mods.map(mid => ({ label: MODS[mid].label, go: this.go('m:' + mid), style: this.navStyle(page === 'm:' + mid) })) : [] }));
+
+    var now = new Date(), h = now.getHours(), first = (db.name || '').split(' ')[0];
+    var start = new Date(now.getFullYear(), 0, 0), doy = Math.floor((now - start) / 864e5);
+    var notes = { body: this.n(S.nutT.kcal) + ' kcal · ' + S.workWeek + '/' + db.goals.workouts + ' sessions', mind: S.focusToday + ' min focus · ' + S.doneToday.length + ' tasks done', money: this.money(S.spent, cur) + ' spent this month', spirit: S.medStreak + '-day meditation streak' };
+    var scores = PIL.map(p => ({ label: p.label, score: S.scores[p.id], note: notes[p.id], go: this.go(p.id), dotStyle: this.dot(p.acc), barStyle: { width: S.scores[p.id] + '%', height: '100%', borderRadius: '2px', background: 'var(' + p.acc + ')' } }));
+    var quickButtons = [['meal', 'Meal'], ['water', '+250 ml water'], ['workout', 'Workout'], ['sleep', 'Sleep'], ['expense', 'Expense'], ['journal', 'Journal'], ['meditation', 'Meditation'], ['weight', 'Weight'], ['study', 'Study'], ['note', 'Note']].map(q => ({ label: q[1], dotStyle: this.dot(this.accOf(M[q[0]][1]), 6),
+      go: q[0] === 'water' ? () => this.addEntry({ id: this.uid(), type: 'water', ts: new Date().toISOString(), ml: 250 }, '+250 ml water') : openModal(q[0]) }));
+    var homeTasks = S.open.slice(0, 5).concat(S.doneToday).map(e => this.taskRow(e));
+    var addTask = () => { var v = this.state.newTask.trim(); if (!v) return; this.addEntry({ id: this.uid(), type: 'task', ts: new Date().toISOString(), text: v, prio: 'P2', done: false }, 'Task added'); this.setState({ newTask: '' }); };
+    var todayLog = S.desc((S.by[S.today] || []).filter(e => e.type !== 'task' && e.type !== 'project' && new Date(e.ts) <= now)).slice(0, 12).map(e => { var sm = this.summary(e, cur); return { time: this.hm(e.ts), t: sm.t, r: sm.r, dotStyle: this.dot(this.accOf(M[e.type][1]), 6) }; });
+
+    var pObj = PIL.find(p => p.id === page);
+    var pillar = pObj ? { label: pObj.label, tagline: pObj.tagline, score: S.scores[pObj.id], insight: this.insights(pObj.id, S, db).slice(0, 2).join(' '), metrics: this.pillarMetrics(pObj.id, S, db),
+      barStyle: { width: S.scores[pObj.id] + '%', height: '100%', borderRadius: '2px', background: 'var(' + pObj.acc + ')' },
+      modules: pObj.mods.map(mid => ({ label: MODS[mid].label, purpose: MODS[mid].purpose, summary: this.modSummary(mid, S, db), go: this.go('m:' + mid) })) } : { metrics: [], modules: [] };
+
+    var isModule = page.indexOf('m:') === 0, mod = { blocks: [] };
+    if (isModule) { var mid = page.slice(2), MD = MODS[mid], pp = PIL.find(p => p.id === MD.p); mod = { label: MD.label, purpose: MD.purpose, pillarLabel: pp.label, back: this.go(pp.id), blocks: this.moduleBlocks(mid, S, db) }; }
+
+    var parsed = this.parse(this.state.nl, db);
+    var nlPreview = parsed ? (() => { var e = Object.assign({ type: parsed.type, ts: now.toISOString() }, parsed.vals), sm = this.summary(e, cur); return { type: M[parsed.type][0], t: sm.t, r: sm.r, tagStyle: this.tagStyle(this.accOf(M[parsed.type][1])) }; })() : null;
+    var fileNl = () => { if (!parsed) return; this.fileParsed(parsed); this.setState({ nl: '', modal: null }); };
+    var pending = db.pending.map(it => { var p = this.parse(it.text, db); return { src: it.src, text: it.text, type: M[p.type][0], tagStyle: this.tagStyle(this.accOf(M[p.type][1])),
+      file: () => { this.fileParsed(p, it.src); this.upd(d => Object.assign({}, d, { pending: d.pending.filter(x => x.id !== it.id) })); },
+      edit: () => { this.upd(d => Object.assign({}, d, { pending: d.pending.filter(x => x.id !== it.id) })); this.setState({ nl: it.text }); },
+      dismiss: () => this.upd(d => Object.assign({}, d, { pending: d.pending.filter(x => x.id !== it.id) })) }; });
+    var filedRows = S.desc(db.entries.filter(e => e.src)).slice(0, 20).map(e => { var sm = this.summary(e, cur); return { type: M[e.type][0], t: sm.t, r: sm.r, s: this.dayLabel(this.dk(e.ts)) + ' ' + this.hm(e.ts) + ' · via ' + e.src, tagStyle: this.tagStyle(this.accOf(M[e.type][1])), del: () => this.delEntry(e.id) }; });
+    var exText = ['oats 520 kcal 32p 62c 14f', 'water 500ml', 'spent $14.50 lunch', 'slept 7h30 85%', 'ran 5k 28 min', 'meditated 10 min', 'mood 8 grateful for sunshine', 'idea: habit insurance app', 'buy protein powder', 'studied Spanish 20 min', 'weight 78.1kg', 'salary $5400'];
+    var nlExamples = exText.map(t => ({ text: t, use: () => this.setState({ nl: t }) }));
+
+    var f = this.state.tlFilter;
+    var tlChips = [['all', 'All']].concat(PIL.map(p => [p.id, p.label])).map(c => ({ label: c[1], style: this.chipStyle(f === c[0]), pick: () => this.setState({ tlFilter: c[0] }) }));
+    var timeline = [], lastDay = null;
+    S.desc(db.entries.filter(e => e.type !== 'habit' && e.type !== 'project' && new Date(e.ts) <= now && (f === 'all' || M[e.type][1] === f))).slice(0, 250).forEach(e => {
+      var k = this.dk(e.ts);
+      if (k !== lastDay) { timeline.push({ isDay: true, isEntry: false, label: this.dayLabel(k) + (k === S.today || k === this.offKey(1) ? ' — ' + new Date(k + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : '') }); lastDay = k; }
+      var sm = this.summary(e, cur);
+      timeline.push({ isDay: false, isEntry: true, time: this.hm(e.ts), t: sm.t, s: sm.s, r: sm.r, type: M[e.type][0], dotStyle: this.dot(this.accOf(M[e.type][1]), 7), del: () => this.delEntry(e.id) });
+    });
+
+    var sf = (label, value, onChange, type, extra) => Object.assign({ label: label, value: value == null ? '' : value, onChange: onChange, isInput: true, isSelect: false, inputType: type || 'number', ph: '', options: [], wrapStyle: { display: 'flex', flexDirection: 'column', gap: '5px' } }, extra || {});
+    var setDb = patch => this.upd(d => Object.assign({}, d, patch));
+    var setGoal = k => e => { var v = e.target.value; this.upd(d => Object.assign({}, d, { goals: Object.assign({}, d.goals, { [k]: v === '' ? '' : +v }) })); };
+    var setBudget = k => e => { var v = e.target.value; this.upd(d => Object.assign({}, d, { budgets: Object.assign({}, d.budgets, { [k]: v === '' ? '' : +v }) })); };
+    var G = db.goals;
+    var settingsGroups = [
+      { title: 'Profile', fields: [sf('Name', db.name, e => setDb({ name: e.target.value }), 'text', { wrapStyle: { display: 'flex', flexDirection: 'column', gap: '5px', gridColumn: 'span 2' } }), sf('Currency', cur, e => setDb({ currency: e.target.value }), null, { isInput: false, isSelect: true, options: ['$', 'R$', '€', '£'] })] },
+      { title: 'Daily & weekly goals', fields: [sf('Calories (kcal)', G.kcal, setGoal('kcal')), sf('Protein (g)', G.p, setGoal('p')), sf('Carbs (g)', G.c, setGoal('c')), sf('Fat (g)', G.f, setGoal('f')), sf('Water (ml)', G.water, setGoal('water')), sf('Sleep (hours)', G.sleep, setGoal('sleep')), sf('Workouts / week', G.workouts, setGoal('workouts')), sf('Deep work (min/day)', G.focus, setGoal('focus'))] },
+      { title: 'Monthly budgets (' + cur + ')', fields: Object.keys(db.budgets).map(k => sf(k, db.budgets[k], setBudget(k))) },
+      { title: 'Habits · comma separated', fields: [sf('Habits', db.habits.join(', '), e => setDb({ habits: e.target.value.split(',').map(x => x.trim()).filter(Boolean) }), 'text', { wrapStyle: { display: 'flex', flexDirection: 'column', gap: '5px', gridColumn: '1 / -1' } })] }
+    ];
+    var exportData = () => { var b = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'meridian-' + S.today + '.json'; document.body.appendChild(a); a.click(); a.remove(); };
+
+    var ctxKey = isModule ? page.slice(2) : page;
+    var labels = { home: 'Today', inbox: 'Inbox', timeline: 'Timeline', settings: 'Settings' };
+    var contextLabel = labels[page] || (isModule ? mod.label : pObj ? pObj.label : 'Today');
+    var bubble = mine => mine
+      ? { alignSelf: 'flex-end', maxWidth: '86%', fontSize: '13px', lineHeight: 1.5, padding: '9px 13px', borderRadius: '12px 12px 3px 12px', background: 'var(--t)', color: 'var(--b)' }
+      : { alignSelf: 'flex-start', maxWidth: '94%', fontSize: '13px', lineHeight: 1.55, padding: '10px 13px', borderRadius: '3px 12px 12px 12px', background: 'var(--hl)', border: '1px solid var(--br)' };
+    var chatMsgs = this.insights(ctxKey, S, db).filter(Boolean).map(t => ({ text: t, mine: false })).concat(this.state.chat).map(x => ({ text: x.text, style: bubble(x.mine) }));
+    var ask = q => { q = (q || '').trim(); if (!q) return; var a = this.answer(q, S, db); this.setState(s => ({ chat: s.chat.concat([{ text: q, mine: true }]), chatInput: '' })); setTimeout(() => this.setState(s => ({ chat: s.chat.concat([{ text: a, mine: false }]) })), 300); };
+    var chatSuggest = ['How am I eating?', 'Spending this month?', 'How did I sleep?', 'What should I do next?'].map(t => ({ text: t, ask: () => ask(t) }));
+
+    var mt = this.state.modal ? this.state.modal.type : 'meal';
+    var modal = this.formView(mt, Object.keys(M).filter(t => t !== 'habit'), t => this.setState({ modal: { type: t } }));
+    var t = this.state.toast;
+
+    return {
+      rootStyle, topNav, navPillars, aiOn,
+      settingsNav: { style: this.navStyle(page === 'settings'), go: this.go('settings') },
+      userName: db.name || 'You', initials: (db.name || 'Me').split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase(), dayOfYear: 'Day ' + doy + ' of ' + now.getFullYear(),
+      isHome: page === 'home', isPillar: !!pObj, isModule, isInbox: page === 'inbox', isTimeline: page === 'timeline', isSettings: page === 'settings',
+      todayLabel: now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+      greeting: (h < 5 ? 'Still up' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening') + (first ? ', ' + first + '.' : '.'),
+      scores, quickButtons, homeTasks, noHomeTasks: !homeTasks.length, todayLog, noTodayLog: !todayLog.length,
+      homeBrief: this.insights('home', S, db).slice(0, 2).join(' '),
+      newTask: this.state.newTask, onNewTask: e => this.setState({ newTask: e.target.value }), onNewTaskKey: e => { if (e.key === 'Enter') addTask(); },
+      pillar, mod,
+      nl: this.state.nl, onNl: e => this.setState({ nl: e.target.value }), onNlKey: e => { if (e.key === 'Enter') fileNl(); }, fileNl, nlPreview, nlExamples,
+      pending, hasPending: pending.length > 0, filedRows, noFiled: !filedRows.length,
+      tlChips, timeline,
+      settingsGroups, entryCount: this.n(db.entries.length), exportData,
+      resetDemo: () => { this.setState({ db: this.seed(), confirmClear: false }); this.toast('Demo data restored'); },
+      clearLabel: this.state.confirmClear ? 'Click again to erase everything' : 'Clear all data',
+      clearAll: () => { if (!this.state.confirmClear) { this.setState({ confirmClear: true }); return; } this.setState(s => ({ confirmClear: false, db: Object.assign({}, s.db, { entries: [], pending: [] }) })); this.toast('All entries cleared'); },
+      fabStyle: { position: 'fixed', bottom: '26px', right: (aiOn ? 336 : 26) + 'px', width: '54px', height: '54px', borderRadius: '99px', border: 'none', background: 'var(--t)', color: 'var(--b)', fontSize: '28px', fontWeight: 300, lineHeight: 1, cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,0,0,0.18)', zIndex: 40, fontFamily: 'inherit' },
+      openModal: openModal(), modalOpen: !!this.state.modal, closeModal: () => this.setState({ modal: null }),
+      modalBackdrop: e => { if (e.target === e.currentTarget) this.setState({ modal: null }); },
+      modal,
+      toast: t ? { text: t.text, canUndo: !!(t.undoId || t.restore), undo: () => this.undoToast() } : null,
+      contextLabel, chatMsgs, chatSuggest,
+      chatInput: this.state.chatInput, onChatInput: e => this.setState({ chatInput: e.target.value }), onChatKey: e => { if (e.key === 'Enter') ask(this.state.chatInput); }, sendChat: () => ask(this.state.chatInput)
+    };
+  }
+}
+</script>
+</body>
+</html>
