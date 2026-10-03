@@ -24,7 +24,7 @@ export function BarChart({ title, columns }: { title: string; columns: { label: 
         {columns.map((c, i) => (
           <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7, height: 150 }}>
             <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end' }}>
-              <div style={{ height: `${Math.max(4, Math.round((c.value / max) * 100))}%`, width: '100%', maxWidth: 30, margin: '0 auto', borderRadius: 4, background: c.value ? 'var(--t)' : 'var(--hl)' }} />
+              <div style={{ height: `${Math.max(4, Math.round((c.value / max) * 100))}%`, width: '100%', maxWidth: 30, margin: '0 auto', borderRadius: 4, background: c.value ? 'var(--accent, var(--t))' : 'var(--hl)' }} />
             </div>
             <div style={{ textAlign: 'center', fontSize: 11 }}>{c.display}</div>
             <div style={{ textAlign: 'center', fontSize: 10.5, color: 'var(--m)' }}>{c.label}</div>
@@ -47,7 +47,7 @@ export function ProgressBars({ title, rows }: { title: string; rows: { label: st
               <span style={{ fontSize: 12, color: 'var(--m)' }}>{r.value}</span>
             </div>
             <div style={{ height: 4, borderRadius: 2, background: 'var(--hl)', overflow: 'hidden' }}>
-              <div style={{ width: `${Math.min(100, Math.max(0, r.percent))}%`, height: '100%', borderRadius: 2, background: 'var(--t)' }} />
+              <div style={{ width: `${Math.min(100, Math.max(0, r.percent))}%`, height: '100%', borderRadius: 2, background: 'var(--accent, var(--t))' }} />
             </div>
           </div>
         ))}
@@ -62,7 +62,7 @@ export function DotGrid({ title, dots }: { title: string; dots: boolean[] }) {
       <h2 style={sectionTitleStyle}>{title}</h2>
       <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 6, padding: 18, borderRadius: 12, background: 'var(--s)', border: '1px solid var(--br)', maxWidth: 322 }}>
         {dots.map((on, i) => (
-          <span key={i} style={{ width: 15, height: 15, borderRadius: 4, background: on ? 'var(--t)' : 'var(--hl)', opacity: on ? 0.85 : 1, flex: 'none' }} />
+          <span key={i} style={{ width: 15, height: 15, borderRadius: 4, background: on ? 'var(--accent, var(--t))' : 'var(--hl)', opacity: on ? 0.85 : 1, flex: 'none' }} />
         ))}
       </div>
     </div>

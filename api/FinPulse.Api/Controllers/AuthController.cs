@@ -104,7 +104,7 @@ public class AuthController : ControllerBase
             return Unauthorized();
         }
 
-        return Ok(new { id = user.Id, email = user.Email, username = user.Username, plan = user.Plan });
+        return Ok(new { id = user.Id, email = user.Email, username = user.Username, plan = user.Plan, isAdmin = User.FindFirst("admin")?.Value == "true" });
     }
 
     [HttpPost("change-password")]

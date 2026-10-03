@@ -7,11 +7,14 @@ export interface FieldConfig {
   required: boolean;
   readOnly?: boolean;
   maxLength?: number;
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 export interface ResourceConfig {
   key: string;
-  section: 'finance' | 'body' | 'wellbeing';
+  section: 'finance' | 'body' | 'wellbeing' | 'mind';
   label: string;
   basePath: string;
   hasEdit: boolean;
@@ -24,6 +27,27 @@ export interface ResourceConfig {
 }
 
 export const RESOURCES: ResourceConfig[] = [
+  { key: 'habits', section: 'body', label: 'Habits', basePath: '/api/users/{userId}/body/habits', hasEdit: true, hasDelete: true, listPrimary: 'habitName', listSecondary: ['category', 'targetFrequency'], fields: [
+    { name: 'habitName', label: 'Habit name', type: 'text', required: true, maxLength: 100 },
+    { name: 'category', label: 'Category', type: 'text', required: false, maxLength: 50 },
+    { name: 'targetFrequency', label: 'Frequency (text, not a schedule)', type: 'text', required: true, maxLength: 20 },
+    { name: 'description', label: 'Description', type: 'textarea', required: false, maxLength: 500 }] },
+  { key: 'habit-logs', section: 'body', label: 'Habit history', basePath: '/api/users/{userId}/body/habit-logs', hasEdit: true, hasDelete: true, listPrimary: 'logDate', listSecondary: ['habitId', 'isCompleted', 'notes'], dateField: 'logDate', fields: [
+    { name: 'habitId', label: 'Habit', type: 'number', required: true },
+    { name: 'logDate', label: 'Date', type: 'date', required: true },
+    { name: 'isCompleted', label: 'Completed', type: 'checkbox', required: false },
+    { name: 'notes', label: 'Notes', type: 'textarea', required: false, maxLength: 500 }] },
+  { key: 'substance-logs', section: 'body', label: 'Substance intake', basePath: '/api/users/{userId}/body/substance-logs', hasEdit: false, hasDelete: false, listPrimary: 'substanceType', listSecondary: ['consumedAt', 'unit', 'notes'], listValue: 'amount', dateField: 'consumedAt', fields: [
+    { name: 'consumedAt', label: 'Consumed at (local time)', type: 'datetime', required: true },
+    { name: 'substanceType', label: 'Substance', type: 'text', required: true, maxLength: 20 },
+    { name: 'amount', label: 'Amount', type: 'number', required: true, min: 0, max: 9999.99 },
+    { name: 'unit', label: 'Unit', type: 'text', required: true, maxLength: 20 },
+    { name: 'notes', label: 'Notes', type: 'textarea', required: false, maxLength: 500 }] },
+  { key: 'symptom-logs', section: 'body', label: 'Symptoms', basePath: '/api/users/{userId}/body/symptom-logs', hasEdit: false, hasDelete: false, listPrimary: 'symptom', listSecondary: ['logDate', 'notes'], listValue: 'severity', dateField: 'logDate', fields: [
+    { name: 'logDate', label: 'Date', type: 'date', required: true },
+    { name: 'symptom', label: 'Symptom', type: 'text', required: true, maxLength: 100 },
+    { name: 'severity', label: 'Severity (1 mild – 5 severe)', type: 'number', required: false, min: 1, max: 5, step: 1 },
+    { name: 'notes', label: 'Notes', type: 'textarea', required: false, maxLength: 500 }] },
   { key: 'goals', section: 'finance', label: 'Goals', basePath: '/api/users/{userId}/goals', hasEdit: true, hasDelete: true,
     listPrimary: 'name', listSecondary: ['currencyCode', 'dueDate'], listValue: 'currentAmount', dateField: 'dueDate',
     fields: [
@@ -42,9 +66,10 @@ export const RESOURCES: ResourceConfig[] = [
       { name: 'paymentMethod', label: 'Payment method', type: 'text', required: false, maxLength: 100 },
       { name: 'amount', label: 'Amount', type: 'number', required: true },
       { name: 'currencyCode', label: 'Currency', type: 'text', required: true, maxLength: 10 },
-      { name: 'dueDay', label: 'Due day (1-31)', type: 'number', required: true },
+      { name: 'dueDay', label: 'Due day (1-31)', type: 'number', required: true, min: 1, max: 31, step: 1 },
       { name: 'isRecurrent', label: 'Recurrent', type: 'checkbox', required: false },
       { name: 'endDate', label: 'End date', type: 'date', required: false },
+      { name: 'recurrenceType', label: 'Recurrence type', type: 'text', required: false, maxLength: 50 },
       { name: 'description', label: 'Description', type: 'textarea', required: false, maxLength: 500 },
       { name: 'dueDate', label: 'Computed due date', type: 'text', required: false, readOnly: true },
       { name: 'paidThisMonth', label: 'Paid this month', type: 'checkbox', required: false, readOnly: true } ] },
@@ -97,7 +122,7 @@ export const RESOURCES: ResourceConfig[] = [
   { key: 'weekly-routines', section: 'body', label: 'Weekly Routines', basePath: '/api/users/{userId}/body/weekly-routines', hasEdit: true, hasDelete: true,
     listPrimary: 'routineName', listSecondary: ['dayOfWeek'],
     fields: [
-      { name: 'dayOfWeek', label: 'Day of week (0-6)', type: 'number', required: true },
+      { name: 'dayOfWeek', label: 'Day of week (0-6)', type: 'number', required: true, min: 0, max: 6, step: 1 },
       { name: 'routineName', label: 'Routine name', type: 'text', required: true, maxLength: 100 },
       { name: 'description', label: 'Description', type: 'textarea', required: false, maxLength: 500 } ] },
 
@@ -154,7 +179,7 @@ export const RESOURCES: ResourceConfig[] = [
       { name: 'notes', label: 'Notes', type: 'textarea', required: false, maxLength: 500 },
       { name: 'totalHours', label: 'Total hours', type: 'number', required: false, readOnly: true } ] },
 
-  { key: 'meditation-sessions', section: 'wellbeing', label: 'Meditation', basePath: '/api/users/{userId}/mind/meditation-sessions', hasEdit: true, hasDelete: true,
+  { key: 'meditation-sessions', section: 'mind', label: 'Meditation', basePath: '/api/users/{userId}/mind/meditation-sessions', hasEdit: true, hasDelete: true,
     listPrimary: 'meditationType', listSecondary: ['sessionDate'], listValue: 'durationMinutes', dateField: 'sessionDate',
     fields: [
       { name: 'sessionDate', label: 'Session date', type: 'date', required: true },
@@ -164,7 +189,7 @@ export const RESOURCES: ResourceConfig[] = [
       { name: 'moodAfter', label: 'Mood after (1-5)', type: 'number', required: false },
       { name: 'notes', label: 'Notes', type: 'textarea', required: false, maxLength: 500 } ] },
 
-  { key: 'journal-entries', section: 'wellbeing', label: 'Journal', basePath: '/api/users/{userId}/mind/journal-entries', hasEdit: true, hasDelete: true,
+  { key: 'journal-entries', section: 'mind', label: 'Journal', basePath: '/api/users/{userId}/mind/journal-entries', hasEdit: true, hasDelete: true,
     listPrimary: 'title', listSecondary: ['entryDate', 'category'], listValue: 'mood', dateField: 'entryDate',
     fields: [
       { name: 'entryDate', label: 'Entry date', type: 'date', required: true },
@@ -177,5 +202,5 @@ export const RESOURCES: ResourceConfig[] = [
 export const SECTIONS = [
   { key: 'finance', label: 'Finance' },
   { key: 'body', label: 'Body' },
-  { key: 'wellbeing', label: 'Wellbeing' },
+  { key: 'mind', label: 'Mind' },
 ] as const;

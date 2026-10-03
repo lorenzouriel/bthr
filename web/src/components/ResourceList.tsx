@@ -1,202 +1,48 @@
-import { useState, type CSSProperties } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+import { useResourceList } from '../hooks/useResourceList';
 import type { ResourceConfig } from '../config/resources';
-
-interface ResourceListProps {
-  config: ResourceConfig;
-  onEdit: (item: Record<string, unknown>) => void;
-}
-
-type SortKey = 'primary' | 'date' | 'value';
 type Row = Record<string, unknown>;
-
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'];
-
-function monthLabel(yearMonth: string): string {
-  const [year, month] = yearMonth.split('-');
-  return `${MONTH_NAMES[Number(month) - 1]} ${year}`;
+function display(value: unknown, type?: string) {
+  if (value == null || value === '') return '?';
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (typeof value === 'number') return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  if (type === 'date') return String(value).slice(0, 10);
+  if (type === 'datetime') return new Date(String(value)).toLocaleString();
+  return String(value);
 }
-
-function applyFilterSortGroup(
-  data: Row[],
-  config: ResourceConfig,
-  search: string,
-  sortKey: SortKey | null,
-  sortDir: 'asc' | 'desc',
-  groupByMonth: boolean,
-) {
-  const q = search.trim().toLowerCase();
-  const filtered = !q ? data : data.filter((item) => {
-    const primary = String(item[config.listPrimary] ?? '').toLowerCase();
-    const secondary = config.listSecondary.map((f) => String(item[f] ?? '')).join(' ').toLowerCase();
-    return primary.includes(q) || secondary.includes(q);
-  });
-
-  const sorted = !sortKey ? filtered : [...filtered].sort((a, b) => {
-    let cmp = 0;
-    if (sortKey === 'primary') cmp = String(a[config.listPrimary] ?? '').localeCompare(String(b[config.listPrimary] ?? ''));
-    if (sortKey === 'date' && config.dateField) cmp = String(a[config.dateField] ?? '').localeCompare(String(b[config.dateField] ?? ''));
-    if (sortKey === 'value' && config.listValue) cmp = Number(a[config.listValue] ?? 0) - Number(b[config.listValue] ?? 0);
-    return sortDir === 'asc' ? cmp : -cmp;
-  });
-
-  if (!groupByMonth || !config.dateField) {
-    return { flat: sorted, groups: null as null | { key: string; label: string; rows: Row[] }[] };
-  }
-
-  const byKey = new Map<string, Row[]>();
-  for (const item of sorted) {
-    const raw = String(item[config.dateField] ?? '');
-    const key = raw.slice(0, 7) || 'unknown';
-    if (!byKey.has(key)) byKey.set(key, []);
-    byKey.get(key)!.push(item);
-  }
-  const keys = [...byKey.keys()].sort((a, b) => b.localeCompare(a));
-  const groups = keys.map((key) => ({
-    key, label: key === 'unknown' ? 'Unknown date' : monthLabel(key), rows: byKey.get(key)!,
-  }));
-  return { flat: sorted, groups };
-}
-
-function pillStyle(active: boolean): CSSProperties {
-  return {
-    fontSize: 12, fontWeight: 600, padding: '5px 11px', borderRadius: 99,
-    border: '1px solid var(--br)', background: active ? 'var(--t)' : 'var(--s)',
-    color: active ? 'var(--b)' : 'var(--m)', cursor: 'pointer',
-  };
-}
-
-function rowTitle(config: ResourceConfig, item: Row): string {
-  const primary = item[config.listPrimary];
-  if (primary) return String(primary);
-  const content = item['content'];
-  if (typeof content === 'string' && content.length > 0) {
-    return content.length > 40 ? `${content.slice(0, 40)}…` : content;
-  }
-  return 'Untitled';
-}
-
-export function ResourceList({ config, onEdit }: ResourceListProps) {
+export function ResourceList({ config, onEdit }: { config: ResourceConfig; onEdit: (item: Row) => void }) {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const path = config.basePath.replace('{userId}', String(user!.id));
-
+  const cache = useQueryClient();
+  const query = useResourceList(config.key);
   const [search, setSearch] = useState('');
-  const [sortKey, setSortKey] = useState<SortKey | null>(null);
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-  const [groupByMonth, setGroupByMonth] = useState(false);
-
-  const toggleSort = (key: SortKey) => {
-    if (sortKey !== key) { setSortKey(key); setSortDir('asc'); }
-    else if (sortDir === 'asc') { setSortDir('desc'); }
-    else { setSortKey(null); }
-  };
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: [config.key],
-    queryFn: () => apiFetch<Row[]>(path),
+  const [sort, setSort] = useState(config.dateField ?? config.listPrimary);
+  const [ascending, setAscending] = useState(false);
+  const [page, setPage] = useState(0);
+  const [pendingDelete, setPendingDelete] = useState<Row | null>(null);
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => { if (pendingDelete) dialog.current?.showModal(); }, [pendingDelete]);
+  const columns = [...new Set([config.listPrimary, ...config.listSecondary, ...(config.listValue ? [config.listValue] : []), ...config.fields.map(f => f.name)])];
+  const deletion = useMutation({
+    mutationFn: (id: unknown) => apiFetch(`${config.basePath.replace('{userId}', String(user!.id))}/${id}`, { method: 'DELETE' }),
+    onSuccess: () => { setPendingDelete(null); cache.invalidateQueries({ queryKey: ['records', user!.id] }); cache.invalidateQueries({ queryKey: ['reports', user!.id] }); },
   });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiFetch<void>(`${path}/${id}`, { method: 'DELETE' }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [config.key] }),
+  const rows = (query.data ?? []).filter(row => columns.some(column => display(row[column]).toLowerCase().includes(search.toLowerCase()))).sort((a, b) => {
+    const left = a[sort], right = b[sort];
+    const order = typeof left === 'number' && typeof right === 'number' ? left - right : String(left ?? '').localeCompare(String(right ?? ''));
+    return ascending ? order : -order;
   });
-
-  if (isLoading) return <div style={{ color: 'var(--m)' }}>Loading {config.label}…</div>;
-  if (error) return <div style={{ color: 'crimson' }}>Failed to load {config.label}: {(error as Error).message}</div>;
-  if (!data || data.length === 0) return <div style={{ color: 'var(--m)' }}>No {config.label.toLowerCase()} yet.</div>;
-
-  const { flat, groups } = applyFilterSortGroup(data, config, search, sortKey, sortDir, groupByMonth);
-  const filteredCount = groups ? groups.reduce((n, g) => n + g.rows.length, 0) : flat.length;
-
-  const renderRow = (item: Row) => (
-    <div
-      key={item.id as number}
-      className="resource-row"
-      style={{ display: 'flex', alignItems: 'baseline', gap: 12, padding: '11px 2px', borderBottom: '1px solid var(--br)' }}
-    >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1, minWidth: 0 }}>
-        <span style={{ fontSize: 14, fontWeight: 500 }}>{rowTitle(config, item)}</span>
-        {config.listSecondary.length > 0 && (
-          <span style={{ fontSize: 11.5, color: 'var(--m)' }}>
-            {config.listSecondary.map((f) => String(item[f] ?? '—')).join(' · ')}
-          </span>
-        )}
-      </div>
-      {config.listValue && (
-        <span style={{ fontSize: 12, color: 'var(--m)', fontVariantNumeric: 'tabular-nums', flex: 'none' }}>
-          {String(item[config.listValue] ?? '—')}
-        </span>
-      )}
-      {(config.hasEdit || config.hasDelete) && (
-        <span className="row-actions" style={{ display: 'flex', gap: 6, flex: 'none' }}>
-          {config.hasEdit && (
-            <button onClick={() => onEdit(item)} aria-label="Edit"
-              style={{ border: 'none', background: 'transparent', padding: 4, cursor: 'pointer', fontSize: 13 }}>
-              ✎
-            </button>
-          )}
-          {config.hasDelete && (
-            <button onClick={() => deleteMutation.mutate(item.id as number)} disabled={deleteMutation.isPending} aria-label="Delete"
-              style={{ border: 'none', background: 'transparent', padding: 4, cursor: 'pointer', fontSize: 13, color: 'var(--m)' }}>
-              ✕
-            </button>
-          )}
-        </span>
-      )}
-    </div>
-  );
-
-  return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        <input
-          type="text"
-          placeholder={`Search ${config.label.toLowerCase()}…`}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ width: 220 }}
-        />
-        <button type="button" onClick={() => toggleSort('primary')} style={pillStyle(sortKey === 'primary')}>
-          Name{sortKey === 'primary' ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''}
-        </button>
-        {config.dateField && (
-          <button type="button" onClick={() => toggleSort('date')} style={pillStyle(sortKey === 'date')}>
-            Date{sortKey === 'date' ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''}
-          </button>
-        )}
-        {config.listValue && (
-          <button type="button" onClick={() => toggleSort('value')} style={pillStyle(sortKey === 'value')}>
-            Value{sortKey === 'value' ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''}
-          </button>
-        )}
-        {config.dateField && (
-          <button type="button" onClick={() => setGroupByMonth((g) => !g)} style={pillStyle(groupByMonth)}>
-            Group by month
-          </button>
-        )}
-        <span style={{ marginLeft: 'auto', fontSize: 11.5, color: 'var(--m)' }}>
-          {filteredCount === data.length ? `${data.length} ${config.label.toLowerCase()}` : `${filteredCount} of ${data.length}`}
-        </span>
-      </div>
-
-      {filteredCount === 0 ? (
-        <div style={{ color: 'var(--m)' }}>No results for "{search}".</div>
-      ) : groups ? (
-        groups.map((group) => (
-          <div key={group.key}>
-            <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--m)', padding: '18px 2px 8px' }}>
-              {group.label}
-            </div>
-            {group.rows.map(renderRow)}
-          </div>
-        ))
-      ) : (
-        flat.map(renderRow)
-      )}
-    </div>
-  );
+  const pageCount = Math.max(1, Math.ceil(rows.length / 15));
+  const currentPage = Math.min(page, pageCount - 1);
+  return <section className="records-panel" aria-label={`${config.label} records`}>
+    <div className="table-toolbar"><label className="search-label">Search records<input type="search" placeholder={`Search ${config.label.toLowerCase()}?`} value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} /></label><span className="record-count">{rows.length} records</span><button onClick={() => query.refetch()} disabled={query.isFetching}>Refresh</button></div>
+    {query.isLoading ? <p className="table-message" role="status">Loading records?</p> : query.error ? <p className="table-message" role="alert">{query.error.message}</p> : rows.length === 0 ? <div className="empty-state"><span>?</span><h2>{search ? 'No matching records' : 'A fresh start'}</h2><p>{search ? 'Try a different search.' : `Add your first entry to start tracking ${config.label.toLowerCase()}.`}</p></div> : <>
+      <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable records table"><table className="records-table"><thead><tr>{columns.map(column => <th key={column} aria-sort={sort === column ? ascending ? 'ascending' : 'descending' : 'none'}><button onClick={() => { setSort(column); setAscending(sort === column ? !ascending : true); setPage(0); }}>{config.fields.find(f => f.name === column)?.label ?? column}{sort === column ? ascending ? ' ?' : ' ?' : ''}</button></th>)}{(config.hasEdit || config.hasDelete) && <th className="actions-cell">Actions</th>}</tr></thead>
+      <tbody>{rows.slice(currentPage * 15, currentPage * 15 + 15).map(row => <tr key={String(row.id)}>{columns.map(column => <td key={column} title={display(row[column], config.fields.find(f => f.name === column)?.type)}><span className={typeof row[column] === 'boolean' ? `status-pill ${row[column] ? 'complete' : ''}` : ''}>{display(row[column], config.fields.find(f => f.name === column)?.type)}</span></td>)}{(config.hasEdit || config.hasDelete) && <td className="actions-cell"><div className="table-actions">{config.hasEdit && <button onClick={() => onEdit(row)} aria-label={`Edit ${display(row[config.listPrimary])}`}>Edit</button>}{config.hasDelete && <button className="delete-button" onClick={() => { deletion.reset(); setPendingDelete(row); }} aria-label={`Delete ${display(row[config.listPrimary])}`}>Delete</button>}</div></td>}</tr>)}</tbody></table></div>
+      <div className="table-pagination"><span>Showing {currentPage * 15 + 1}?{Math.min((currentPage + 1) * 15, rows.length)} of {rows.length}</span><div><button disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Previous</button><span> {currentPage + 1} / {pageCount} </span><button disabled={currentPage + 1 >= pageCount} onClick={() => setPage(currentPage + 1)}>Next</button></div></div>
+    </>}
+    {pendingDelete && <dialog ref={dialog} className="confirm-dialog" aria-labelledby="delete-title" onCancel={() => setPendingDelete(null)}><h2 id="delete-title">Delete this entry?</h2><p>{display(pendingDelete[config.listPrimary])}</p><p>The entry will be removed from your active records.</p>{deletion.error && <p role="alert">{deletion.error.message}</p>}<div className="dialog-actions"><button autoFocus disabled={deletion.isPending} onClick={() => setPendingDelete(null)}>Cancel</button><button className="danger-button" disabled={deletion.isPending} onClick={() => deletion.mutate(pendingDelete.id)}>{deletion.isPending ? 'Deleting?' : 'Delete entry'}</button></div></dialog>}
+  </section>;
 }

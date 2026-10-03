@@ -26,6 +26,10 @@ public class ApplicationDbContext : DbContext
     public DbSet<SleepLog> SleepLogs { get; set; }
     public DbSet<MeditationSession> MeditationSessions { get; set; }
     public DbSet<JournalEntry> JournalEntries { get; set; }
+    public DbSet<Habit> Habits { get; set; }
+    public DbSet<HabitLog> HabitLogs { get; set; }
+    public DbSet<SubstanceLog> SubstanceLogs { get; set; }
+    public DbSet<SymptomLog> SymptomLogs { get; set; }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -37,6 +41,40 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Habit>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User).WithMany(u => u.Habits)
+                .HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => new { e.UserId, e.HabitName }).IsUnique()
+                .HasDatabaseName("uq_habits_user_name");
+        });
+
+        modelBuilder.Entity<HabitLog>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User).WithMany(u => u.HabitLogs)
+                .HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => new { e.UserId, e.HabitId, e.LogDate }).IsUnique()
+                .HasDatabaseName("uq_habit_logs_user_habit_date");
+            entity.HasOne(e => e.Habit).WithMany().HasForeignKey(e => e.HabitId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<SubstanceLog>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User).WithMany(u => u.SubstanceLogs)
+                .HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SymptomLog>(entity =>
+        {
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.HasOne(e => e.User).WithMany(u => u.SymptomLogs)
+                .HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+         // User configuration
         // User configuration
         modelBuilder.Entity<User>(entity =>
         {

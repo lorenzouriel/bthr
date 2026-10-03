@@ -45,7 +45,7 @@ export function BodyDashboard() {
     <div>
       <h1 style={{ margin: 0, fontFamily: "'Newsreader',serif", fontWeight: 400, fontSize: 34 }}>Body</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginTop: 30 }}>
+      <div className="stat-grid">
         <StatCard label="Weight" value={latestWeight?.weightKg != null ? `${latestWeight.weightKg} kg` : '—'} />
         <StatCard label="Calories today" value={caloriesToday.toFixed(0)} />
         <StatCard label="Water today" value={`${waterToday} ml`} />

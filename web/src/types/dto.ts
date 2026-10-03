@@ -27,6 +27,6 @@ export interface MeditationSession extends BaseFields { sessionDate: string; dur
 export interface JournalEntry extends BaseFields { entryDate: string; title?: string; content: string; mood?: number; category?: string; }
 
 // Auth
-export interface AuthUser { id: number; email: string; username: string; plan: number; }
+export interface AuthUser { id: number; email: string; username: string; plan: number; isAdmin?: boolean; }
 export interface RegisterRequest { username: string; phoneNumber: string; email: string; password: string; }
 export interface LoginRequest { email: string; password: string; }

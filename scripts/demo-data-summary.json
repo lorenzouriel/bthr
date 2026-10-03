@@ -1,0 +1,21 @@
+{
+  "goals": 10,
+  "bills": 12,
+  "budgets": 10,
+  "earnings": 45,
+  "expenses": 180,
+  "investments": 20,
+  "body/weekly-routines": 7,
+  "body/workouts": 70,
+  "body/personal-records": 25,
+  "body/meals": 180,
+  "body/water-intake": 90,
+  "body/body-metrics": 45,
+  "body/sleep-logs": 75,
+  "body/habits": 8,
+  "body/habit-logs": 240,
+  "body/substance-logs": 45,
+  "body/symptom-logs": 30,
+  "mind/meditation-sessions": 70,
+  "mind/journal-entries": 75
+}

@@ -39,6 +39,10 @@ public class User
     public byte Plan { get; set; } = 0;
 
     // Navigation properties
+    public virtual ICollection<Habit> Habits { get; set; } = new List<Habit>();
+    public virtual ICollection<HabitLog> HabitLogs { get; set; } = new List<HabitLog>();
+    public virtual ICollection<SubstanceLog> SubstanceLogs { get; set; } = new List<SubstanceLog>();
+    public virtual ICollection<SymptomLog> SymptomLogs { get; set; } = new List<SymptomLog>();
     public virtual ICollection<Expense> Expenses { get; set; } = new List<Expense>();
     public virtual ICollection<Earning> Earnings { get; set; } = new List<Earning>();
     public virtual ICollection<Bill> Bills { get; set; } = new List<Bill>();

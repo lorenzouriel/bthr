@@ -129,6 +129,29 @@ All financial endpoints follow the pattern `/api/users/{userId}/{resource}`.
 | **Bank Accounts** | `/bank-accounts` | GET, GET `/{id}`, POST, PUT `/{id}`, DELETE `/{id}` |
 | **Bank Transactions** | `/bank-transactions` | GET (filters), GET `/{id}`, POST, PUT `/{id}`, DELETE `/{id}` |
 
+### Habits and Body Logs
+
+All routes below require authentication and a matching user ID.
+
+| Resource (under `/api/users/{userId}/body/`) | Methods |
+|----------|---------|
+| `habits` | GET, POST, PUT `/{habitId}`, DELETE `/{habitId}` |
+| `habit-logs` | GET, POST, PUT `/{habitLogId}`, DELETE `/{habitLogId}` |
+| `substance-logs` | GET, POST |
+| `symptom-logs` | GET, POST |
+
+- Habits require `habitName`; `targetFrequency` defaults to `Daily`. Optional fields: `category`, `description`.
+- Habit logs require `habitId` and `logDate` (`YYYY-MM-DD`). Optional fields: `isCompleted` (defaults to false), `notes`. New logs and changes of habit must reference an active habit owned by the same user.
+- Substance logs require `consumedAt` (ISO 8601 timestamp, preferably UTC), `substanceType`, `amount` (0–9999.99), and `unit`. Optional field: `notes`.
+- Symptom logs require `logDate` (`YYYY-MM-DD`) and `symptom`. Optional fields: `severity` (1–5), `notes`.
+- All three log lists accept inclusive `start_date` and `end_date` filters; habit logs also accept `habit_id`. Substance filters use timestamps; habit/symptom filters use dates. Lists return active records, newest first.
+- PUT updates supplied fields; omitted or null fields remain unchanged. DELETE sets `status = 0`. Archiving a habit preserves its logs, which remain readable and editable.
+- Duplicate habit names per user and duplicate habit/date logs return 409, including conflicts with archived/deleted records, matching the existing database constraints.
+- Invalid input or unavailable/foreign habits return 400; user ownership violations return 403; missing/deleted update or delete targets return 404.
+- Substance and symptom logs expose only GET/POST, matching the append-only design of migrations V26/V27.
+
+These endpoints use the existing V24–V27 tables; apply those migrations before running the API.
+
 ## Authentication Flow
 
 All protected endpoints require a valid JWT token. The token is set as an HTTP-only cookie on login.

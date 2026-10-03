@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+import { initialValues, requestValues } from '../utils/resourceValues';
+import { useResourceList } from '../hooks/useResourceList';
 import type { ResourceConfig } from '../config/resources';
 
 interface ResourceFormProps {
@@ -13,31 +15,31 @@ interface ResourceFormProps {
 export function ResourceForm({ config, editing, onDone }: ResourceFormProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const panel = useRef<HTMLDialogElement>(null);
+  useEffect(() => { panel.current?.showModal(); }, []);
   const path = config.basePath.replace('{userId}', String(user!.id));
   const writableFields = config.fields.filter((f) => !f.readOnly);
   const readOnlyFields = config.fields.filter((f) => f.readOnly);
 
-  const [values, setValues] = useState<Record<string, unknown>>(() =>
-    Object.fromEntries(
-      writableFields.map((f) => [f.name, editing?.[f.name] ?? (f.type === 'checkbox' ? false : '')])
-    )
-  );
+  const habits = useResourceList<{ id: number; habitName: string }>('habits', config.key === 'habit-logs');
+  const [values, setValues] = useState<Record<string, unknown>>(() => initialValues(config, editing));
 
   const mutation = useMutation({
     mutationFn: () =>
       editing
-        ? apiFetch(`${path}/${editing.id}`, { method: 'PUT', body: JSON.stringify(values) })
-        : apiFetch(path, { method: 'POST', body: JSON.stringify(values) }),
+        ? apiFetch(`${path}/${editing.id}`, { method: 'PUT', body: JSON.stringify(requestValues(config, values)) })
+        : apiFetch(path, { method: 'POST', body: JSON.stringify(requestValues(config, values)) }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [config.key] });
+      queryClient.invalidateQueries({ queryKey: ['records', user!.id] });
+      queryClient.invalidateQueries({ queryKey: ['reports', user!.id] });
       onDone();
     },
   });
 
   return (
-    <aside
+    <dialog ref={panel} className="record-form-dialog" aria-label={`${editing ? 'Edit' : 'Add'} ${config.label}`} onCancel={event => { if (mutation.isPending) event.preventDefault(); else onDone(); }}
       style={{
-        position: 'fixed', top: 0, right: 0, height: '100vh', width: 312,
+        position: 'fixed', top: 0, right: 0, left: 'auto', margin: 0, padding: 0, height: '100dvh', maxHeight: '100dvh', width: 'min(420px, 100vw)', maxWidth: '100vw', color: 'var(--t)', border: 0,
         display: 'flex', flexDirection: 'column',
         borderLeft: '1px solid var(--br)', background: 'var(--s)',
         boxShadow: '-4px 0 16px rgba(0,0,0,0.08)',
@@ -50,6 +52,7 @@ export function ResourceForm({ config, editing, onDone }: ResourceFormProps) {
           {editing ? `Edit ${config.label}` : `New ${config.label}`}
         </span>
         <button
+          disabled={mutation.isPending}
           onClick={onDone}
           aria-label="Close"
           style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14, color: 'var(--m)' }}
@@ -68,7 +71,12 @@ export function ResourceForm({ config, editing, onDone }: ResourceFormProps) {
         {writableFields.map((f) => (
           <label key={f.name}>
             {f.label}
-            {f.type === 'textarea' ? (
+            {f.name === 'habitId' ? (
+              <><select required value={String(values[f.name] ?? '')} onChange={e => setValues(v => ({ ...v, [f.name]: e.target.value }))}>
+                <option value="">Choose a habit</option>
+                {habits.data?.map(h => <option key={h.id} value={h.id}>{h.habitName}</option>)}
+              </select>{habits.error && <span role="alert">{habits.error.message}</span>}</>
+            ) : f.type === 'textarea' ? (
               <textarea
                 maxLength={f.maxLength}
                 required={f.required}
@@ -84,6 +92,7 @@ export function ResourceForm({ config, editing, onDone }: ResourceFormProps) {
             ) : (
               <input
                 type={f.type === 'datetime' ? 'datetime-local' : f.type}
+                min={f.min} max={f.max} step={f.type === 'number' ? (f.step ?? 'any') : undefined}
                 maxLength={f.maxLength}
                 required={f.required}
                 value={String(values[f.name] ?? '')}
@@ -106,6 +115,6 @@ export function ResourceForm({ config, editing, onDone }: ResourceFormProps) {
         {mutation.isError && <div style={{ color: 'crimson', marginBottom: 12 }}>{(mutation.error as Error).message}</div>}
         <button type="submit" disabled={mutation.isPending}>{editing ? 'Save' : 'Create'}</button>
       </form>
-    </aside>
+    </dialog>
   );
 }

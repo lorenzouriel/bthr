@@ -34,6 +34,26 @@ public class AuthControllerTests : ControllerTestBase
         };
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Me_ExposesAdminAccessFromAuthenticatedClaims(bool isAdmin)
+    {
+        var claims = new List<System.Security.Claims.Claim>
+        {
+            new(System.Security.Claims.ClaimTypes.NameIdentifier, "1"),
+            new("admin", isAdmin ? "true" : "false")
+        };
+        _sut.HttpContext.User = new System.Security.Claims.ClaimsPrincipal(
+            new System.Security.Claims.ClaimsIdentity(claims, "test"));
+        _userServiceMock.Setup(x => x.GetUserByIdAsync(1)).ReturnsAsync(
+            new UserProfileResponse { Id = 1, Email = "test@example.com", Username = "test" });
+
+        var result = (OkObjectResult)await _sut.Me();
+        var payload = System.Text.Json.JsonSerializer.SerializeToElement(result.Value);
+        payload.GetProperty("isAdmin").GetBoolean().Should().Be(isAdmin);
+    }
+
     #region Register Tests
 
     [Fact]

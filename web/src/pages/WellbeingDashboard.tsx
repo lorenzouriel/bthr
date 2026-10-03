@@ -36,9 +36,9 @@ export function WellbeingDashboard() {
 
   return (
     <div>
-      <h1 style={{ margin: 0, fontFamily: "'Newsreader',serif", fontWeight: 400, fontSize: 34 }}>Wellbeing</h1>
+      <h1 style={{ margin: 0, fontFamily: "'Newsreader',serif", fontWeight: 400, fontSize: 34 }}>Mind</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginTop: 30 }}>
+      <div className="stat-grid">
         <StatCard label="Meditation streak" value={`${meditationStreak} days`} />
         <StatCard label="Journal entries" value={String(journalEntriesThisMonth)} note="this month" />
         <StatCard label="Avg mood" value={avgMood ? avgMood.toFixed(1) : '—'} note="7-day" />

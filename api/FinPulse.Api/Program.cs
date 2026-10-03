@@ -41,6 +41,7 @@ builder.Host.UseSerilog();
 
 // Add services to the container
 builder.Services.AddControllers();
+builder.Services.AddCors();
 
 // Configure Entity Framework with PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -135,6 +136,10 @@ builder.Services.AddScoped<IBodyMetricService, BodyMetricService>();
 builder.Services.AddScoped<ISleepLogService, SleepLogService>();
 builder.Services.AddScoped<IMeditationSessionService, MeditationSessionService>();
 builder.Services.AddScoped<IJournalEntryService, JournalEntryService>();
+builder.Services.AddScoped<IHabitService, HabitService>();
+builder.Services.AddScoped<IHabitLogService, HabitLogService>();
+builder.Services.AddScoped<ISubstanceLogService, SubstanceLogService>();
+builder.Services.AddScoped<ISymptomLogService, SymptomLogService>();
 
 // Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();

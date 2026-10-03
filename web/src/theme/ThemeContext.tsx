@@ -10,10 +10,11 @@ interface ThemeState {
 const ThemeContext = createContext<ThemeState | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<ThemeName>('Porcelain');
+  const [theme, setTheme] = useState<ThemeName>(() => localStorage.getItem('bthr-theme') === 'Porcelain' ? 'Porcelain' : 'Dusk');
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    localStorage.setItem('bthr-theme', theme);
   }, [theme]);
 
   return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;

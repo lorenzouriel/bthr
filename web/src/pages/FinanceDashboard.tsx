@@ -1,3 +1,4 @@
+import { useAuth } from '../auth/AuthContext';
 import { useResourceList } from '../hooks/useResourceList';
 import { StatCard, BarChart, ProgressBars } from '../components/DashboardBlocks';
 import { dateKey, isThisMonth, lastNDates, sumBy } from '../utils/dashboardMath';
@@ -7,6 +8,7 @@ interface Earning { id: number; amount: number; category: string; earningDate: s
 interface Goal { id: number; name: string; currentAmount: number; targetAmount: number; currencyCode: string; }
 
 export function FinanceDashboard() {
+  const { user } = useAuth();
   const expenses = useResourceList<Expense>('expenses');
   const earnings = useResourceList<Earning>('earnings');
   const goals = useResourceList<Goal>('goals');
@@ -46,7 +48,7 @@ export function FinanceDashboard() {
     <div>
       <h1 style={{ margin: 0, fontFamily: "'Newsreader',serif", fontWeight: 400, fontSize: 34 }}>Finance</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginTop: 30 }}>
+      <div className="stat-grid">
         <StatCard label="Spent this month" value={spentThisMonth.toFixed(2)} />
         <StatCard label="Earned this month" value={earnedThisMonth.toFixed(2)} />
         <StatCard label="Net this month" value={net.toFixed(2)} />
@@ -56,6 +58,7 @@ export function FinanceDashboard() {
         <BarChart title="Expenses — last 7 days" columns={chartColumns} />
       </div>
 
+      {user!.plan < 1 && <p style={{ color: 'var(--m)' }}>Goals, budgets, and investments require plan 1 or above.</p>}
       {progressRows.length > 0 && (
         <div style={{ marginTop: 30 }}>
           <ProgressBars title="Goals" rows={progressRows} />

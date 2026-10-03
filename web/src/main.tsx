@@ -6,7 +6,7 @@ import App from './App';
 import { ThemeProvider } from './theme/ThemeContext';
 import './theme/theme.css';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30000 }, mutations: { retry: false } } });
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
