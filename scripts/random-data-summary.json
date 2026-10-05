@@ -1,0 +1,27 @@
+{
+  "userId": 3,
+  "username": "Nina Costa 9804ff",
+  "email": "test.9804ff@bthr.test",
+  "counts": {
+    "goals": 10,
+    "bills": 12,
+    "budgets": 10,
+    "earnings": 45,
+    "expenses": 360,
+    "investments": 20,
+    "body/weekly-routines": 7,
+    "body/workouts": 100,
+    "body/personal-records": 25,
+    "body/meals": 360,
+    "body/water-intake": 90,
+    "body/body-metrics": 45,
+    "body/sleep-logs": 100,
+    "body/habits": 8,
+    "body/habit-logs": 480,
+    "body/substance-logs": 45,
+    "body/symptom-logs": 60,
+    "mind/meditation-sessions": 100,
+    "mind/journal-entries": 100
+  },
+  "total": 1977
+}
