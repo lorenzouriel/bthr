@@ -1,10 +1,10 @@
-# Fin Pulse Database
+# bthr Database
 
 > PostgreSQL database schema for a personal finance assistant that helps users track expenses, earnings, investments, and financial goals.
 
 ## Overview
 
-Fin Pulse Database provides the data layer for a personal finance application. It manages user financial data across multiple domains:
+bthr Database provides the data layer for a personal finance application. It manages user financial data across multiple domains:
 
 - **Expenses & Earnings** - Track daily transactions and income sources
 - **Investments** - Monitor stocks, crypto, fixed income, and other assets
@@ -35,10 +35,10 @@ cp .env.example .env
 3. Edit `.env` with your PostgreSQL credentials:
 
 ```properties
-POSTGRES_DB=fin_pulse
+POSTGRES_DB=bthr
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=YourStrongPassword123!
-FLYWAY_URL=jdbc:postgresql://postgres:5432/fin_pulse
+FLYWAY_URL=jdbc:postgresql://postgres:5432/bthr
 FLYWAY_USER=postgres
 FLYWAY_PASSWORD=YourStrongPassword123!
 ```
@@ -54,7 +54,7 @@ docker compose up
 Check migration status:
 
 ```bash
-docker compose run --rm flyway info
+docker compose run --rm findatabase info
 ```
 
 ## Database Schema
@@ -144,9 +144,11 @@ Migrations are managed with [Flyway](https://flywaydb.org/) and follow the namin
 
 ### Current Migrations
 
+These migrations define the first deployment from an empty database. Earlier pre-deployment revisions have been folded into the table definitions. After deployment, add new versions instead of editing applied migrations.
+
 | Version | Description |
 | ------- | ----------- |
-| V1 | Create database schemas |
+| V1 | Create schemas |
 | V2 | Create users table |
 | V3 | Create budgets table |
 | V4 | Create goals table |
@@ -154,27 +156,35 @@ Migrations are managed with [Flyway](https://flywaydb.org/) and follow the namin
 | V6 | Create expenses table |
 | V7 | Create investments table |
 | V8 | Create bills table |
-| V9 | Create bank_connections table |
-| V10 | Create bank_accounts table |
-| V11 | Create bank_transactions table |
-| V12 | Create bill_payments table |
-| V13 | Create budget_spending table |
-| V14 | Create indexes |
+| V9 | Create weekly routines table |
+| V10 | Create workouts table |
+| V11 | Create personal records table |
+| V12 | Create meals table |
+| V13 | Create water intake table |
+| V14 | Create body metrics table |
+| V15 | Create sleep logs table |
+| V16 | Create habits table |
+| V17 | Create habit logs table |
+| V18 | Create substance logs table |
+| V19 | Create symptom logs table |
+| V20 | Create meditation sessions table |
+| V21 | Create journal entries table |
+| V22 | Create indexes |
 
 ### Running Migrations
 
 ```bash
 # Run all pending migrations
-docker compose up flyway
+docker compose up findatabase
 
 # View migration status
-docker compose run --rm flyway info
+docker compose run --rm findatabase info
 
 # Validate migrations
-docker compose run --rm flyway validate
+docker compose run --rm findatabase validate
 
 # Repair migration history (if needed)
-docker compose run --rm flyway repair
+docker compose run --rm findatabase repair
 ```
 
 ## Configuration
@@ -183,10 +193,10 @@ docker compose run --rm flyway repair
 
 | Variable | Description | Example |
 | -------- | ----------- | ------- |
-| `POSTGRES_DB` | Local PostgreSQL container database name | `fin_pulse` |
+| `POSTGRES_DB` | Local PostgreSQL container database name | `bthr` |
 | `POSTGRES_USER` | Local PostgreSQL container user | `postgres` |
 | `POSTGRES_PASSWORD` | Local PostgreSQL container password | `YourPassword123!` |
-| `FLYWAY_URL` | JDBC connection string | `jdbc:postgresql://postgres:5432/fin_pulse` |
+| `FLYWAY_URL` | JDBC connection string | `jdbc:postgresql://postgres:5432/bthr` |
 | `FLYWAY_USER` | Database username | `postgres` |
 | `FLYWAY_PASSWORD` | Database password | `YourPassword123!` |
 | `FLYWAY_SCHEMAS` | Schemas to manage | `public,finance,plan,investment,reporting` |
@@ -230,7 +240,7 @@ Configure these in Azure DevOps variable group `FLYWAY-DEV`:
 1. Create a new SQL file in `migrations/`:
 
 ```bash
-touch migrations/V13__create_new_table.sql
+touch migrations/V23__create_new_table.sql
 ```
 
 2. Write your SQL migration following the existing patterns:
@@ -253,8 +263,8 @@ COMMENT ON TABLE new_table IS 'Description of the table';
 3. Test locally:
 
 ```bash
-docker compose run --rm flyway validate
-docker compose run --rm flyway migrate
+docker compose run --rm findatabase validate
+docker compose run --rm findatabase migrate
 ```
 
 ### SQL Standards
@@ -272,7 +282,7 @@ database/
 ├── migrations/              # Flyway SQL migration files
 │   ├── V1__create_schemas.sql
 │   ├── V2__create_users_table.sql
-│   └── ...V14__create_indexes.sql
+│   └── ...V22__create_indexes.sql
 ├── docs/
 │   ├── schema/              # Generated schema docs (tbls)
 │   │   ├── README.md        # Table index

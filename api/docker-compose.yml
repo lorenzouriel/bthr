@@ -2,7 +2,7 @@ services:
   finapi:
     build:
       context: .
-      dockerfile: FinPulse.Api/Dockerfile
+      dockerfile: bthr.Api/Dockerfile
     image: finapi
     container_name: finapi
     environment:
@@ -11,8 +11,8 @@ services:
       - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
       - Otel__ExporterEndpoint=${OTEL_EXPORTER_OTLP_ENDPOINT}
       - Jwt__SecretKey=${JWT_SECRET_KEY}
-      - Jwt__Issuer=${JWT_ISSUER:-FinPulse.Api}
-      - Jwt__Audience=${JWT_AUDIENCE:-FinPulse.Api}
+      - Jwt__Issuer=${JWT_ISSUER:-bthr.Api}
+      - Jwt__Audience=${JWT_AUDIENCE:-bthr.Api}
       - Jwt__ExpirationMinutes=${JWT_EXPIRATION_MINUTES:-60}
       - Cookie__Secure=${COOKIE_SECURE:-false}
       - Bot__ApiKey=${BOT_API_KEY}

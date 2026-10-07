@@ -115,7 +115,7 @@ services:
     image: quay.io/prometheuscommunity/postgres-exporter:v0.19.1
     container_name: postgres-exporter
     environment:
-      - DATA_SOURCE_NAME=postgresql://postgres:YourStrongPassword123!@host.docker.internal:5432/fin_pulse?sslmode=disable
+      - DATA_SOURCE_NAME=postgresql://postgres:YourStrongPassword123!@host.docker.internal:5432/bthr?sslmode=disable
     ports:
       - "9187:9187"
     networks:

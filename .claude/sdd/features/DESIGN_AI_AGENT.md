@@ -1,5 +1,7 @@
 # DESIGN: AI Agent (Web + Telegram)
 
+> Review update (2026-10-07): [STORIES_AI_AGENT.md](./STORIES_AI_AGENT.md) supersedes conflicting implementation details in this document. Its audit identifies unresolved API/database contract drift, V23/V24 migration numbering, three append-only resources, and required execution/authorization safeguards. This document is historical design context, not an independently ready-to-build specification.
+
 > Technical design for a provider-agnostic Python agent service that operates every bthr resource on behalf of the user, from the web app and Telegram.
 
 ## Metadata
@@ -51,7 +53,7 @@
 │  └────────────┬────────────────────────────┬─────────────────┘  │            │
 │               │ REST as the user           │ SQL (agent.* only)  │            │
 │               ▼                            ▼                     ▼            │
-│  ┌──────── FinPulse.Api (.NET 10) ────────┐   ┌──────── PostgreSQL ────────┐  │
+│  ┌──────── bthr.Api (.NET 10) ────────┐   ┌──────── PostgreSQL ────────┐  │
 │  │ 19 resource controllers, reports       │──►│ finance / body / mind      │  │
 │  │ TelegramIntegrationController (new)    │   │ integration.* (new, API)   │  │
 │  │ AuthController: bot/telegram/link,     │   │ agent.* (new, agent svc)   │  │
@@ -68,7 +70,7 @@
 | Component | Purpose | Technology |
 |-----------|---------|------------|
 | `agent/` service | Hosts the agent, both channels, conversation store | Python 3.12, FastAPI, uvicorn, Pydantic AI 2.x (`pydantic-ai-slim[anthropic,openai]`), aiogram 3, httpx, asyncpg, PyJWT, pydantic-settings |
-| Resource registry | Maps the 19 resource names → API routes, id param, supported list filters, create/update JSON schemas | `resources.yaml` + committed OpenAPI snapshot `agent/openapi/finpulse.openapi.json` |
+| Resource registry | Maps the 19 resource names → API routes, id param, supported list filters, create/update JSON schemas | `resources.yaml` + committed OpenAPI snapshot `agent/openapi/bthr.openapi.json` |
 | Agent core | System instructions, persona, dynamic date/timezone context, generic tools | Pydantic AI `Agent(deps_type=AgentDeps, output_type=[str, DeferredToolRequests])` |
 | AgentRunner | Channel-agnostic turn executor: lock, rate limit, history, deferred approvals, event stream | asyncio, Pydantic AI `run_stream_events` |
 | Web channel | `POST /api/agent/messages` (SSE), `POST /api/agent/actions/{id}`, `GET /api/agent/messages` | FastAPI `StreamingResponse` |
@@ -146,7 +148,7 @@
 **Context:** 19 resources × 4 operations ≈ 76 endpoints. Swagger is only served when `ASPNETCORE_ENVIRONMENT=Development` (`Program.cs`), so the agent cannot fetch it in production (A-001). Most resources have **no** `GET /{id}` endpoint (only list).
 
 **Choice:**
-- `agent/openapi/finpulse.openapi.json` is a committed snapshot exported with Swashbuckle CLI (`agent/scripts/export_openapi.sh`); CI regenerates it and fails on diff.
+- `agent/openapi/bthr.openapi.json` is a committed snapshot exported with Swashbuckle CLI (`agent/scripts/export_openapi.sh`); CI regenerates it and fails on diff.
 - `agent/src/bthr_agent/registry/resources.yaml` lists each resource: `name`, `domain`, `path`, `id_param`, `create_schema`, `update_schema`, `list_filters`, `date_field`, `description`.
 - At startup the registry resolves `$ref`s from the snapshot into JSON Schemas and builds a `Literal[...]` enum of resource names.
 - Tools (7): `describe_resource(resource)` (returns field schema — keeps per-resource schemas out of the base prompt), `list_records(resource, start_date?, end_date?, filters?, limit?)`, `get_record(resource, id)` (list + filter by id, since no GET-by-id exists), `create_record(resource, data)`, `update_record(resource, id, changes)` *, `delete_record(resource, id)` *, `get_review(start_date, end_date, domain, combine?)`.
@@ -237,24 +239,24 @@
 
 | # | File | Action | Purpose | Agent | Dependencies |
 |---|------|--------|---------|-------|--------------|
-| 3 | `api/FinPulse.Api/Models/TelegramLink.cs` | Create | EF entity → `integration.telegram_links` | @dotnet-developer | 1 |
-| 4 | `api/FinPulse.Api/Models/TelegramLinkCode.cs` | Create | EF entity → `integration.telegram_link_codes` | @dotnet-developer | 1 |
-| 5 | `api/FinPulse.Api/Data/ApplicationDbContext.cs` | Modify | DbSets + mappings for 3, 4 | @dotnet-developer | 3, 4 |
-| 6 | `api/FinPulse.Api/DTOs/TelegramDTOs.cs` | Create | `LinkCodeResponse`, `TelegramLinkStatusResponse`, `BotTelegramLinkRequest`, `BotChatTokenRequest`, `BotChatTokenResponse` | @dotnet-developer | None |
-| 7 | `api/FinPulse.Api/DTOs/AuthDTOs.cs` | Modify | Remove `BotTokenRequest` | @dotnet-developer | None |
-| 8 | `api/FinPulse.Api/Services/JwtService.cs` | Modify | `GenerateToken(int userId, int plan = 0, bool isAdmin = false, TimeSpan? lifetime = null)` | @dotnet-developer | None |
-| 9 | `api/FinPulse.Api/Services/TelegramLinkService.cs` | Create | Create code (hash, TTL 10 min, invalidates previous), redeem (single-use), status, unlink, resolve chat → user | @dotnet-developer | 5, 6 |
-| 10 | `api/FinPulse.Api/Controllers/TelegramIntegrationController.cs` | Create | `api/integrations/telegram/link-code` (POST), `api/integrations/telegram/link` (GET/DELETE) | @dotnet-developer | 9 |
-| 11 | `api/FinPulse.Api/Controllers/AuthController.cs` | Modify | Delete `bot/token`; add `bot/telegram/link`, `bot/token-for-chat` (constant-time key compare) | @dotnet-developer | 8, 9 |
-| 12 | `api/FinPulse.Api/Program.cs` | Modify | Register `ITelegramLinkService`; `Telegram:BotUsername`, `Bot:ChatTokenMinutes` config | @dotnet-developer | 9 |
+| 3 | `api/bthr.Api/Models/TelegramLink.cs` | Create | EF entity → `integration.telegram_links` | @dotnet-developer | 1 |
+| 4 | `api/bthr.Api/Models/TelegramLinkCode.cs` | Create | EF entity → `integration.telegram_link_codes` | @dotnet-developer | 1 |
+| 5 | `api/bthr.Api/Data/ApplicationDbContext.cs` | Modify | DbSets + mappings for 3, 4 | @dotnet-developer | 3, 4 |
+| 6 | `api/bthr.Api/DTOs/TelegramDTOs.cs` | Create | `LinkCodeResponse`, `TelegramLinkStatusResponse`, `BotTelegramLinkRequest`, `BotChatTokenRequest`, `BotChatTokenResponse` | @dotnet-developer | None |
+| 7 | `api/bthr.Api/DTOs/AuthDTOs.cs` | Modify | Remove `BotTokenRequest` | @dotnet-developer | None |
+| 8 | `api/bthr.Api/Services/JwtService.cs` | Modify | `GenerateToken(int userId, int plan = 0, bool isAdmin = false, TimeSpan? lifetime = null)` | @dotnet-developer | None |
+| 9 | `api/bthr.Api/Services/TelegramLinkService.cs` | Create | Create code (hash, TTL 10 min, invalidates previous), redeem (single-use), status, unlink, resolve chat → user | @dotnet-developer | 5, 6 |
+| 10 | `api/bthr.Api/Controllers/TelegramIntegrationController.cs` | Create | `api/integrations/telegram/link-code` (POST), `api/integrations/telegram/link` (GET/DELETE) | @dotnet-developer | 9 |
+| 11 | `api/bthr.Api/Controllers/AuthController.cs` | Modify | Delete `bot/token`; add `bot/telegram/link`, `bot/token-for-chat` (constant-time key compare) | @dotnet-developer | 8, 9 |
+| 12 | `api/bthr.Api/Program.cs` | Modify | Register `ITelegramLinkService`; `Telegram:BotUsername`, `Bot:ChatTokenMinutes` config | @dotnet-developer | 9 |
 | 13 | `api/docker-compose.yml` / `api/.env.example` | Modify | `Telegram__BotUsername`, `Bot__ChatTokenMinutes` | (general) | 12 |
 | 14 | `.config/dotnet-tools.json` | Create | Pin `swashbuckle.aspnetcore.cli` for OpenAPI export | @dotnet-specialist | None |
-| 15 | `api/FinPulse.Tests/Helpers/Builders/TelegramLinkBuilder.cs` | Create | Test data builder (matches existing builder pattern) | @dotnet-developer | 3, 4 |
-| 16 | `api/FinPulse.Tests/UnitTests/Services/TelegramLinkServiceTests.cs` | Create | Code TTL, single-use, hash, relink, unlink | @dotnet-developer | 9, 15 |
-| 17 | `api/FinPulse.Tests/UnitTests/Controllers/TelegramIntegrationControllerTests.cs` | Create | Auth required, status/unlink | @dotnet-developer | 10 |
-| 18 | `api/FinPulse.Tests/UnitTests/Controllers/AuthControllerTests.cs` | Modify | Remove bot/token tests; add link + token-for-chat (bad key, unlinked chat, TTL ≤ 15 min) | @dotnet-developer | 11 |
-| 19 | `api/FinPulse.Tests/UnitTests/Services/JwtServiceTests.cs` | Modify | Custom lifetime test | @dotnet-developer | 8 |
-| 20 | `api/FinPulse.Tests/IntegrationTests/TelegramBotEndpointTests.cs` | Create | AT-007/008/009/014 end-to-end against `CustomWebApplicationFactory` | @dotnet-developer | 11 |
+| 15 | `api/bthr.Tests/Helpers/Builders/TelegramLinkBuilder.cs` | Create | Test data builder (matches existing builder pattern) | @dotnet-developer | 3, 4 |
+| 16 | `api/bthr.Tests/UnitTests/Services/TelegramLinkServiceTests.cs` | Create | Code TTL, single-use, hash, relink, unlink | @dotnet-developer | 9, 15 |
+| 17 | `api/bthr.Tests/UnitTests/Controllers/TelegramIntegrationControllerTests.cs` | Create | Auth required, status/unlink | @dotnet-developer | 10 |
+| 18 | `api/bthr.Tests/UnitTests/Controllers/AuthControllerTests.cs` | Modify | Remove bot/token tests; add link + token-for-chat (bad key, unlinked chat, TTL ≤ 15 min) | @dotnet-developer | 11 |
+| 19 | `api/bthr.Tests/UnitTests/Services/JwtServiceTests.cs` | Modify | Custom lifetime test | @dotnet-developer | 8 |
+| 20 | `api/bthr.Tests/IntegrationTests/TelegramBotEndpointTests.cs` | Create | AT-007/008/009/014 end-to-end against `CustomWebApplicationFactory` | @dotnet-developer | 11 |
 
 ### Agent service (Python)
 
@@ -264,11 +266,11 @@
 | 22 | `agent/.env.example` | Create | All config keys (see Configuration) | (general) | None |
 | 23 | `agent/src/bthr_agent/config.py` | Create | `Settings(BaseSettings)` | @python-developer | 21 |
 | 24 | `agent/src/bthr_agent/telemetry.py` | Create | OTLP tracer/logger, `Agent.instrument_all()`, httpx + FastAPI instrumentation | @python-developer | 23 |
-| 25 | `agent/openapi/finpulse.openapi.json` | Create | Committed API OpenAPI snapshot | @dotnet-specialist | 14 |
+| 25 | `agent/openapi/bthr.openapi.json` | Create | Committed API OpenAPI snapshot | @dotnet-specialist | 14 |
 | 26 | `agent/scripts/export_openapi.sh` | Create | Build API, `dotnet swagger tofile`, write 25 | @shell-script-specialist | 14 |
 | 27 | `agent/src/bthr_agent/registry/resources.yaml` | Create | 19 resource entries | @python-developer | 25 |
 | 28 | `agent/src/bthr_agent/registry/registry.py` | Create | Load YAML + resolve schemas, `ResourceName` Literal, validation | @python-developer | 25, 27 |
-| 29 | `agent/src/bthr_agent/api_client.py` | Create | `FinPulseClient` (httpx.AsyncClient, Bearer, error mapping) + `BotClient` (link, chat token, cached until 60 s before expiry) | @python-developer | 23 |
+| 29 | `agent/src/bthr_agent/api_client.py` | Create | `bthrClient` (httpx.AsyncClient, Bearer, error mapping) + `BotClient` (link, chat token, cached until 60 s before expiry) | @python-developer | 23 |
 | 30 | `agent/src/bthr_agent/auth.py` | Create | Web cookie JWT validation → `UserContext(user_id, token)` | @python-developer | 23 |
 | 31 | `agent/src/bthr_agent/store/db.py` | Create | asyncpg pool lifecycle | @python-developer | 23 |
 | 32 | `agent/src/bthr_agent/store/conversations.py` | Create | get-or-create conversation, load last N runs, append run | @python-developer | 31 |
@@ -368,7 +370,7 @@ from zoneinfo import ZoneInfo
 
 from pydantic_ai import Agent, DeferredToolRequests, ModelRetry, RunContext
 
-from bthr_agent.api_client import ApiValidationError, FinPulseClient
+from bthr_agent.api_client import ApiValidationError, bthrClient
 from bthr_agent.core.prompts import BASE_INSTRUCTIONS
 from bthr_agent.registry.registry import Registry, ResourceName
 
@@ -376,7 +378,7 @@ from bthr_agent.registry.registry import Registry, ResourceName
 @dataclass
 class AgentDeps:
     user_id: int
-    api: FinPulseClient
+    api: bthrClient
     registry: Registry
     timezone: str
     channel: str  # "web" | "telegram"
@@ -638,7 +640,7 @@ COMMENT ON TABLE agent.pending_actions IS 'Update/delete tool calls awaiting use
 ### Pattern 6: Resource registry entry (`registry/resources.yaml`)
 
 ```yaml
-# One entry per user-scoped resource. Schemas are resolved from openapi/finpulse.openapi.json.
+# One entry per user-scoped resource. Schemas are resolved from openapi/bthr.openapi.json.
 - name: expenses
   domain: finance
   path: /api/users/{userId}/expenses
@@ -676,8 +678,8 @@ class Settings(BaseSettings):
     api_base_url: str = "http://finapi:8080"
     database_url: SecretStr
     jwt_secret_key: SecretStr
-    jwt_issuer: str = "FinPulse.Api"
-    jwt_audience: str = "FinPulse.Api"
+    jwt_issuer: str = "bthr.Api"
+    jwt_audience: str = "bthr.Api"
     bot_api_key: SecretStr
     telegram_bot_token: SecretStr | None = None
     telegram_mode: str = "webhook"  # webhook | polling | disabled
@@ -774,8 +776,8 @@ C. Linking Telegram (AT-008)
 
 | External System | Integration Type | Authentication |
 |-----------------|-----------------|----------------|
-| FinPulse.Api (resource + report endpoints) | REST (httpx) | User JWT as `Authorization: Bearer` (web: from cookie; Telegram: chat-scoped 15-min token) |
-| FinPulse.Api (bot endpoints) | REST | `X-Bot-Api-Key` (constant-time compare) |
+| bthr.Api (resource + report endpoints) | REST (httpx) | User JWT as `Authorization: Bearer` (web: from cookie; Telegram: chat-scoped 15-min token) |
+| bthr.Api (bot endpoints) | REST | `X-Bot-Api-Key` (constant-time compare) |
 | LLM providers (Anthropic / OpenAI / Ollama) | Pydantic AI model adapters | Provider API key env vars |
 | Telegram Bot API | aiogram 3 (webhook or polling) | `TELEGRAM_BOT_TOKEN`; inbound webhook verified by `X-Telegram-Bot-Api-Secret-Token` |
 | PostgreSQL | asyncpg | Dedicated role `bthr_agent` with privileges on schema `agent` only |
@@ -846,7 +848,7 @@ C. Linking Telegram (AT-008)
 | `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `OLLAMA_BASE_URL` | secret/string | — | Provider credentials |
 | `API_BASE_URL` | string | `http://finapi:8080` | Internal API URL |
 | `DATABASE_URL` | secret | — | Postgres DSN for role `bthr_agent` |
-| `JWT_SECRET_KEY` / `JWT_ISSUER` / `JWT_AUDIENCE` | secret/string | — / `FinPulse.Api` / `FinPulse.Api` | Web cookie JWT verification |
+| `JWT_SECRET_KEY` / `JWT_ISSUER` / `JWT_AUDIENCE` | secret/string | — / `bthr.Api` / `bthr.Api` | Web cookie JWT verification |
 | `BOT_API_KEY` | secret | — | Calls to `/api/auth/bot/*` |
 | `TELEGRAM_BOT_TOKEN` | secret | — | Bot credentials |
 | `TELEGRAM_MODE` | string | `webhook` | `webhook` \| `polling` \| `disabled` |
@@ -882,7 +884,7 @@ C. Linking Telegram (AT-008)
 |--------|----------------|
 | Logging | Structured JSON (stdlib logging → OTLP log exporter to Loki); fields: `user_id`, `channel`, `run_id`, `tool`, `latency_ms`; no message content |
 | Metrics | OTel metrics: `agent_turns_total{channel,outcome}`, `agent_first_token_seconds` (histogram, SLO < 3 s p95), `agent_turn_seconds`, `agent_tool_calls_total{tool,resource,status}`, `agent_pending_total{outcome}`, `agent_rate_limited_total`, LLM token usage |
-| Tracing | `Agent.instrument_all()` + httpx/FastAPI instrumentation; W3C `traceparent` propagated to FinPulse.Api (already instrumented) → single trace LLM → API → Npgsql in Tempo |
+| Tracing | `Agent.instrument_all()` + httpx/FastAPI instrumentation; W3C `traceparent` propagated to bthr.Api (already instrumented) → single trace LLM → API → Npgsql in Tempo |
 
 ---
 

@@ -60,15 +60,15 @@ Metrics include query performance, ingestion rates, request errors, chunk flush 
 | `job_name: postgres-exporter`         | Job name for the PostgreSQL metrics exporter                              |
 | `targets: ['postgres-exporter:9187']` | Scrapes `postgres_exporter`'s `/metrics` endpoint on its default port 9187 |
 
-`postgres_exporter` connects directly to the `fin_pulse` database (via `DATA_SOURCE_NAME`, see `monitor/docker-compose.yml`) and exposes `pg_stat_database`, `pg_stat_user_tables`, and other system-view metrics in Prometheus format, no application code changes needed.
+`postgres_exporter` connects directly to the `bthr` database (via `DATA_SOURCE_NAME`, see `monitor/docker-compose.yml`) and exposes `pg_stat_database`, `pg_stat_user_tables`, and other system-view metrics in Prometheus format, no application code changes needed.
 
-Note: `FinPulse.Api`'s own metrics are not scraped directly by Prometheus. The API exports metrics via OTLP to the OTel Collector, which re-exposes them on the already-scraped `otel-collector:9464` target, so a second direct-scrape job for the API would be redundant.
+Note: `bthr.Api`'s own metrics are not scraped directly by Prometheus. The API exports metrics via OTLP to the OTel Collector, which re-exposes them on the already-scraped `otel-collector:9464` target, so a second direct-scrape job for the API would be redundant.
 
 ## Overall Flow of Metrics
 
 | Source                  | Metrics Type                                                                      | Scraped By |
 | ------------------------ | ------------------------------------------------------------------------------------ | ---------- |
-| OpenTelemetry Collector | Collector processing + re-exposed FinPulse.Api metrics                              | Prometheus |
+| OpenTelemetry Collector | Collector processing + re-exposed bthr.Api metrics                              | Prometheus |
 | Loki                    | Log ingestion/query metrics                                                         | Prometheus |
 | postgres-exporter       | PostgreSQL metrics (connections, transactions, cache hit ratio, table/index sizes)  | Prometheus |
 

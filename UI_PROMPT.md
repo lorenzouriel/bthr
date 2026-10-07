@@ -38,7 +38,7 @@ Use Exist as the reference for tracking and analysis:
 
 Create an original product identity, visual design, and assistant voice. Do not reproduce either brand’s assets, copy, or layouts.
 
-Use bthr as the user-facing product name. Some repository components still use FinPulse internally.
+Use bthr as the user-facing product name. Some repository components still use bthr internally.
 
 PRODUCT AREAS
 

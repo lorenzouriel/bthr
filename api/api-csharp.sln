@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinPulse.Api", "FinPulse.Api\FinPulse.Api.csproj", "{D0C5A0E7-A2AB-729A-0649-D8D94FA03C45}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bthr.Api", "bthr.Api\bthr.Api.csproj", "{D0C5A0E7-A2AB-729A-0649-D8D94FA03C45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinPulse.Tests", "FinPulse.Tests\FinPulse.Tests.csproj", "{A5D5C9DD-CABA-4890-805F-508A0F1095B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bthr.Tests", "bthr.Tests\bthr.Tests.csproj", "{A5D5C9DD-CABA-4890-805F-508A0F1095B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

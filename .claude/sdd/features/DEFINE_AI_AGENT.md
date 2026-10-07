@@ -1,5 +1,7 @@
 # DEFINE: AI Agent (Web + Telegram)
 
+> Review update (2026-10-07): [STORIES_AI_AGENT.md](./STORIES_AI_AGENT.md) supersedes conflicting implementation details in this document. Its audit identifies unresolved API/database contract drift, V23/V24 migration numbering, three append-only resources, and required execution/authorization safeguards. This document is historical design context, not an independently ready-to-build specification.
+
 > A single conversational agent, reachable from the bthr web app and Telegram, that can read, create, update and delete every user record and produce reviews — using the same API and data as the existing screens.
 
 ## Metadata
@@ -125,7 +127,7 @@ bthr users can manage their 19 finance, body and mind resources only through per
 
 | Aspect | Value | Notes |
 |--------|-------|-------|
-| **Deployment Location** | `agent/` (new Python service); `api/FinPulse.Api/` (auth/link endpoints, removal of old bot token); `database/migrations/` (V31+ `agent` schema); `web/src/` (Assistant panel, Settings link) | Fifth sibling subproject alongside api/web/database/monitor |
+| **Deployment Location** | `agent/` (new Python service); `api/bthr.Api/` (auth/link endpoints, removal of old bot token); `database/migrations/` (V31+ `agent` schema); `web/src/` (Assistant panel, Settings link) | Fifth sibling subproject alongside api/web/database/monitor |
 | **KB Domains** | `genai` (tool-calling, chatbot-architecture, guardrails, state-machines, evaluation-framework), `pydantic`, `python`, `prompt-engineering`, `dotnet`, `javascript`, `testing` | genai patterns drive tool + confirm design; dotnet for API endpoints; javascript for web panel |
 | **IaC Impact** | Modify existing | New `agent/Dockerfile` + `agent/docker-compose.yml`; new pipeline stage in `azure-pipelines.yml`; new secrets (LLM API key(s), `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, reuse `BOT_API_KEY`); public HTTPS route for the Telegram webhook; OTel exporter pointed at existing collector |
 

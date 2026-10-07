@@ -7,14 +7,14 @@ This backlog reflects gaps found by reading the actual code, migrations, tests, 
 ## P0 — Correctness & security
 
 - **Banking integration is documented but not implemented.** `api/README.md` advertises `bank-connections`, `bank-accounts`, and `bank-transactions` endpoints with full CRUD, but there is no `BankConnectionsController`, no corresponding DTOs/models, and no Flyway migration for those tables. Either build the feature or strip it from the README so the public API surface isn't misrepresented.
-- **No refresh tokens.** `AuthController` issues a single 7-day JWT in an HTTP-only cookie with no refresh/rotation mechanism (`api/FinPulse.Api/Controllers/AuthController.cs`). A stolen or expired token means a full re-login; there's no revocation path either (e.g. on logout the cookie is cleared client-side but the JWT itself remains valid until expiry).
+- **No refresh tokens.** `AuthController` issues a single 7-day JWT in an HTTP-only cookie with no refresh/rotation mechanism (`api/bthr.Api/Controllers/AuthController.cs`). A stolen or expired token means a full re-login; there's no revocation path either (e.g. on logout the cookie is cleared client-side but the JWT itself remains valid until expiry).
 - **No rate limiting anywhere in the API.** `Program.cs` has no `AddRateLimiter`/throttling middleware. `/api/auth/login` and `/api/auth/register` are open to brute-force and enumeration.
 - **Health check is a stub.** `app.MapGet("/health", () => new { status = "ok" })` never checks the database connection, so the container can report healthy while Postgres is unreachable — a real risk for the Azure Container Apps deployment referenced in the API README.
 - **No password reset / email verification flow.** Registration and login exist; there's no way for a user to recover a forgotten password or verify an email address.
 
 ## P1 — Product gaps
 
-- **Web app has no automated tests.** `web/package.json` defines only `dev`/`build`/`preview` — no Vitest, Jest, Playwright, or Testing Library. The API has 294 passing tests (`api/FinPulse.Tests`, one Builder + Service + Controller test file per resource); the frontend has zero, despite driving all the same CRUD flows plus auth.
+- **Web app has no automated tests.** `web/package.json` defines only `dev`/`build`/`preview` — no Vitest, Jest, Playwright, or Testing Library. The API has 294 passing tests (`api/bthr.Tests`, one Builder + Service + Controller test file per resource); the frontend has zero, despite driving all the same CRUD flows plus auth.
 - **No CI for the web app.** `azure-pipelines.yml` exists for `api` and `database`, and there's no `.github/workflows` anywhere in the repo. `web` has no pipeline at all — a broken build or type error only surfaces locally.
 - **No linting/formatting configured in `web`.** No ESLint or Prettier config despite React + TypeScript; `tsconfig.json` is the only guardrail.
 - **No root-level orchestration.** Four independently docker-composed services (`api`, `database`, `monitor`, and implicitly `web`) with no top-level `docker-compose.yml` or `Makefile` tying them together for local end-to-end spin-up. New contributors have to read four sets of docs to run the whole stack.

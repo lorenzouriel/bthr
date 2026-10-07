@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "PostgreSQL health dashboard for the fin_pulse database, sourced from postgres_exporter",
+  "description": "PostgreSQL health dashboard for the bthr database, sourced from postgres_exporter",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -25,7 +25,7 @@
   "panels": [
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Current active connections to fin_pulse",
+      "description": "Current active connections to bthr",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -51,7 +51,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "pg_stat_database_numbackends{datname=\"fin_pulse\"}",
+          "expr": "pg_stat_database_numbackends{datname=\"bthr\"}",
           "refId": "A"
         }
       ],
@@ -88,7 +88,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum(rate(pg_stat_database_blks_hit{datname=\"fin_pulse\"}[5m])) / (sum(rate(pg_stat_database_blks_hit{datname=\"fin_pulse\"}[5m])) + sum(rate(pg_stat_database_blks_read{datname=\"fin_pulse\"}[5m])))",
+          "expr": "sum(rate(pg_stat_database_blks_hit{datname=\"bthr\"}[5m])) / (sum(rate(pg_stat_database_blks_hit{datname=\"bthr\"}[5m])) + sum(rate(pg_stat_database_blks_read{datname=\"bthr\"}[5m])))",
           "refId": "A"
         }
       ],
@@ -97,7 +97,7 @@
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Total on-disk size of fin_pulse",
+      "description": "Total on-disk size of bthr",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -116,7 +116,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "pg_database_size_bytes{datname=\"fin_pulse\"}",
+          "expr": "pg_database_size_bytes{datname=\"bthr\"}",
           "refId": "A"
         }
       ],
@@ -125,7 +125,7 @@
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Whether postgres_exporter can currently reach fin_pulse",
+      "description": "Whether postgres_exporter can currently reach bthr",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -172,13 +172,13 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "rate(pg_stat_database_xact_commit{datname=\"fin_pulse\"}[5m])",
+          "expr": "rate(pg_stat_database_xact_commit{datname=\"bthr\"}[5m])",
           "legendFormat": "commits/sec",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "rate(pg_stat_database_xact_rollback{datname=\"fin_pulse\"}[5m])",
+          "expr": "rate(pg_stat_database_xact_rollback{datname=\"bthr\"}[5m])",
           "legendFormat": "rollbacks/sec",
           "refId": "B"
         }
@@ -188,7 +188,7 @@
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Rows fetched, inserted, updated, and deleted per second across fin_pulse",
+      "description": "Rows fetched, inserted, updated, and deleted per second across bthr",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -205,13 +205,13 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum(rate(pg_stat_database_tup_fetched{datname=\"fin_pulse\"}[5m]))",
+          "expr": "sum(rate(pg_stat_database_tup_fetched{datname=\"bthr\"}[5m]))",
           "legendFormat": "fetched/sec",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum(rate(pg_stat_database_tup_inserted{datname=\"fin_pulse\"}[5m])) + sum(rate(pg_stat_database_tup_updated{datname=\"fin_pulse\"}[5m])) + sum(rate(pg_stat_database_tup_deleted{datname=\"fin_pulse\"}[5m]))",
+          "expr": "sum(rate(pg_stat_database_tup_inserted{datname=\"bthr\"}[5m])) + sum(rate(pg_stat_database_tup_updated{datname=\"bthr\"}[5m])) + sum(rate(pg_stat_database_tup_deleted{datname=\"bthr\"}[5m]))",
           "legendFormat": "written/sec",
           "refId": "B"
         }
@@ -238,7 +238,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "topk(10, pg_stat_user_tables_table_size_bytes{datname=\"fin_pulse\"})",
+          "expr": "topk(10, pg_stat_user_tables_table_size_bytes{datname=\"bthr\"})",
           "legendFormat": "{{relname}}",
           "refId": "A"
         }
@@ -265,7 +265,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "topk(10, pg_stat_user_tables_index_size_bytes{datname=\"fin_pulse\"})",
+          "expr": "topk(10, pg_stat_user_tables_index_size_bytes{datname=\"bthr\"})",
           "legendFormat": "{{relname}}",
           "refId": "A"
         }

@@ -8,7 +8,7 @@
 
 ## Overview
 
-FinPulse API provides a complete backend solution for personal finance applications. It enables users to track expenses, earnings, bills, budgets, financial goals, and investments. The API also supports Open Banking integration with bank connections, accounts, and transaction syncing.
+bthr API provides a complete backend solution for personal finance applications. It enables users to track expenses, earnings, bills, budgets, financial goals, and investments. The API also supports Open Banking integration with bank connections, accounts, and transaction syncing.
 
 **Key capabilities:**
 - User authentication with JWT tokens stored in HTTP-only cookies
@@ -57,18 +57,18 @@ FinPulse API provides a complete backend solution for personal finance applicati
    cd api
    ```
 
-2. **Set up environment** — copy `.env.example` to `.env` and fill in your values, or configure `FinPulse.Api/appsettings.json` directly:
+2. **Set up environment** — copy `.env.example` to `.env` and fill in your values, or configure `bthr.Api/appsettings.json` directly:
    ```json
    {
      "ConnectionStrings": {
-       "DefaultConnection": "Host=localhost;Port=5432;Database=fin_pulse;Username=postgres;Password=YourPassword;"
+       "DefaultConnection": "Host=localhost;Port=5432;Database=bthr;Username=postgres;Password=YourPassword;"
      }
    }
    ```
 
 3. **Run the application**
    ```bash
-   cd FinPulse.Api
+   cd bthr.Api
    dotnet restore
    dotnet run
    ```
@@ -187,8 +187,8 @@ curl -b cookies.txt http://localhost:5026/api/users/1/expenses
 |----------|-------------|----------|
 | `ConnectionStrings__DefaultConnection` | PostgreSQL connection string | Yes |
 | `Jwt__SecretKey` | JWT signing key (min 32 chars) | Yes |
-| `Jwt__Issuer` | JWT token issuer | No (default: `FinPulse.Api`) |
-| `Jwt__Audience` | JWT token audience | No (default: `FinPulse.Api`) |
+| `Jwt__Issuer` | JWT token issuer | No (default: `bthr.Api`) |
+| `Jwt__Audience` | JWT token audience | No (default: `bthr.Api`) |
 | `Jwt__ExpirationMinutes` | Token lifetime in minutes | No (default: `60`) |
 | `ASPNETCORE_ENVIRONMENT` | Runtime environment | No (default: `Production`) |
 
@@ -205,7 +205,7 @@ curl -b cookies.txt http://localhost:5026/api/users/1/expenses
 
 ```
 api/
-├── FinPulse.Api/
+├── bthr.Api/
 │   ├── Controllers/           # 11 API controllers
 │   │   ├── AuthController.cs
 │   │   ├── UsersController.cs
@@ -226,7 +226,7 @@ api/
 │   ├── Dockerfile
 │   └── appsettings.json
 │
-├── FinPulse.Tests/
+├── bthr.Tests/
 │   ├── UnitTests/
 │   │   ├── Controllers/       # 11 controller test classes
 │   │   └── Services/          # 11 service test classes
@@ -344,14 +344,14 @@ The project includes an Azure DevOps pipeline (`azure-pipelines.yml`) that:
 
 ```bash
 # Build image
-docker build -t finpulse-api -f FinPulse.Api/Dockerfile .
+docker build -t bthr-api -f bthr.Api/Dockerfile .
 
 # Run container
 docker run -d \
   -p 5026:8080 \
   -e ConnectionStrings__DefaultConnection="your-connection-string" \
   -e Jwt__SecretKey="your-32-char-secret-key" \
-  finpulse-api
+  bthr-api
 ```
 
 ## Data Models

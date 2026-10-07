@@ -9,7 +9,6 @@ CREATE TABLE users
     email VARCHAR(100) NOT NULL,
     password VARCHAR(1024),
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-    plan SMALLINT NOT NULL DEFAULT 0,
     status SMALLINT DEFAULT 1 NOT NULL
 );
 
@@ -39,9 +38,6 @@ COMMENT ON COLUMN users.password IS 'Hashed password for authentication (never s
 
 -- created_at
 COMMENT ON COLUMN users.created_at IS 'Date and time when the user record was created.';
-
--- plan
-COMMENT ON COLUMN users.plan IS 'Subscription plan (0=Freemium, 1=Basic).';
 
 -- status
 COMMENT ON COLUMN users.status IS 'User status flag (1 = active, 0 = inactive, others for future states).';

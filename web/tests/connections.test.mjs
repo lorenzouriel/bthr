@@ -32,7 +32,7 @@ const { serialize, initialValues, average, streak, dateKey } =
 const { api } = await load("../src/api.ts")
 
 test("all 19 resource paths and available actions match API controllers", () => {
-  const folder = new URL("../../api/FinPulse.Api/Controllers/", import.meta.url)
+  const folder = new URL("../../api/bthr.Api/Controllers/", import.meta.url)
 
   const controllers = readdirSync(folder).map((file) =>
     readFileSync(new URL(file, folder), "utf8"),

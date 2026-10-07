@@ -8,9 +8,6 @@ CREATE TABLE investments (
     investment_type VARCHAR(100) NOT NULL,
     category VARCHAR(100) NOT NULL,
     invested_amount NUMERIC(18,2) NOT NULL,
-    current_value NUMERIC(18,2),
-    profit_loss NUMERIC(18,2),
-    annual_yield_percent NUMERIC(8,4),
     broker VARCHAR(255),
     purchase_date TIMESTAMPTZ NOT NULL,
     maturity_date TIMESTAMPTZ,
@@ -48,15 +45,6 @@ COMMENT ON COLUMN investments.category IS 'Subcategory within the investment typ
 
 -- invested_amount
 COMMENT ON COLUMN investments.invested_amount IS 'Total amount of money originally invested in the asset.';
-
--- current_value
-COMMENT ON COLUMN investments.current_value IS 'Current market value of the investment, updated periodically.';
-
--- profit_loss
-COMMENT ON COLUMN investments.profit_loss IS 'Profit or loss amount calculated as current_value minus invested_amount.';
-
--- annual_yield_percent
-COMMENT ON COLUMN investments.annual_yield_percent IS 'Annual percentage yield or expected return of the investment.';
 
 -- broker
 COMMENT ON COLUMN investments.broker

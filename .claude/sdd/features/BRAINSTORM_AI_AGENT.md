@@ -21,7 +21,7 @@
 - bthr is a personal life-tracking platform: ASP.NET Core 10 + EF Core + PostgreSQL (`api/`), React + Vite SPA (`web/`), Flyway migrations with `finance` / `body` / `mind` schemas (`database/`), OTel → Tempo/Loki/Prometheus/Grafana (`monitor/`).
 - "Everything we can do now" = 19 user-scoped CRUD resources under `api/users/{userId}/...` (Bills, Budgets, Earnings, Expenses, Goals, Investments, WeeklyRoutines, Workouts, PersonalRecords, Meals, WaterIntake, BodyMetrics, SleepLogs, Habits, HabitLogs, SubstanceLogs, SymptomLogs, MeditationSessions, JournalEntries) + `GET /api/reports/review` + account ops (`/api/auth/me`, change-password, `UsersController`).
 - Auth is a JWT in an HTTP-only `access_token` cookie; every controller checks `GetCurrentUserId() == userId`.
-- A bot integration was anticipated: `POST /api/auth/bot/token` ([AuthController.cs:140](../../../api/FinPulse.Api/Controllers/AuthController.cs)) mints a JWT for **any** `userId` given `X-Bot-Api-Key`; `BOT_API_KEY` is wired in `api/docker-compose.yml` and `azure-pipelines.yml`. No bot code exists.
+- A bot integration was anticipated: `POST /api/auth/bot/token` ([AuthController.cs:140](../../../api/bthr.Api/Controllers/AuthController.cs)) mints a JWT for **any** `userId` given `X-Bot-Api-Key`; `BOT_API_KEY` is wired in `api/docker-compose.yml` and `azure-pipelines.yml`. No bot code exists.
 - [UI_PROMPT.md](../../../UI_PROMPT.md) defines the product vision: a Cleo-style assistant where "users manage their information through either conversation or conventional screens. Both experiences must use the same records and remain synchronized."
 - Python is already used in the repo (`scripts/seed-demo.py`, `scripts/seed-random.py`).
 
@@ -55,7 +55,7 @@
 | Input files | `scripts/seed-demo.py`, `scripts/seed-random.py` | 2 | Seed a test user with realistic finance/body/mind data |
 | Output examples | `scripts/demo-data-summary.json`, `scripts/random-data-summary.json` | 2 | Expected record counts/values after seeding — ground truth for read-question evals |
 | Ground truth | Same summaries + seeded DB | — | Verify answers like "how much did I spend on food last month?" |
-| Related code | `api/FinPulse.Api/DTOs/*.cs`, Swagger `/swagger/v1/swagger.json`, `web/src/resources.ts` | 19 resources | Source for tool schemas and resource field descriptions |
+| Related code | `api/bthr.Api/DTOs/*.cs`, Swagger `/swagger/v1/swagger.json`, `web/src/resources.ts` | 19 resources | Source for tool schemas and resource field descriptions |
 
 **How samples will be used:**
 - Seeded DB is the fixture for an agent eval suite (read accuracy, correct tool/resource selection, correct create payloads).
@@ -68,7 +68,7 @@
 
 ### Approach A: Agent module inside the .NET API (originally recommended)
 
-**Description:** `Agent/` module in `FinPulse.Api` using `Microsoft.Extensions.AI`; tools call existing service interfaces in-process; web SSE + Telegram webhook controllers in the API.
+**Description:** `Agent/` module in `bthr.Api` using `Microsoft.Extensions.AI`; tools call existing service interfaces in-process; web SSE + Telegram webhook controllers in the API.
 
 **Pros:**
 - In-process reuse of services, auth, OTel, test builders, pipeline
@@ -136,7 +136,7 @@
  └──────────────┬────────────────────────────────────────┘
                 │ REST /api/users/{id}/...  (user's JWT)
                 ▼
-        FinPulse.Api (.NET)  ──►  Postgres
+        bthr.Api (.NET)  ──►  Postgres
                                    └ schema `agent`: conversations, messages,
                                      pending_actions, telegram_links
 ```
