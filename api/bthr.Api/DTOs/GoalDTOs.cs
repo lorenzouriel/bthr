@@ -6,10 +6,10 @@ namespace bthr.Api.DTOs;
 public class CreateGoalRequest
 {
     [Required]
-    [MaxLength(100)]
+    [MaxLength(255)]
     public string Name { get; set; } = string.Empty;
 
-    [MaxLength(255)]
+    [MaxLength(500)]
     public string? Description { get; set; }
 
     [Required]
@@ -28,10 +28,10 @@ public class CreateGoalRequest
 
 public class UpdateGoalRequest
 {
-    [MaxLength(100)]
+    [MaxLength(255)]
     public string? Name { get; set; }
 
-    [MaxLength(255)]
+    [MaxLength(500)]
     public string? Description { get; set; }
 
     public decimal? TargetAmount { get; set; }

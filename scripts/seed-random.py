@@ -15,7 +15,7 @@ def call(path, data=None, method=None):
         raise RuntimeError(f'{method or "GET"} {path}: {e.code} {e.read().decode()[:450]}') from None
 call('/api/auth/login',dict(email=os.environ['BTHR_TEST_EMAIL'],password=os.environ['BTHR_TEST_PASSWORD']),'POST')
 me=call('/api/auth/me')
-assert me['email']==os.environ['BTHR_TEST_EMAIL'] and me['plan']>=1
+assert me['email']==os.environ['BTHR_TEST_EMAIL']
 root=f'/api/users/{me["id"]}/'
 now=datetime.now(timezone.utc)
 def day(offset=0):return (now-timedelta(days=offset)).strftime('%Y-%m-%d')
@@ -32,11 +32,11 @@ def save(resource,rows):
     print(resource,len(result),'created and verified',flush=True)
     return result
 save('goals',[dict(name=n,description=notes,targetAmount=10000+i*5000,currentAmount=amount(1000,9000),currencyCode='BRL',dueDate=day(-30*(i+1))) for i,n in enumerate(['Emergency fund','Holiday','New laptop','Home renovation','Education','New bicycle','Car fund','House deposit','Studio equipment','Long-term savings'])])
-save('bills',[dict(name=n,category=pick(['Home','Services','Health']),amount=amount(35,1200),currencyCode='BRL',dueDay=i+1,isRecurrent=True,recurrenceType='Monthly',paymentMethod='Bank transfer',description=notes) for i,n in enumerate(['Rent','Electricity','Water','Internet','Mobile','Gym','Streaming','Insurance','Cloud storage','Music','Language classes','Transport pass'])])
+save('bills',[dict(name=n,category=pick(['Home','Services','Health']),amount=amount(35,1200),currencyCode='BRL',dueDate=day(-i),recurrenceInterval=1,recurrenceType='Monthly',paymentMethod='Bank transfer',description=notes) for i,n in enumerate(['Rent','Electricity','Water','Internet','Mobile','Gym','Streaming','Insurance','Cloud storage','Music','Language classes','Transport pass'])])
 save('budgets',[dict(name=f'{n} budget',description=notes,amountLimit=amount(500,3500),currencyCode='BRL',startDate=day(30),endDate=day(-30)) for n in ['Food','Transport','Housing','Health','Travel','Learning','Shopping','Leisure','Gifts','Subscriptions']])
 save('earnings',[dict(category=pick(['Salary','Freelance','Refund','Bonus','Side project']),paymentMethod='Bank transfer',currencyCode=random.choices(['BRL','USD','EUR'],weights=[8,1,1])[0],amount=amount(300,6000),description=notes,earningDate=day(i*2)) for i in range(45)])
 save('expenses',[dict(category=pick(['Groceries','Dining','Transport','Shopping','Health','Entertainment','Utilities']),paymentMethod=pick(['Credit card','Debit card','PIX','Cash']),currencyCode=random.choices(['BRL','USD','EUR'],weights=[8,1,1])[0],amount=amount(8,600),description=f'{notes} Purchase {i+1}',expenseDate=day(i%90)) for i in range(360)])
-save('investments',[dict(investmentType=pick(['Stock','ETF','Bond']),category='Demo portfolio',assetName=f'Demo asset {i+1:02}',broker='Demo broker',currencyCode='BRL',investedAmount=1000+i*100,currentValue=amount(850+i*100,1250+i*100),purchaseDate=day(i*4),annualYieldPercent=amount(1,12)) for i in range(20)])
+save('investments',[dict(investmentType=pick(['Stock','ETF','Bond']),category='Demo portfolio',assetName=f'Demo asset {i+1:02}',broker='Demo broker',currencyCode='BRL',investedAmount=1000+i*100,purchaseDate=day(i*4)) for i in range(20)])
 save('body/weekly-routines',[dict(dayOfWeek=i,routineName=n,description=notes) for i,n in enumerate(['Rest and stretch','Strength A','Easy run','Yoga','Strength B','Swimming','Long walk'])])
 save('body/workouts',[dict(workoutDate=day(i),routineName=pick(['Strength A','Strength B','Easy run','Swimming','Long walk','Yoga']),durationMinutes=random.randint(20,90),caloriesBurned=random.randint(120,650),notes=notes) for i in range(100)])
 save('body/personal-records',[dict(exerciseName=pick(['Squat','Deadlift','Bench press','5 km run','Plank']),metricType='Weight' if i%2 else 'Time',value=amount(20,120),unit='kg' if i%2 else 'sec',achievedDate=day(i*3),notes=notes) for i in range(25)])
@@ -57,6 +57,5 @@ for domain in ['finance','body','mind','all']:
     report=call(f'/api/reports/review?start_date={day(29)}&end_date={day()}&domain={domain}&combine=true')
     assert report['metrics'],domain
     print('Report',domain,'verified',len(report['metrics']),'metrics',flush=True)
-assert me['plan']>=1
 print(json.dumps({'userId':me['id'],'counts':summary,'total':sum(summary.values())},indent=2))
 Path('scripts/random-data-summary.json').write_text(json.dumps({'userId':me['id'],'username':me['username'],'email':me['email'],'counts':summary,'total':sum(summary.values())},indent=2)+'\n')

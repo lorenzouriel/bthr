@@ -22,8 +22,7 @@ public class BillBuilder
             Amount = _faker.Finance.Amount(50, 1000),
             CurrencyCode = "USD",
             Description = _faker.Lorem.Sentence(),
-            DueDay = (byte)_faker.Random.Int(1, 28),
-            IsRecurrent = true,
+            DueDate = DateOnly.FromDateTime(DateTime.UtcNow),
             RecurrenceType = _faker.PickRandom(new string?[] { null, "Monthly", "Quarterly", "Yearly" }),
             CreatedAt = DateTime.UtcNow,
             Status = 1 // Active
@@ -72,15 +71,9 @@ public class BillBuilder
         return this;
     }
 
-    public BillBuilder WithDueDay(byte dueDay)
+    public BillBuilder WithDueDate(DateOnly? dueDate)
     {
-        _bill.DueDay = dueDay;
-        return this;
-    }
-
-    public BillBuilder WithEndDate(DateTime? endDate)
-    {
-        _bill.EndDate = endDate;
+        _bill.DueDate = dueDate;
         return this;
     }
 

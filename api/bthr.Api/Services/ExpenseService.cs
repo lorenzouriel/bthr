@@ -41,6 +41,8 @@ public class ExpenseService : IExpenseService
             .Select(e => new ExpenseResponse
             {
                 Id = e.Id,
+                Status = e.Status,
+                CreatedAt = e.CreatedAt,
                 UserId = e.UserId,
                 Category = e.Category,
                 PaymentMethod = e.PaymentMethod,
@@ -72,6 +74,8 @@ public class ExpenseService : IExpenseService
         return new ExpenseResponse
         {
             Id = expense.Id,
+                Status = expense.Status,
+                CreatedAt = expense.CreatedAt,
             UserId = expense.UserId,
             Category = expense.Category,
             PaymentMethod = expense.PaymentMethod,
@@ -105,6 +109,8 @@ public class ExpenseService : IExpenseService
         return new ExpenseResponse
         {
             Id = expense.Id,
+                Status = expense.Status,
+                CreatedAt = expense.CreatedAt,
             UserId = expense.UserId,
             Category = expense.Category,
             PaymentMethod = expense.PaymentMethod,

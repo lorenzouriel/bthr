@@ -25,7 +25,7 @@ public class SleepLog
 
     [Column("total_hours", TypeName = "decimal(4,2)")]
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-    public decimal TotalHours { get; set; }
+    public decimal? TotalHours { get; set; }
 
     [MaxLength(500)]
     [Column("notes")]

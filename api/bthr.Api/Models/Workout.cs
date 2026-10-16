@@ -16,7 +16,7 @@ public class Workout
     public int UserId { get; set; }
 
     [Required]
-    [Column("workout_date")]
+    [Column("workout_date", TypeName = "date")]
     public DateTime WorkoutDate { get; set; }
 
     [Required]

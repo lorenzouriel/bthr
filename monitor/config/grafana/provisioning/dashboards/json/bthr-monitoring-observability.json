@@ -1,0 +1,384 @@
+{
+  "uid": "bthr-monitoring-observability",
+  "title": "bthr / Monitoring",
+  "schemaVersion": 41,
+  "version": 1,
+  "tags": [
+    "bthr"
+  ],
+  "timezone": "browser",
+  "refresh": "15s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "environment",
+        "label": "Environment",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": "label_values(up, environment)",
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "instance",
+        "label": "Instance",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": "label_values(up{environment=~\"$environment\", service_name=~\"otel-collector|prometheus|loki|tempo|grafana|alloy|postgresql|blackbox\"}, service_instance_id)",
+        "refresh": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*"
+      }
+    ]
+  },
+  "links": [
+    {
+      "type": "link",
+      "title": "API",
+      "url": "/d/bthr-api-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
+    },
+    {
+      "type": "link",
+      "title": "PostgreSQL",
+      "url": "/d/postgresql-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
+    },
+    {
+      "type": "link",
+      "title": "Web",
+      "url": "/d/bthr-web-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
+    },
+    {
+      "type": "link",
+      "title": "Monitoring",
+      "url": "/d/bthr-monitoring-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
+    }
+  ],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Reading this dashboard",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 3
+      },
+      "targets": [],
+      "options": {
+        "mode": "markdown",
+        "content": "Readiness 0 = unavailable. Missing series = signal absent or scrape unavailable; check Monitoring. Empty trace/log results can mean no traffic in the selected time range. Database traces are application-observed calls; infrastructure tracing is not enabled."
+      }
+    },
+    {
+      "id": 2,
+      "title": "Exporter / scrape availability (1 = reachable)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 3,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "up{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"otel-collector|prometheus|loki|tempo|grafana|alloy|postgresql|blackbox\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 3,
+      "title": "Dependency readiness (1 = ready)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 11,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "probe_success{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"otel-collector|prometheus|loki|tempo|grafana|alloy|postgresql|blackbox\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 4,
+      "title": "Metrics",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 19,
+        "w": 24,
+        "h": 1
+      },
+      "targets": [],
+      "options": {}
+    },
+    {
+      "id": 5,
+      "title": "Accepted telemetry / second",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate({__name__=~\"otelcol_receiver_accepted_(spans|log_records|metric_points)_total\",environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"otel-collector|prometheus|loki|tempo|grafana|alloy|postgresql|blackbox\"}[5m])",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 6,
+      "title": "Failed telemetry exports / second",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate({__name__=~\"otelcol_exporter_send_failed_(spans|log_records|metric_points)_total\",environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"otel-collector|prometheus|loki|tempo|grafana|alloy|postgresql|blackbox\"}[5m])",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 7,
+      "title": "Refused telemetry / second",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate({__name__=~\"otelcol_receiver_refused_(spans|log_records|metric_points)_total\",environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"otel-collector|prometheus|loki|tempo|grafana|alloy|postgresql|blackbox\"}[5m])",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 8,
+      "title": "Export queue size",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 44,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "otelcol_exporter_queue_size{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"otel-collector|prometheus|loki|tempo|grafana|alloy|postgresql|blackbox\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 9,
+      "title": "Export queue capacity",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 52,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "otelcol_exporter_queue_capacity{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"otel-collector|prometheus|loki|tempo|grafana|alloy|postgresql|blackbox\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 10,
+      "title": "Backend resident memory",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 60,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "process_resident_memory_bytes{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"otel-collector|prometheus|loki|tempo|grafana|alloy|postgresql|blackbox\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 11,
+      "title": "Prometheus storage (bytes)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 68,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "prometheus_tsdb_storage_blocks_bytes{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"otel-collector|prometheus|loki|tempo|grafana|alloy|postgresql|blackbox\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 12,
+      "title": "Logs",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 76,
+        "w": 24,
+        "h": 1
+      },
+      "targets": [],
+      "options": {}
+    },
+    {
+      "id": 13,
+      "title": "Logs for selected instance",
+      "type": "logs",
+      "gridPos": {
+        "x": 0,
+        "y": 77,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{environment=~\"$environment\",service_name=~\"otel-collector|prometheus|loki|tempo|grafana|alloy|postgres-exporter|blackbox\"} | service_instance_id=~\"$instance\"",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending"
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      }
+    },
+    {
+      "id": 14,
+      "title": "Traces",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 85,
+        "w": 24,
+        "h": 1
+      },
+      "targets": [],
+      "options": {}
+    },
+    {
+      "id": 15,
+      "title": "Tracing availability",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 86,
+        "w": 24,
+        "h": 4
+      },
+      "targets": [],
+      "options": {
+        "mode": "markdown",
+        "content": "These infrastructure backends expose metrics and operational logs. Backend request tracing is not enabled in this local stack. Use the API/Web dashboards for instrumented end-to-end traces."
+      }
+    }
+  ]
+}

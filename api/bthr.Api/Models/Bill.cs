@@ -17,10 +17,10 @@ public class Bill
 
     [Required]
     [MaxLength(255)]
-    [Column("name")]
+    [Column("bill_name")]
     public string Name { get; set; } = string.Empty;
 
-    [MaxLength(500)]
+    [MaxLength(255)]
     [Column("description")]
     public string? Description { get; set; }
 
@@ -33,9 +33,8 @@ public class Bill
     [Column("amount", TypeName = "decimal(18,2)")]
     public decimal Amount { get; set; }
 
-    [Required]
-    [Column("due_day")]
-    public byte DueDay { get; set; }
+    [Column("due_date")]
+    public DateOnly? DueDate { get; set; }
 
     [MaxLength(100)]
     [Column("payment_method")]
@@ -46,12 +45,17 @@ public class Bill
     [Column("currency_code")]
     public string CurrencyCode { get; set; } = "BRL";
 
-    [Required]
-    [Column("is_recurrent")]
-    public bool IsRecurrent { get; set; } = true;
+    [Column("recurrence_interval")]
+    public int? RecurrenceInterval { get; set; } = 1;
 
-    [Column("end_date")]
-    public DateTime? EndDate { get; set; }
+    [Column("next_due_date")]
+    public DateOnly? NextDueDate { get; set; }
+
+    [Column("paid_date")]
+    public DateOnly? PaidDate { get; set; }
+
+    [Column("updated_at")]
+    public DateTime? UpdatedAt { get; set; }
 
     [MaxLength(50)]
     [Column("recurrence_type")]
@@ -63,6 +67,4 @@ public class Bill
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    [ForeignKey("UserId")]
-    public virtual User? User { get; set; }
 }

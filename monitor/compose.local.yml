@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:17.7-alpine
+    environment:
+      POSTGRES_DB: bthr
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set this variable in monitor/.env}
+      MONITOR_DB_PASSWORD: ${MONITOR_DB_PASSWORD:?Set this variable in monitor/.env}
+    command: ["postgres", "-c", "log_connections=on", "-c", "log_error_verbosity=terse", "-c", "log_disconnections=on", "-c", "log_min_error_statement=panic", "-c", "log_parameter_max_length=0", "-c", "log_parameter_max_length_on_error=0"]
+    labels:
+      bthr.instance: ${DB_INSTANCE:-postgres-local}
+    volumes: ["postgres-local-v2:/var/lib/postgresql/data", "./config/init-monitor.sh:/docker-entrypoint-initdb.d/10-monitor.sh:ro"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bthr"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  migrate:
+    image: flyway/flyway:11.20.0
+    command: ["migrate"]
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/bthr
+      FLYWAY_USER: postgres
+      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD}
+      FLYWAY_CLEAN_DISABLED: "true"
+    volumes: ["../database/migrations:/flyway/sql:ro"]
+    depends_on:
+      postgres: {condition: service_healthy}
+  api:
+    build:
+      context: ../api
+      dockerfile: bthr.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=bthr;Username=postgres;Password=${POSTGRES_PASSWORD};Include Error Detail=false"
+      Otel__ExporterEndpoint: http://otel-collector:4317
+      Otel__InstanceId: ${API_INSTANCE:-api-local}
+      Otel__DatabaseInstanceId: ${DB_INSTANCE:-postgres-local}
+      Otel__ServiceVersion: ${SERVICE_VERSION:-local}
+      Jwt__SecretKey: ${JWT_SECRET_KEY:?Set this variable in monitor/.env}
+      Jwt__Issuer: bthr.Api
+      Jwt__Audience: bthr.Api
+      Cookie__Secure: "false"
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    restart: unless-stopped
+  web:
+    build:
+      context: ../web
+      args:
+        VITE_TELEMETRY_ENABLED: "true"
+        VITE_TELEMETRY_ENVIRONMENT: ${ENVIRONMENT:-Development}
+        VITE_TELEMETRY_INSTANCE: ${WEB_INSTANCE:-web-local}
+        VITE_SERVICE_VERSION: ${SERVICE_VERSION:-local}
+    ports: ["127.0.0.1:8080:80"]
+    labels:
+      bthr.instance: ${WEB_INSTANCE:-web-local}
+    depends_on: [api, otel-collector]
+    restart: unless-stopped
+volumes:
+  postgres-local-v2:

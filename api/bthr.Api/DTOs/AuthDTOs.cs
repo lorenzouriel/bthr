@@ -66,9 +66,3 @@ public class ChangePasswordRequest
         ErrorMessage = "Password must contain at least one digit and one special character.")]
     public string NewPassword { get; set; } = string.Empty;
 }
-
-public class BotTokenRequest
-{
-    [Required]
-    public int UserId { get; set; }
-}

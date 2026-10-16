@@ -6,11 +6,11 @@ namespace bthr.Api.DTOs;
 public class CreateEarningRequest
 {
     [Required]
-    [MaxLength(255)]
+    [MaxLength(100)]
     public string Category { get; set; } = string.Empty;
 
     [Required]
-    [MaxLength(255)]
+    [MaxLength(100)]
     public string PaymentMethod { get; set; } = string.Empty;
 
     [Required]
@@ -20,7 +20,7 @@ public class CreateEarningRequest
     [Required]
     public decimal Amount { get; set; }
 
-    [MaxLength(255)]
+    [MaxLength(500)]
     public string? Description { get; set; }
 
     [Required]
@@ -29,10 +29,10 @@ public class CreateEarningRequest
 
 public class UpdateEarningRequest
 {
-    [MaxLength(255)]
+    [MaxLength(100)]
     public string? Category { get; set; }
 
-    [MaxLength(255)]
+    [MaxLength(100)]
     public string? PaymentMethod { get; set; }
 
     [MaxLength(10)]
@@ -40,7 +40,7 @@ public class UpdateEarningRequest
 
     public decimal? Amount { get; set; }
 
-    [MaxLength(255)]
+    [MaxLength(500)]
     public string? Description { get; set; }
 
     public DateTime? EarningDate { get; set; }

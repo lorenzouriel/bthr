@@ -1,3 +1,5 @@
+using bthr.Api.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using bthr.Api.DTOs;
@@ -48,5 +50,32 @@ public class PersonalRecordsController : ControllerBase
 
         var record = await _personalRecordService.CreatePersonalRecordAsync(userId, request);
         return StatusCode(201, record);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateRecord(int userId, int id, [FromBody] CreatePersonalRecordRequest request, [FromServices] ApplicationDbContext db)
+    {
+        if (GetCurrentUserId() != userId) return Forbid();
+        var record = await db.PersonalRecords.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId && x.Status != 0);
+        if (record == null) return NotFound();
+        record.ExerciseName = request.ExerciseName;
+        record.MetricType = request.MetricType;
+        record.Value = request.Value;
+        record.Unit = request.Unit;
+        record.AchievedDate = request.AchievedDate;
+        record.Notes = request.Notes;
+        await db.SaveChangesAsync();
+        return Ok(new PersonalRecordResponse { Id = record.Id, UserId = record.UserId, ExerciseName = record.ExerciseName, MetricType = record.MetricType, Value = record.Value, Unit = record.Unit, AchievedDate = record.AchievedDate, Notes = record.Notes, Status = record.Status, CreatedAt = record.CreatedAt });
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteRecord(int userId, int id, [FromServices] ApplicationDbContext db)
+    {
+        if (GetCurrentUserId() != userId) return Forbid();
+        var record = await db.PersonalRecords.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId && x.Status != 0);
+        if (record == null) return NotFound();
+        record.Status = 0;
+        await db.SaveChangesAsync();
+        return Ok(new { message = "Record deleted" });
     }
 }

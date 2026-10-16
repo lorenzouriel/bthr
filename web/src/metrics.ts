@@ -59,22 +59,24 @@ export function money(value: number, currency: string) {
 }
 
 export function initialValues(
-  fields: { name: string; type: string; readOnly?: boolean }[],
+  fields: { name: string; type: string; readOnly?: boolean; required?: boolean }[],
   row?: Row,
 ) {
   return Object.fromEntries(
     fields
       .filter((field) => !field.readOnly)
       .map((field) => {
-        let value =
-          row?.[field.name] ??
-          (field.type === "checkbox"
+        let value = row
+          ? (row[field.name] ?? (field.type === "checkbox" ? false : ""))
+          : field.type === "checkbox"
             ? false
-            : field.type === "date"
+            : field.type === "date" && field.required
               ? dateKey()
               : field.name === "currencyCode"
                 ? "BRL"
-                : "")
+                : field.name === "recurrenceInterval"
+                  ? 1
+                  : ""
 
         if (field.type === "date" && value) value = String(value).slice(0, 10)
 
@@ -92,6 +94,7 @@ export function initialValues(
 
 export function serialize(
   fields: { name: string; type: string; readOnly?: boolean }[],
+
   values: Row,
 ) {
   return Object.fromEntries(

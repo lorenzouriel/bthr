@@ -44,6 +44,8 @@ public class InvestmentService : IInvestmentService
             .Select(i => new InvestmentResponse
             {
                 Id = i.Id,
+                Status = i.Status,
+                CreatedAt = i.CreatedAt,
                 UserId = i.UserId,
                 InvestmentType = i.InvestmentType,
                 Category = i.Category,
@@ -51,11 +53,8 @@ public class InvestmentService : IInvestmentService
                 Broker = i.Broker,
                 CurrencyCode = i.CurrencyCode,
                 InvestedAmount = i.InvestedAmount,
-                CurrentValue = i.CurrentValue,
                 PurchaseDate = i.PurchaseDate,
                 MaturityDate = i.MaturityDate,
-                AnnualYieldPercent = i.AnnualYieldPercent,
-                ProfitLoss = i.ProfitLoss
             })
             .ToListAsync();
     }
@@ -71,11 +70,8 @@ public class InvestmentService : IInvestmentService
             Broker = request.Broker,
             CurrencyCode = request.CurrencyCode,
             InvestedAmount = request.InvestedAmount,
-            CurrentValue = request.CurrentValue,
             PurchaseDate = request.PurchaseDate,
             MaturityDate = request.MaturityDate,
-            AnnualYieldPercent = request.AnnualYieldPercent,
-            ProfitLoss = request.ProfitLoss,
             Status = 1
         };
 
@@ -85,6 +81,8 @@ public class InvestmentService : IInvestmentService
         return new InvestmentResponse
         {
             Id = investment.Id,
+                Status = investment.Status,
+                CreatedAt = investment.CreatedAt,
             UserId = investment.UserId,
             InvestmentType = investment.InvestmentType,
             Category = investment.Category,
@@ -92,11 +90,8 @@ public class InvestmentService : IInvestmentService
             Broker = investment.Broker,
             CurrencyCode = investment.CurrencyCode,
             InvestedAmount = investment.InvestedAmount,
-            CurrentValue = investment.CurrentValue,
             PurchaseDate = investment.PurchaseDate,
             MaturityDate = investment.MaturityDate,
-            AnnualYieldPercent = investment.AnnualYieldPercent,
-            ProfitLoss = investment.ProfitLoss
         };
     }
 
@@ -117,17 +112,16 @@ public class InvestmentService : IInvestmentService
         if (request.Broker != null) investment.Broker = request.Broker;
         if (request.CurrencyCode != null) investment.CurrencyCode = request.CurrencyCode;
         if (request.InvestedAmount.HasValue) investment.InvestedAmount = request.InvestedAmount.Value;
-        if (request.CurrentValue.HasValue) investment.CurrentValue = request.CurrentValue;
         if (request.PurchaseDate.HasValue) investment.PurchaseDate = request.PurchaseDate.Value;
         if (request.MaturityDate.HasValue) investment.MaturityDate = request.MaturityDate;
-        if (request.AnnualYieldPercent.HasValue) investment.AnnualYieldPercent = request.AnnualYieldPercent;
-        if (request.ProfitLoss.HasValue) investment.ProfitLoss = request.ProfitLoss;
 
         await _context.SaveChangesAsync();
 
         return new InvestmentResponse
         {
             Id = investment.Id,
+                Status = investment.Status,
+                CreatedAt = investment.CreatedAt,
             UserId = investment.UserId,
             InvestmentType = investment.InvestmentType,
             Category = investment.Category,
@@ -135,11 +129,8 @@ public class InvestmentService : IInvestmentService
             Broker = investment.Broker,
             CurrencyCode = investment.CurrencyCode,
             InvestedAmount = investment.InvestedAmount,
-            CurrentValue = investment.CurrentValue,
             PurchaseDate = investment.PurchaseDate,
             MaturityDate = investment.MaturityDate,
-            AnnualYieldPercent = investment.AnnualYieldPercent,
-            ProfitLoss = investment.ProfitLoss
         };
     }
 

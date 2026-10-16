@@ -41,6 +41,8 @@ public class EarningService : IEarningService
             .Select(e => new EarningResponse
             {
                 Id = e.Id,
+                Status = e.Status,
+                CreatedAt = e.CreatedAt,
                 UserId = e.UserId,
                 Category = e.Category,
                 PaymentMethod = e.PaymentMethod,
@@ -72,6 +74,8 @@ public class EarningService : IEarningService
         return new EarningResponse
         {
             Id = earning.Id,
+                Status = earning.Status,
+                CreatedAt = earning.CreatedAt,
             UserId = earning.UserId,
             Category = earning.Category,
             PaymentMethod = earning.PaymentMethod,
@@ -105,6 +109,8 @@ public class EarningService : IEarningService
         return new EarningResponse
         {
             Id = earning.Id,
+                Status = earning.Status,
+                CreatedAt = earning.CreatedAt,
             UserId = earning.UserId,
             Category = earning.Category,
             PaymentMethod = earning.PaymentMethod,

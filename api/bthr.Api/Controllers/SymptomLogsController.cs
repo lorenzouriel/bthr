@@ -1,3 +1,5 @@
+using bthr.Api.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using bthr.Api.DTOs;
@@ -44,5 +46,30 @@ public class SymptomLogsController : ControllerBase
     {
         if (GetCurrentUserId() != userId) return Forbid();
         return StatusCode(StatusCodes.Status201Created, await _service.CreateSymptomLogAsync(userId, request));
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateRecord(int userId, int id, [FromBody] CreateSymptomLogRequest request, [FromServices] ApplicationDbContext db)
+    {
+        if (GetCurrentUserId() != userId) return Forbid();
+        var record = await db.SymptomLogs.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId && x.Status != 0);
+        if (record == null) return NotFound();
+        record.LogDate = request.LogDate!.Value;
+        record.Symptom = request.Symptom;
+        record.Severity = request.Severity;
+        record.Notes = request.Notes;
+        await db.SaveChangesAsync();
+        return Ok(new SymptomLogResponse { Id = record.Id, UserId = record.UserId, LogDate = record.LogDate, Symptom = record.Symptom, Severity = record.Severity, Notes = record.Notes, Status = record.Status, CreatedAt = record.CreatedAt });
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteRecord(int userId, int id, [FromServices] ApplicationDbContext db)
+    {
+        if (GetCurrentUserId() != userId) return Forbid();
+        var record = await db.SymptomLogs.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId && x.Status != 0);
+        if (record == null) return NotFound();
+        record.Status = 0;
+        await db.SaveChangesAsync();
+        return Ok(new { message = "Record deleted" });
     }
 }

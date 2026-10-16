@@ -126,7 +126,7 @@ public class BillsControllerTests : ControllerTestBase
             CurrencyCode = "USD",
             Amount = 100.00m,
             Description = "Electric bill",
-            DueDay = 15
+            DueDate = new DateOnly(2026, 10, 15)
         };
 
         var expectedResponse = new BillResponse
@@ -139,7 +139,7 @@ public class BillsControllerTests : ControllerTestBase
             CurrencyCode = request.CurrencyCode,
             Amount = request.Amount,
             Description = request.Description,
-            DueDay = request.DueDay
+            DueDate = request.DueDate
         };
 
         _billServiceMock
@@ -168,7 +168,7 @@ public class BillsControllerTests : ControllerTestBase
             PaymentMethod = "Bank Transfer",
             CurrencyCode = "USD",
             Amount = 100.00m,
-            DueDay = 15
+            DueDate = new DateOnly(2026, 10, 15)
         };
 
         // Act

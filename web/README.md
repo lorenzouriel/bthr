@@ -6,7 +6,7 @@ The new React UI is connected to the existing ASP.NET API using HTTP-only sessio
 
 Run `npm ci`, then `npm run dev`. The default port is 5173. Set `PORT=5174` if 5173 is occupied. `/api` requests are proxied to `http://localhost:5026`; override that target with `API_PROXY_TARGET`.
 
-Start the API with its HTTP launch profile. This workstation's populated local demo database is `bthr_api_dev` (schema v27). Override `ConnectionStrings__DefaultConnection` when launching the API to select it. The main database's v28-v30 migrations remove columns still required by the current API; this UI does not resolve that separate schema mismatch.
+Start the API with its HTTP launch profile against a database initialized from `database/migrations` (V1-V23). The API now follows that schema; an older demo schema is not required.
 
 Run `npm run build` for TypeScript validation and production output, and `npm test` for API contract, request serialization, session, and metric checks.
 
@@ -21,7 +21,7 @@ Run `npm run build` for TypeScript validation and production output, and `npm te
 - `/settings`: account information, password change, and logout.
 - Login and registration are shown when a session is missing; the requested path is preserved. `/login` and `/register` also work.
 
-All 19 resource types support creation and listing. Edit/delete buttons follow the actual controller capabilities: personal records, substance logs, and symptoms are add/view-only. Goals, budgets, and investments require plan 1. Some existing PUT endpoints treat null as unchanged, so clearing optional values is subject to backend behavior.
+All 19 resource types support creation and listing. Edit/delete buttons follow the actual controller capabilities: personal records, substance logs, and symptoms are add/view-only. All finance resources are available to authenticated users for their own account. Bills use stored due/next-due/paid dates and recurrence metadata; investment valuation fields and plan restrictions have been removed. Bill updates support explicit nulls to clear nullable fields. Some other existing PUT endpoints still treat null as unchanged.
 
 No invented sleep stages, wellness scores, nutritional targets, bank accounts, or causal insights are displayed. Charts describe recorded activity; missing observations are not treated as measured zeros. Currency totals are kept separate.
 
@@ -36,3 +36,5 @@ Serve `dist` with a fallback to `index.html` for application paths and proxy `/a
 - A temporary expense was created, updated, read back, and deleted.
 - Finance, Body, Mind, and combined reports returned metrics.
 - Browser automation was unavailable, so visual/browser-interaction verification was not performed.
+
+Settings includes Telegram QR and phone-code linking with explicit approval. Enable the optional agent Compose overlay to configure the bot.

@@ -1,184 +1,145 @@
+name: bthr-monitor
 services:
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.96.0
-    container_name: otel-collector
-    command: ["--config=/etc/otel-config.yaml"]
-    volumes:
-      - ./config/otel-config.yaml:/etc/otel-config.yaml
-    ports:
-      - "4317:4317"  # OTLP gRPC
-      - "4318:4318"  # OTLP HTTP
-      - "9464:9464"  # Prometheus Metrics
-    networks:
-      - monitoring
+    image: otel/opentelemetry-collector-contrib:0.140.1
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes: ["./config/otel-config.yaml:/etc/otelcol/config.yaml:ro"]
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-Development}
+      WEB_INSTANCE: ${WEB_INSTANCE:-web-local}
+      SERVICE_VERSION: ${SERVICE_VERSION:-local}
+    ports: ["127.0.0.1:4317:4317"]
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:13133/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-
   prometheus:
-    image: prom/prometheus:v2.50.1
-    container_name: prometheus
-    volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-      - --storage.tsdb.path=/prometheus
-      - --web.console.libraries=/usr/share/prometheus/console_libraries
-      - --web.console.templates=/usr/share/prometheus/consoles
-      - --web.enable-lifecycle
-    ports:
-      - "9090:9090"
-    networks:
-      - monitoring
+    image: prom/prometheus:v3.8.0
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=${METRICS_RETENTION:-15d}"]
+    configs:
+      - source: prometheus
+        target: /etc/prometheus/prometheus.yml
+    volumes: ["prometheus-v2:/prometheus", "./config/agent-alerts.yml:/etc/prometheus/agent-alerts.yml:ro"]
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-
+  loki-init:
+    image: alpine:3.22.2
+    user: "0:0"
+    command: ["chown", "10001:10001", "/loki"]
+    volumes: ["loki-v2:/loki"]
+    restart: "no"
   loki:
-    image: grafana/loki:2.9.5
-    container_name: loki
-    volumes:
-      - ./config/loki-config.yaml:/etc/loki/local-config.yaml
-      - loki-data:/loki
-    command: -config.file=/etc/loki/local-config.yaml
-    ports:
-      - "3100:3100"
-    networks:
-      - monitoring
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-
-  tempo:
-    image: grafana/tempo:2.4.1
-    container_name: tempo
-    volumes:
-      - ./config/tempo-config.yaml:/etc/tempo-config.yaml
-      - tempo-data:/tmp/tempo
-    command: ["-config.file=/etc/tempo-config.yaml"]
-    ports:
-      - "3200:3200"  # Tempo HTTP
-      - "4317"       # OTLP gRPC (internal)
-      - "4318"       # OTLP HTTP (internal)
-    networks:
-      - monitoring
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3200/ready"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-
-  postgres-exporter:
-    image: quay.io/prometheuscommunity/postgres-exporter:v0.19.1
-    container_name: postgres-exporter
+    image: grafana/loki:3.6.0
+    command: ["-config.file=/etc/loki/config.yaml", "-config.expand-env=true"]
     environment:
-      - DATA_SOURCE_NAME=postgresql://postgres:YourStrongPassword123!@host.docker.internal:5432/bthr?sslmode=disable
-    ports:
-      - "9187:9187"
-    networks:
-      - monitoring
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9187/metrics"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '0.25'
-          memory: 128M
-        reservations:
-          cpus: '0.1'
-          memory: 64M
-
-  grafana:
-    image: grafana/grafana:10.3.3
-    container_name: grafana
-    volumes:
-      - grafana-data:/var/lib/grafana
-      - ./config/grafana/provisioning:/etc/grafana/provisioning
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_SERVER_ROOT_URL=http://localhost:3000
-      - GF_INSTALL_PLUGINS=
-    ports:
-      - "3000:3000"
-    networks:
-      - monitoring
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
+      LOGS_RETENTION: ${LOGS_RETENTION:-168h}
+    volumes: ["./config/loki-config.yaml:/etc/loki/config.yaml:ro", "loki-v2:/loki"]
     depends_on:
-      - prometheus
-      - loki
-      - tempo
-      
-networks:
-  monitoring:
-    driver: bridge
-
+      loki-init: {condition: service_completed_successfully}
+    restart: unless-stopped
+  tempo:
+    image: grafana/tempo:2.9.0
+    command: ["-config.file=/etc/tempo/config.yaml", "-config.expand-env=true"]
+    environment:
+      TRACES_RETENTION: ${TRACES_RETENTION:-24h}
+    volumes: ["./config/tempo-config.yaml:/etc/tempo/config.yaml:ro", "tempo-v2:/var/tempo"]
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana:12.3.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set this variable in monitor/.env}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports: ["127.0.0.1:3000:3000"]
+    volumes: ["./config/grafana/provisioning:/etc/grafana/provisioning:ro", "grafana-v2:/var/lib/grafana"]
+    restart: unless-stopped
+  postgres-exporter:
+    labels:
+      bthr.instance: ${DB_INSTANCE:-postgres-local}
+    image: prometheuscommunity/postgres-exporter:v0.19.1
+    environment:
+      DATA_SOURCE_NAME: "postgresql://bthr_monitor:${MONITOR_DB_PASSWORD:?Set this variable in monitor/.env}@postgres:5432/bthr?sslmode=disable"
+    restart: unless-stopped
+  alloy:
+    image: grafana/alloy:v1.11.0
+    command: ["run", "--server.http.listen-addr=0.0.0.0:12345", "--storage.path=/var/lib/alloy", "/etc/alloy/config.alloy"]
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-Development}
+    volumes: ["./config/alloy.alloy:/etc/alloy/config.alloy:ro", "/var/run/docker.sock:/var/run/docker.sock:ro", "alloy-v2:/var/lib/alloy"]
+    restart: unless-stopped
+  blackbox:
+    image: prom/blackbox-exporter:v0.27.0
+    volumes: ["./config/blackbox.yml:/etc/blackbox_exporter/config.yml:ro"]
+    restart: unless-stopped
 volumes:
-  prometheus-data:
-    driver: local
-  loki-data:
-    driver: local
-  tempo-data:
-    driver: local
-  grafana-data:
-    driver: local
+  prometheus-v2:
+  loki-v2:
+  tempo-v2:
+  grafana-v2:
+  alloy-v2:
+
+# Compose interpolates target identity directly; no generated host files.
+configs:
+  prometheus:
+    content: |
+      rule_files: ["/etc/prometheus/agent-alerts.yml"]
+      global:
+        scrape_interval: 15s
+        evaluation_interval: 15s
+      scrape_configs:
+        - job_name: application-otel
+          honor_labels: true
+          static_configs:
+            - targets: [otel-collector:9464]
+        - job_name: otel-collector
+          static_configs:
+            - targets: ["otel-collector:8888"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "otel-collector", service_instance_id: "otel-collector"}
+        - job_name: prometheus
+          static_configs:
+            - targets: ["prometheus:9090"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "prometheus", service_instance_id: "prometheus"}
+        - job_name: loki
+          static_configs:
+            - targets: ["loki:3100"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "loki", service_instance_id: "loki"}
+        - job_name: tempo
+          static_configs:
+            - targets: ["tempo:3200"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "tempo", service_instance_id: "tempo"}
+        - job_name: grafana
+          static_configs:
+            - targets: ["grafana:3000"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "grafana", service_instance_id: "grafana"}
+        - job_name: alloy
+          static_configs:
+            - targets: ["alloy:12345"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "alloy", service_instance_id: "alloy"}
+        - job_name: postgres-exporter
+          static_configs:
+            - targets: ["postgres-exporter:9187"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "postgresql", service_instance_id: "${DB_INSTANCE:-postgres-local}"}
+        - job_name: blackbox
+          static_configs:
+            - targets: ["blackbox:9115"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "blackbox", service_instance_id: "blackbox"}
+        - job_name: readiness
+          metrics_path: /probe
+          params: {module: [http_ok]}
+          static_configs:
+            - targets: ["http://api:8080/health/ready"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "bthr.Api", service_instance_id: "${API_INSTANCE:-api-local}"}
+            - targets: ["http://web:80/health"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "bthr.Web", service_instance_id: "${WEB_INSTANCE:-web-local}"}
+            - targets: ["http://otel-collector:13133"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "otel-collector", service_instance_id: "otel-collector"}
+            - targets: ["http://grafana:3000/api/health"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "grafana", service_instance_id: "grafana"}
+            - targets: ["http://prometheus:9090/-/ready"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "prometheus", service_instance_id: "prometheus"}
+            - targets: ["http://loki:3100/ready"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "loki", service_instance_id: "loki"}
+            - targets: ["http://tempo:3200/ready"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "tempo", service_instance_id: "tempo"}
+            - targets: ["http://alloy:12345/-/ready"]
+              labels: {environment: "${ENVIRONMENT:-Development}", service_name: "alloy", service_instance_id: "alloy"}
+          relabel_configs:
+            - {source_labels: [__address__], target_label: __param_target}
+            - {source_labels: [__param_target], target_label: instance}
+            - {target_label: __address__, replacement: "blackbox:9115"}

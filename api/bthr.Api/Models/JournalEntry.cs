@@ -16,7 +16,7 @@ public class JournalEntry
     public int UserId { get; set; }
 
     [Required]
-    [Column("entry_date")]
+    [Column("entry_date", TypeName = "date")]
     public DateTime EntryDate { get; set; }
 
     [MaxLength(200)]

@@ -21,3 +21,6 @@ logs/
 /.opencode-skills/
 
 !.env.example
+
+playwright-report/
+test-results/

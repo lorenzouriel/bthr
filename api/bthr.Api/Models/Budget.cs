@@ -48,6 +48,4 @@ public class Budget
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation properties
-    [ForeignKey("UserId")]
-    public virtual User? User { get; set; }
 }

@@ -1,270 +1,486 @@
 {
-  "annotations": {
+  "uid": "bthr-api-observability",
+  "title": "bthr / API",
+  "schemaVersion": 41,
+  "version": 1,
+  "tags": [
+    "bthr"
+  ],
+  "timezone": "browser",
+  "refresh": "15s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "templating": {
     "list": [
       {
-        "builtIn": 1,
+        "name": "environment",
+        "label": "Environment",
+        "type": "query",
         "datasource": {
-          "type": "grafana",
-          "uid": "-- Grafana --"
+          "type": "prometheus",
+          "uid": "prometheus"
         },
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
+        "query": "label_values(up, environment)",
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "instance",
+        "label": "Instance",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": "label_values(up{environment=~\"$environment\", service_name=~\"bthr.Api\"}, service_instance_id)",
+        "refresh": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*"
+      },
+      {
+        "name": "severity",
+        "label": "Severity regex",
+        "type": "textbox",
+        "query": ".*",
+        "current": {
+          "text": ".*",
+          "value": ".*"
+        }
+      },
+      {
+        "name": "route",
+        "label": "Route regex",
+        "type": "textbox",
+        "query": ".*",
+        "current": {
+          "text": ".*",
+          "value": ".*"
+        }
       }
     ]
   },
-  "description": "Observability dashboard for bthr.Api showing request metrics, .NET runtime health, logs, and traces",
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "id": 2,
-  "links": [],
-  "liveNow": false,
+  "links": [
+    {
+      "type": "link",
+      "title": "API",
+      "url": "/d/bthr-api-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
+    },
+    {
+      "type": "link",
+      "title": "PostgreSQL",
+      "url": "/d/postgresql-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
+    },
+    {
+      "type": "link",
+      "title": "Web",
+      "url": "/d/bthr-web-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
+    },
+    {
+      "type": "link",
+      "title": "Monitoring",
+      "url": "/d/bthr-monitoring-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
+    }
+  ],
   "panels": [
     {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
       "id": 1,
-      "panels": [],
-      "title": "Request Metrics",
-      "type": "row"
+      "title": "Reading this dashboard",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 3
+      },
+      "targets": [],
+      "options": {
+        "mode": "markdown",
+        "content": "Readiness 0 = unavailable. Missing series = signal absent or scrape unavailable; check Monitoring. Empty trace/log results can mean no traffic in the selected time range. Database traces are application-observed calls; infrastructure tracing is not enabled."
+      }
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Requests per second, aggregated across all endpoints",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
       "id": 2,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
+      "title": "Exporter / scrape availability (1 = reachable)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 3,
+        "w": 24,
+        "h": 8
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum(rate(http_server_request_duration_seconds_count{job=\"otel-collector\"}[5m]))",
-          "legendFormat": "requests/sec",
-          "refId": "A"
+          "refId": "A",
+          "expr": "up{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Api\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
         }
       ],
-      "title": "Request Rate",
-      "type": "timeseries"
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "95th percentile request duration",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
       "id": 3,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
+      "title": "Dependency readiness (1 = ready)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 11,
+        "w": 24,
+        "h": 8
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket{job=\"otel-collector\"}[5m])) by (le))",
-          "legendFormat": "p95 latency",
-          "refId": "A"
+          "refId": "A",
+          "expr": "probe_success{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Api\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
         }
       ],
-      "title": "Request Latency (p95)",
-      "type": "timeseries"
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Requests per second returning a 5xx status code",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 0.01 }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
       "id": 4,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
+      "title": "Metrics",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 19,
+        "w": 24,
+        "h": 1
       },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum(rate(http_server_request_duration_seconds_count{job=\"otel-collector\", http_response_status_code=~\"5..\"}[5m]))",
-          "refId": "A"
-        }
-      ],
-      "title": "5xx Error Rate",
-      "type": "stat"
+      "targets": [],
+      "options": {}
     },
     {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
       "id": 5,
-      "panels": [],
-      "title": ".NET Runtime",
-      "type": "row"
+      "title": "Requests / second",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (service_instance_id) (rate(http_server_request_duration_seconds_count{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Api\"}[5m]))",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Managed heap size",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 10 },
       "id": 6,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
+      "title": "Errors / second",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 24,
+        "h": 8
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "dotnet_gc_last_collection_heap_size_bytes{job=\"otel-collector\"}",
-          "legendFormat": "{{gc_heap_generation}}",
-          "refId": "A"
+          "refId": "A",
+          "expr": "sum by (http_response_status_code) (rate(http_server_request_duration_seconds_count{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Api\",http_response_status_code=~\"4..|5..\"}[5m]))",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
         }
       ],
-      "title": "GC Heap Size",
-      "type": "timeseries"
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Thread pool thread count",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 10 },
       "id": 7,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
+      "title": "HTTP latency p50 (seconds)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 24,
+        "h": 8
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "dotnet_thread_pool_thread_count_total{job=\"otel-collector\"}",
-          "legendFormat": "threads",
-          "refId": "A"
+          "refId": "A",
+          "expr": "histogram_quantile(0.5, sum by (le,service_instance_id) (rate(http_server_request_duration_seconds_bucket{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Api\"}[5m])))",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
         }
       ],
-      "title": "Thread Pool Threads",
-      "type": "timeseries"
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Exceptions thrown per second",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 10 },
       "id": 8,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
+      "title": "HTTP latency p95 (seconds)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 44,
+        "w": 24,
+        "h": 8
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "rate(dotnet_exceptions_total{job=\"otel-collector\"}[5m])",
-          "legendFormat": "exceptions/sec",
-          "refId": "A"
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le,service_instance_id) (rate(http_server_request_duration_seconds_bucket{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Api\"}[5m])))",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
         }
       ],
-      "title": "Exception Rate",
-      "type": "timeseries"
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
     },
     {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
       "id": 9,
-      "panels": [],
-      "title": "Logs",
-      "type": "row"
+      "title": "HTTP latency p99 (seconds)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 52,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.99, sum by (le,service_instance_id) (rate(http_server_request_duration_seconds_bucket{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Api\"}[5m])))",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "description": "Recent bthr.Api log lines",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 19 },
       "id": 10,
+      "title": "GC heap bytes",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 60,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dotnet_gc_last_collection_heap_size_bytes{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Api\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 11,
+      "title": "GC collections / second",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 68,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(dotnet_gc_collections_total{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Api\"}[5m])",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 12,
+      "title": "Thread pool threads",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 76,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dotnet_thread_pool_thread_count{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Api\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 13,
+      "title": "Logs",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 84,
+        "w": 24,
+        "h": 1
+      },
+      "targets": [],
+      "options": {}
+    },
+    {
+      "id": 14,
+      "title": "Logs for selected instance",
+      "type": "logs",
+      "gridPos": {
+        "x": 0,
+        "y": 85,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{environment=~\"$environment\",service_name=~\"bthr.Api\"} | service_instance_id=~\"$instance\" | severity_text=~\"$severity\" | Route=~\"$route\"",
+          "queryType": "range"
+        }
+      ],
       "options": {
         "showTime": true,
         "showLabels": false,
         "wrapLogMessage": true,
         "sortOrder": "Descending"
       },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      }
+    },
+    {
+      "id": 15,
+      "title": "Traces",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 93,
+        "w": 24,
+        "h": 1
+      },
+      "targets": [],
+      "options": {}
+    },
+    {
+      "id": 16,
+      "title": "Recent traces",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 94,
+        "w": 24,
+        "h": 8
+      },
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "{job=\"bthr.Api\"}",
-          "refId": "A"
+          "refId": "A",
+          "queryType": "traceql",
+          "query": "{ resource.service.name = \"bthr.Api\" && resource.environment =~ \"${environment:regex}\" && resource.service.instance.id =~ \"${instance:regex}\" }",
+          "limit": 20,
+          "tableType": "traces"
         }
       ],
-      "title": "Application Logs",
-      "type": "logs"
+      "options": {},
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      }
     },
     {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 29 },
-      "id": 11,
-      "panels": [],
-      "title": "Traces",
-      "type": "row"
-    },
-    {
-      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 30 },
-      "id": 12,
-      "options": {
-        "mode": "markdown",
-        "content": "**Trace search isn't available as a dashboard panel in Grafana 10.3.3** — this Tempo datasource version's backend query path only supports fetching a single trace by exact trace ID (a known Grafana limitation, [grafana/grafana#95042](https://github.com/grafana/grafana/issues/95042)). TraceQL/tag search works fine through the interactive UI instead:\n\n1. Go to **Explore** (compass icon in the left nav)\n2. Select the **Tempo** datasource\n3. Search with `{resource.service.name=\"bthr.Api\"}`, or click any `traceid` value from the **Application Logs** panel above to jump straight to that trace\n\nEvery log line above carries its `traceid`/`spanid`, so pivoting from a log to its full trace works today even though this panel can't."
+      "id": 17,
+      "title": "Failed traces",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 102,
+        "w": 24,
+        "h": 8
       },
-      "title": "Recent Traces",
-      "type": "text"
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "traceql",
+          "query": "{ resource.service.name = \"bthr.Api\" && resource.environment =~ \"${environment:regex}\" && resource.service.instance.id =~ \"${instance:regex}\" && status = error }",
+          "limit": 20,
+          "tableType": "traces"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      }
+    },
+    {
+      "id": 18,
+      "title": "Slow traces (> 500 ms)",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 110,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "traceql",
+          "query": "{ resource.service.name = \"bthr.Api\" && resource.environment =~ \"${environment:regex}\" && resource.service.instance.id =~ \"${instance:regex}\" && duration > 500ms }",
+          "limit": 20,
+          "tableType": "traces"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      }
     }
-  ],
-  "refresh": "15s",
-  "schemaVersion": 39,
-  "tags": ["bthr", "api"],
-  "templating": { "list": [] },
-  "time": { "from": "now-1h", "to": "now" },
-  "timepicker": {},
-  "timezone": "browser",
-  "title": "bthr API Observability",
-  "uid": "bthr-api-observability",
-  "version": 1,
-  "weekStart": ""
+  ]
 }

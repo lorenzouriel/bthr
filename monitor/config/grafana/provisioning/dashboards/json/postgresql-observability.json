@@ -1,288 +1,456 @@
 {
-  "annotations": {
+  "uid": "postgresql-observability",
+  "title": "bthr / PostgreSQL",
+  "schemaVersion": 41,
+  "version": 1,
+  "tags": [
+    "bthr"
+  ],
+  "timezone": "browser",
+  "refresh": "15s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "templating": {
     "list": [
       {
-        "builtIn": 1,
+        "name": "environment",
+        "label": "Environment",
+        "type": "query",
         "datasource": {
-          "type": "grafana",
-          "uid": "-- Grafana --"
+          "type": "prometheus",
+          "uid": "prometheus"
         },
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
+        "query": "label_values(up, environment)",
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "instance",
+        "label": "Instance",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": "label_values(up{environment=~\"$environment\", service_name=~\"postgresql\"}, service_instance_id)",
+        "refresh": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*"
+      },
+      {
+        "name": "database",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": "label_values(pg_stat_database_numbackends{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"postgresql\"}, datname)",
+        "refresh": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*"
       }
     ]
   },
-  "description": "PostgreSQL health dashboard for the bthr database, sourced from postgres_exporter",
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "id": 3,
-  "links": [],
-  "liveNow": false,
-  "panels": [
+  "links": [
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Current active connections to bthr",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 50 },
-              { "color": "red", "value": 90 }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
-      "id": 1,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "pg_stat_database_numbackends{datname=\"bthr\"}",
-          "refId": "A"
-        }
-      ],
-      "title": "Active Connections",
-      "type": "stat"
+      "type": "link",
+      "title": "API",
+      "url": "/d/bthr-api-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Database cache hit ratio (higher is better)",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "red", "value": null },
-              { "color": "yellow", "value": 0.9 },
-              { "color": "green", "value": 0.99 }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum(rate(pg_stat_database_blks_hit{datname=\"bthr\"}[5m])) / (sum(rate(pg_stat_database_blks_hit{datname=\"bthr\"}[5m])) + sum(rate(pg_stat_database_blks_read{datname=\"bthr\"}[5m])))",
-          "refId": "A"
-        }
-      ],
-      "title": "Cache Hit Ratio",
-      "type": "stat"
+      "type": "link",
+      "title": "PostgreSQL",
+      "url": "/d/postgresql-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Total on-disk size of bthr",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
-      "id": 3,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "pg_database_size_bytes{datname=\"bthr\"}",
-          "refId": "A"
-        }
-      ],
-      "title": "Database Size",
-      "type": "stat"
+      "type": "link",
+      "title": "Web",
+      "url": "/d/bthr-web-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Whether postgres_exporter can currently reach bthr",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [
-            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
-          ],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
-      "id": 4,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "up{job=\"postgres-exporter\"}",
-          "refId": "A"
-        }
-      ],
-      "title": "Exporter Status",
-      "type": "stat"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Committed and rolled-back transactions per second",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
-      "id": 5,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "rate(pg_stat_database_xact_commit{datname=\"bthr\"}[5m])",
-          "legendFormat": "commits/sec",
-          "refId": "A"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "rate(pg_stat_database_xact_rollback{datname=\"bthr\"}[5m])",
-          "legendFormat": "rollbacks/sec",
-          "refId": "B"
-        }
-      ],
-      "title": "Transaction Rate",
-      "type": "timeseries"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Rows fetched, inserted, updated, and deleted per second across bthr",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
-      "id": 6,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum(rate(pg_stat_database_tup_fetched{datname=\"bthr\"}[5m]))",
-          "legendFormat": "fetched/sec",
-          "refId": "A"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum(rate(pg_stat_database_tup_inserted{datname=\"bthr\"}[5m])) + sum(rate(pg_stat_database_tup_updated{datname=\"bthr\"}[5m])) + sum(rate(pg_stat_database_tup_deleted{datname=\"bthr\"}[5m]))",
-          "legendFormat": "written/sec",
-          "refId": "B"
-        }
-      ],
-      "title": "Row Activity",
-      "type": "timeseries"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "On-disk size of each user table (top 10 by size)",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
-      "id": 7,
-      "options": {
-        "legend": { "displayMode": "table", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "topk(10, pg_stat_user_tables_table_size_bytes{datname=\"bthr\"})",
-          "legendFormat": "{{relname}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Table Sizes",
-      "type": "timeseries"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "On-disk size of each user table's indexes (top 10 by size)",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
-      "id": 8,
-      "options": {
-        "legend": { "displayMode": "table", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "topk(10, pg_stat_user_tables_index_size_bytes{datname=\"bthr\"})",
-          "legendFormat": "{{relname}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Index Sizes",
-      "type": "timeseries"
+      "type": "link",
+      "title": "Monitoring",
+      "url": "/d/bthr-monitoring-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
     }
   ],
-  "refresh": "15s",
-  "schemaVersion": 39,
-  "tags": ["postgresql", "database"],
-  "templating": { "list": [] },
-  "time": { "from": "now-1h", "to": "now" },
-  "timepicker": {},
-  "timezone": "browser",
-  "title": "PostgreSQL Observability",
-  "uid": "postgresql-observability",
-  "version": 1,
-  "weekStart": ""
+  "panels": [
+    {
+      "id": 1,
+      "title": "Reading this dashboard",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 3
+      },
+      "targets": [],
+      "options": {
+        "mode": "markdown",
+        "content": "Readiness 0 = unavailable. Missing series = signal absent or scrape unavailable; check Monitoring. Empty trace/log results can mean no traffic in the selected time range. Database traces are application-observed calls; infrastructure tracing is not enabled."
+      }
+    },
+    {
+      "id": 2,
+      "title": "Exporter / scrape availability (1 = reachable)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 3,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "up{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"postgresql\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 3,
+      "title": "Database reachability (1 = reachable)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 11,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "pg_up{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"postgresql\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 4,
+      "title": "Metrics",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 19,
+        "w": 24,
+        "h": 1
+      },
+      "targets": [],
+      "options": {}
+    },
+    {
+      "id": 5,
+      "title": "Connections",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "pg_stat_database_numbackends{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"postgresql\",datname=~\"$database\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 6,
+      "title": "Commits / second",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(pg_stat_database_xact_commit{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"postgresql\",datname=~\"$database\"}[5m])",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 7,
+      "title": "Rollbacks / second",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(pg_stat_database_xact_rollback{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"postgresql\",datname=~\"$database\"}[5m])",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 8,
+      "title": "Cache hit ratio",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 44,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(pg_stat_database_blks_hit{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"postgresql\",datname=~\"$database\"}[5m]) / clamp_min(rate(pg_stat_database_blks_hit{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"postgresql\",datname=~\"$database\"}[5m]) + rate(pg_stat_database_blks_read{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"postgresql\",datname=~\"$database\"}[5m]), 0.001)",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 9,
+      "title": "Locks",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 52,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "pg_locks_count{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"postgresql\",datname=~\"$database\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 10,
+      "title": "Deadlocks / second",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 60,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(pg_stat_database_deadlocks{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"postgresql\",datname=~\"$database\"}[5m])",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 11,
+      "title": "Database size (bytes)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 68,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "pg_database_size_bytes{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"postgresql\",datname=~\"$database\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 12,
+      "title": "Logs",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 76,
+        "w": 24,
+        "h": 1
+      },
+      "targets": [],
+      "options": {}
+    },
+    {
+      "id": 13,
+      "title": "Logs for selected instance",
+      "type": "logs",
+      "gridPos": {
+        "x": 0,
+        "y": 77,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{environment=~\"$environment\",service_name=~\"postgres\"} | service_instance_id=~\"$instance\"",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending"
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      }
+    },
+    {
+      "id": 14,
+      "title": "Traces",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 85,
+        "w": 24,
+        "h": 1
+      },
+      "targets": [],
+      "options": {}
+    },
+    {
+      "id": 15,
+      "title": "Recent traces",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 86,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "traceql",
+          "query": "{ resource.environment =~ \"${environment:regex}\" && span.db.instance.id =~ \"${instance:regex}\" && (span.db.namespace =~ \"${database:regex}\" || span.db.name =~ \"${database:regex}\") }",
+          "limit": 20,
+          "tableType": "traces"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      }
+    },
+    {
+      "id": 16,
+      "title": "Failed traces",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 94,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "traceql",
+          "query": "{ resource.environment =~ \"${environment:regex}\" && span.db.instance.id =~ \"${instance:regex}\" && (span.db.namespace =~ \"${database:regex}\" || span.db.name =~ \"${database:regex}\") && status = error }",
+          "limit": 20,
+          "tableType": "traces"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      }
+    },
+    {
+      "id": 17,
+      "title": "Slow traces (> 500 ms)",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 102,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "traceql",
+          "query": "{ resource.environment =~ \"${environment:regex}\" && span.db.instance.id =~ \"${instance:regex}\" && (span.db.namespace =~ \"${database:regex}\" || span.db.name =~ \"${database:regex}\") && duration > 500ms }",
+          "limit": 20,
+          "tableType": "traces"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      }
+    }
+  ]
 }

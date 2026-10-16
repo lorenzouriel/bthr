@@ -16,7 +16,7 @@ public class Meal
     public int UserId { get; set; }
 
     [Required]
-    [Column("meal_date")]
+    [Column("meal_date", TypeName = "date")]
     public DateTime MealDate { get; set; }
 
     [Required]

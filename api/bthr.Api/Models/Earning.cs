@@ -48,7 +48,4 @@ public class Earning
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    // Navigation property
-    [ForeignKey("UserId")]
-    public virtual User? User { get; set; }
 }

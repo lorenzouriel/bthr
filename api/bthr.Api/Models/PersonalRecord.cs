@@ -35,7 +35,7 @@ public class PersonalRecord
     public string Unit { get; set; } = string.Empty;
 
     [Required]
-    [Column("achieved_date")]
+    [Column("achieved_date", TypeName = "date")]
     public DateTime AchievedDate { get; set; }
 
     [MaxLength(500)]

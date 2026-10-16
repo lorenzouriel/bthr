@@ -1,0 +1,53 @@
+discovery.docker "local" {
+  host = "unix:///var/run/docker.sock"
+  filter {
+    name = "label"
+    values = ["com.docker.compose.project=bthr-monitor"]
+  }
+}
+discovery.relabel "logs" {
+  targets = discovery.docker.local.targets
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    regex = "api|agent|migrate"
+    action = "drop"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label = "service_name"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label = "service_instance_id"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_bthr_instance"]
+    regex = "(.+)"
+    target_label = "service_instance_id"
+  }
+  rule {
+    target_label = "environment"
+    replacement = sys.env("ENVIRONMENT")
+  }
+}
+loki.source.docker "local" {
+  host = "unix:///var/run/docker.sock"
+  targets = discovery.relabel.logs.output
+  forward_to = [loki.process.sanitize.receiver]
+}
+// PostgreSQL error details can contain rejected values even without statement logging.
+loki.process "sanitize" {
+  stage.match {
+    selector = "{service_name=\"postgres\"}"
+    stage.replace {
+      expression = "(?s)(?:ERROR|FATAL|PANIC|DETAIL|STATEMENT|CONTEXT):(.*)"
+      replace = " [redacted]"
+    }
+  }
+  forward_to = [loki.write.local.receiver]
+}
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

@@ -16,7 +16,7 @@ public class BodyMetric
     public int UserId { get; set; }
 
     [Required]
-    [Column("measured_date")]
+    [Column("measured_date", TypeName = "date")]
     public DateTime MeasuredDate { get; set; }
 
     [Column("weight_kg", TypeName = "decimal(5,2)")]

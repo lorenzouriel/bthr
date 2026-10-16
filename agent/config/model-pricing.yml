@@ -1,0 +1,11 @@
+# No guessed prices. Add reviewed exact-model rates before relying on cost panels.
+# Keys: provider/model. Rates are USD per million tokens, non-overlapping categories.
+# Example shape (not a price):
+# openai/<exact-model>:
+#   version: <effective-date>
+#   source: <official-pricing-url>
+#   input: <uncached-input-rate>
+#   output: <output-rate>
+#   cache_read: <cached-input-rate>
+#   cache_write: <cache-write-rate-if-applicable>
+rates: {}

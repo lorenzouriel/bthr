@@ -34,15 +34,6 @@ public class Investment
     [Column("invested_amount", TypeName = "decimal(18,2)")]
     public decimal InvestedAmount { get; set; }
 
-    [Column("current_value", TypeName = "decimal(18,2)")]
-    public decimal? CurrentValue { get; set; }
-
-    [Column("profit_loss", TypeName = "decimal(18,2)")]
-    public decimal? ProfitLoss { get; set; }
-
-    [Column("annual_yield_percent", TypeName = "decimal(8,4)")]
-    public decimal? AnnualYieldPercent { get; set; }
-
     [MaxLength(255)]
     [Column("broker")]
     public string? Broker { get; set; }
@@ -57,7 +48,7 @@ public class Investment
     [Required]
     [MaxLength(10)]
     [Column("currency_code")]
-    public string CurrencyCode { get; set; } = "USD";
+    public string CurrencyCode { get; set; } = "BRL";
 
     [Column("status")]
     public short Status { get; set; } = 1;
@@ -65,7 +56,4 @@ public class Investment
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    // Navigation property
-    [ForeignKey("UserId")]
-    public virtual User? User { get; set; }
 }

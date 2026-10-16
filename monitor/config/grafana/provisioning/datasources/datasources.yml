@@ -1,56 +1,41 @@
 apiVersion: 1
-
 datasources:
   - name: Prometheus
-    type: prometheus
     uid: prometheus
+    type: prometheus
     access: proxy
     url: http://prometheus:9090
     isDefault: true
-    editable: true
-    jsonData:
-      httpMethod: POST
-      timeInterval: 15s
-
+    editable: false
   - name: Loki
-    type: loki
     uid: loki
+    type: loki
     access: proxy
     url: http://loki:3100
-    editable: true
+    editable: false
     jsonData:
-      maxLines: 1000
       derivedFields:
-        - datasourceUid: tempo
-          matcherRegex: '"traceid":"(\w+)"'
-          name: TraceID
+        - name: TraceID
+          matcherType: label
+          matcherRegex: trace_id
+          datasourceUid: tempo
           url: '$${__value.raw}'
-          urlDisplayLabel: 'View Trace'
-
+          urlDisplayLabel: View trace
   - name: Tempo
-    type: tempo
     uid: tempo
+    type: tempo
     access: proxy
     url: http://tempo:3200
-    editable: true
+    editable: false
     jsonData:
-      httpMethod: GET
-      tracesToLogs:
+      tracesToLogsV2:
         datasourceUid: loki
-        tags: ['job', 'instance', 'pod', 'namespace']
-        mappedTags: [{ key: 'service.name', value: 'service' }]
-        mapTagNamesEnabled: false
-        spanStartTimeShift: '-1h'
-        spanEndTimeShift: '1h'
-        filterByTraceID: true
+        spanStartTimeShift: '-1m'
+        spanEndTimeShift: '1m'
+        tags:
+          - {key: service.name, value: service_name}
+          - {key: environment, value: environment}
+        filterByTraceID: false
         filterBySpanID: false
-      tracesToMetrics:
-        datasourceUid: prometheus
-        tags: [{ key: 'service.name', value: 'service' }, { key: 'job' }]
-        queries:
-          - name: 'Request rate'
-            query: 'rate(app_requests_total[$__rate_interval])'
-      serviceMap:
-        datasourceUid: prometheus
-      nodeGraph:
-        enabled: true
+        customQuery: true
+        query: '{$${__tags}} | trace_id="$${__trace.traceId}"'

@@ -90,6 +90,4 @@ public class PersonalRecordServiceTests : ServiceTestBase
 
     #endregion
 
-    // Note: PersonalRecord is append-only by design (Decision 2, DESIGN_BODY_MODULE_API.md) —
-    // IPersonalRecordService has no Update/Delete methods, so no such tests exist here.
 }

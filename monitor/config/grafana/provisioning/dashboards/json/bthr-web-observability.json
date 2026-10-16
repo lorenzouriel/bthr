@@ -1,0 +1,397 @@
+{
+  "uid": "bthr-web-observability",
+  "title": "bthr / Web",
+  "schemaVersion": 41,
+  "version": 1,
+  "tags": [
+    "bthr"
+  ],
+  "timezone": "browser",
+  "refresh": "15s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "environment",
+        "label": "Environment",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": "label_values(up, environment)",
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "instance",
+        "label": "Instance",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": "label_values(up{environment=~\"$environment\", service_name=~\"bthr.Web\"}, service_instance_id)",
+        "refresh": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*"
+      }
+    ]
+  },
+  "links": [
+    {
+      "type": "link",
+      "title": "API",
+      "url": "/d/bthr-api-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
+    },
+    {
+      "type": "link",
+      "title": "PostgreSQL",
+      "url": "/d/postgresql-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
+    },
+    {
+      "type": "link",
+      "title": "Web",
+      "url": "/d/bthr-web-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
+    },
+    {
+      "type": "link",
+      "title": "Monitoring",
+      "url": "/d/bthr-monitoring-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true,
+      "includeVars": false
+    }
+  ],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Reading this dashboard",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 3
+      },
+      "targets": [],
+      "options": {
+        "mode": "markdown",
+        "content": "Readiness 0 = unavailable. Missing series = signal absent or scrape unavailable; check Monitoring. Empty trace/log results can mean no traffic in the selected time range. Database traces are application-observed calls; infrastructure tracing is not enabled."
+      }
+    },
+    {
+      "id": 2,
+      "title": "Exporter / scrape availability (1 = reachable)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 3,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "up{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Web\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 3,
+      "title": "Dependency readiness (1 = ready)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 11,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "probe_success{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Web\"}",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 4,
+      "title": "Metrics",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 19,
+        "w": 24,
+        "h": 1
+      },
+      "targets": [],
+      "options": {}
+    },
+    {
+      "id": 5,
+      "title": "Fetch requests / second",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(browser_fetch_requests_total{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Web\"}[5m])",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 6,
+      "title": "Fetch failures / second",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(browser_fetch_requests_total{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Web\",http_response_status_code=~\"0|4..|5..\"}[5m])",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 7,
+      "title": "Fetch p95 (seconds)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95,sum by (le,service_instance_id)(rate(browser_fetch_duration_seconds_bucket{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Web\"}[5m])))",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 8,
+      "title": "Page load p95 (seconds)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 44,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95,sum by (le,service_instance_id)(rate(browser_page_load_duration_seconds_bucket{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Web\"}[5m])))",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 9,
+      "title": "JavaScript errors / second",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 52,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(browser_errors_total{environment=~\"$environment\",service_instance_id=~\"$instance\",service_name=~\"bthr.Web\"}[5m])",
+          "legendFormat": "{{service_name}} {{service_instance_id}} {{status_code}}"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "id": 10,
+      "title": "Logs",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 60,
+        "w": 24,
+        "h": 1
+      },
+      "targets": [],
+      "options": {}
+    },
+    {
+      "id": 11,
+      "title": "Logs for selected instance",
+      "type": "logs",
+      "gridPos": {
+        "x": 0,
+        "y": 61,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{environment=~\"$environment\",service_name=~\"bthr.Web|web\"} | service_instance_id=~\"$instance\"",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending"
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      }
+    },
+    {
+      "id": 12,
+      "title": "Traces",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 69,
+        "w": 24,
+        "h": 1
+      },
+      "targets": [],
+      "options": {}
+    },
+    {
+      "id": 13,
+      "title": "Recent traces",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 70,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "traceql",
+          "query": "{ resource.service.name = \"bthr.Web\" && resource.environment =~ \"${environment:regex}\" && resource.service.instance.id =~ \"${instance:regex}\" }",
+          "limit": 20,
+          "tableType": "traces"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      }
+    },
+    {
+      "id": 14,
+      "title": "Failed traces",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 78,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "traceql",
+          "query": "{ resource.service.name = \"bthr.Web\" && resource.environment =~ \"${environment:regex}\" && resource.service.instance.id =~ \"${instance:regex}\" && status = error }",
+          "limit": 20,
+          "tableType": "traces"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      }
+    },
+    {
+      "id": 15,
+      "title": "Slow traces (> 500 ms)",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 86,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "traceql",
+          "query": "{ resource.service.name = \"bthr.Web\" && resource.environment =~ \"${environment:regex}\" && resource.service.instance.id =~ \"${instance:regex}\" && duration > 500ms }",
+          "limit": 20,
+          "tableType": "traces"
+        }
+      ],
+      "options": {},
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      }
+    }
+  ]
+}

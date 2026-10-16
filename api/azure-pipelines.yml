@@ -24,6 +24,7 @@ stages:
           - task: Bash@3
             displayName: 'Generate .env file'
             inputs:
+              workingDirectory: '$(Build.SourcesDirectory)/api'
               targetType: 'inline'
               script: |
                 echo "API_PORT=$(API_PORT)" > .env
@@ -33,20 +34,23 @@ stages:
                 echo "JWT_EXPIRATION_MINUTES=$(JWT_EXPIRATION_MINUTES)" >> .env
                 echo "JWT_ISSUER=$(JWT_ISSUER)" >> .env
                 echo "JWT_SECRET_KEY=$(JWT_SECRET_KEY)" >> .env
-                echo "COOKIE_SECURE=false" >> .env
+                echo "COOKIE_SECURE=$(COOKIE_SECURE)" >> .env
+                echo "OTEL_EXPORTER_OTLP_ENDPOINT=$(OTEL_EXPORTER_OTLP_ENDPOINT)" >> .env
                 echo "BOT_API_KEY=$(BOT_API_KEY)" >> .env
 
           - task: Bash@3
             displayName: 'Start API Services'
             inputs:
+              workingDirectory: '$(Build.SourcesDirectory)/api'
               targetType: 'inline'
               script: |
-                docker-compose -f docker-compose.yml up -d --build --force-recreate
+                docker compose -f docker-compose.yml up -d --build --force-recreate
 
           - task: Bash@3
             displayName: 'Cleanup .env file'
             condition: always()
             inputs:
+              workingDirectory: '$(Build.SourcesDirectory)/api'
               targetType: 'inline'
               script: |
                 rm -f .env

@@ -16,7 +16,7 @@ public class WaterIntake
     public int UserId { get; set; }
 
     [Required]
-    [Column("intake_date")]
+    [Column("intake_date", TypeName = "date")]
     public DateTime IntakeDate { get; set; }
 
     [Required]

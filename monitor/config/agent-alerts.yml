@@ -1,0 +1,28 @@
+groups:
+  - name: bthr-agent
+    rules:
+      - alert: AgentModelErrors
+        expr: sum(rate(bthr_ai_calls_total{outcome="error"}[5m])) > 0.05
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: "Agent model errors exceed three per minute"}
+      - alert: AgentUnknownPricing
+        expr: sum(increase(bthr_ai_unknown_total{reason="pricing"}[15m])) > 0
+        for: 5m
+        labels: {severity: info}
+        annotations: {summary: "Agent cost totals have unknown usage or pricing; inspect coverage"}
+      - alert: AgentEstimatedSpend
+        expr: sum(increase(bthr_ai_cost_usd_total[1h])) > 10
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: "Estimated agent API spend exceeded the example USD 10/hour threshold"}
+      - alert: AgentQueuePressure
+        expr: bthr_agent_queue_depth > 80
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: "Agent in-memory queue is approaching capacity"}
+      - alert: TelemetryExportFailures
+        expr: sum(rate({__name__=~"otelcol_exporter_send_failed_(spans|log_records|metric_points)_total"}[5m])) > 0
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: "Collector export failures can undercount agent usage and cost"}

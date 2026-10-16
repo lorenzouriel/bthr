@@ -20,13 +20,14 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
 # Create non-root user for security
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 RUN groupadd -r finapi && useradd -r -g finapi finapi
 
 # Copy published app
 COPY --from=publish /app/publish .
 
 # Set ownership
-RUN chown -R finapi:finapi /app
+RUN mkdir -p /app/private-photos && chown -R finapi:finapi /app
 
 # Switch to non-root user
 USER finapi
@@ -36,7 +37,7 @@ EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD curl -f http://localhost:8080/health/ready || exit 1
 
 # Set entry point
 ENTRYPOINT ["dotnet", "bthr.Api.dll"]

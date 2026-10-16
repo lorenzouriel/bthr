@@ -47,7 +47,4 @@ public class Goal
     [Column("status")]
     public short Status { get; set; } = 1;
 
-    // Navigation property
-    [ForeignKey("UserId")]
-    public virtual User? User { get; set; }
 }

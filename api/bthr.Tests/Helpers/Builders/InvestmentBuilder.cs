@@ -22,7 +22,6 @@ public class InvestmentBuilder
             AssetName = _faker.Company.CompanyName(),
             Broker = _faker.Company.CompanyName(),
             InvestedAmount = _faker.Finance.Amount(1000, 10000),
-            CurrentValue = _faker.Finance.Amount(1000, 15000),
             CurrencyCode = "USD",
             PurchaseDate = _faker.Date.Past(2),
             CreatedAt = DateTime.UtcNow,
@@ -63,12 +62,6 @@ public class InvestmentBuilder
     public InvestmentBuilder WithInvestedAmount(decimal investedAmount)
     {
         _investment.InvestedAmount = investedAmount;
-        return this;
-    }
-
-    public InvestmentBuilder WithCurrentValue(decimal? currentValue)
-    {
-        _investment.CurrentValue = currentValue;
         return this;
     }
 

@@ -77,7 +77,7 @@ public class AuthControllerTests : ControllerTestBase
             .Setup(x => x.RegisterAsync(request))
             .ReturnsAsync(expectedResponse);
         _jwtServiceMock
-            .Setup(x => x.GenerateToken(expectedResponse.UserId, 0, false))
+            .Setup(x => x.GenerateToken(expectedResponse.UserId, false))
             .Returns("fake-jwt-token");
 
         // Act

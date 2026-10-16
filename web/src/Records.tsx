@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 
 import { api } from "./api"
 
-import { canAccess, useData, type Row } from "./data"
+import { useData, type Row } from "./data"
 
 import { RESOURCES } from "./resources"
 
@@ -73,14 +73,6 @@ export default function Records({
   useEffect(() => {
     if (deleting) confirm.current?.showModal()
   }, [deleting])
-
-  if (!canAccess(resourceKey, user!))
-    return (
-      <div className="panel">
-        <h2>{config.label}</h2>
-        <p>This section requires plan 1 or above.</p>
-      </div>
-    )
 
   const columns = config.fields
 
@@ -216,7 +208,11 @@ export default function Records({
                         }}
                       >
                         {field.label}
-                        {sort === field.name ? (asc ? " \u2191" : " \u2193") : ""}
+                        {sort === field.name
+                          ? asc
+                            ? " \u2191"
+                            : " \u2193"
+                          : ""}
                       </button>
                     </th>
                   ))}
@@ -372,7 +368,7 @@ export function RecordEditor({
     setError("")
 
     try {
-      if (!canAccess(config.key, user!) || (editor.row && !config.hasEdit))
+      if (editor.row && !config.hasEdit)
         throw new Error(
           "This action is not available for this account or record type.",
         )
@@ -556,11 +552,10 @@ export function RecordPicker({
                 (config) => (
                   <button
                     key={config.key}
-                    disabled={!canAccess(config.key, user!)}
                     onClick={() => onSelect({ key: config.key })}
                   >
                     {config.label}
-                    {!canAccess(config.key, user!) ? " | Plan 1" : " \u2192"}
+                    {" \u2192"}
                   </button>
                 ),
               )}

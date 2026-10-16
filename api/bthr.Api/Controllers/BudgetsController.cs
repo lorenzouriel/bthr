@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using bthr.Api.DTOs;
-using bthr.Api.Filters;
 using bthr.Api.Services;
 
 namespace bthr.Api.Controllers;
@@ -9,7 +8,6 @@ namespace bthr.Api.Controllers;
 [ApiController]
 [Route("api/users/{userId}/budgets")]
 [Authorize]
-[RequiresPlan(1)]
 public class BudgetsController : ControllerBase
 {
     private readonly IBudgetService _budgetService;

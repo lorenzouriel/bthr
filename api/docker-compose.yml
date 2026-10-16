@@ -10,6 +10,9 @@ services:
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
       - Otel__ExporterEndpoint=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - Otel__InstanceId=${OTEL_INSTANCE_ID:-api-local}
+      - Otel__DatabaseInstanceId=${OTEL_DATABASE_INSTANCE_ID:-postgres-local}
+      - Otel__ServiceVersion=${SERVICE_VERSION:-local}
       - Jwt__SecretKey=${JWT_SECRET_KEY}
       - Jwt__Issuer=${JWT_ISSUER:-bthr.Api}
       - Jwt__Audience=${JWT_AUDIENCE:-bthr.Api}

@@ -38,6 +38,8 @@ public class BudgetService : IBudgetService
             .Select(b => new BudgetResponse
             {
                 Id = b.Id,
+                Status = b.Status,
+                CreatedAt = b.CreatedAt,
                 UserId = b.UserId,
                 Name = b.Name,
                 Description = b.Description,
@@ -69,6 +71,8 @@ public class BudgetService : IBudgetService
         return new BudgetResponse
         {
             Id = budget.Id,
+                Status = budget.Status,
+                CreatedAt = budget.CreatedAt,
             UserId = budget.UserId,
             Name = budget.Name,
             Description = budget.Description,
@@ -102,6 +106,8 @@ public class BudgetService : IBudgetService
         return new BudgetResponse
         {
             Id = budget.Id,
+                Status = budget.Status,
+                CreatedAt = budget.CreatedAt,
             UserId = budget.UserId,
             Name = budget.Name,
             Description = budget.Description,

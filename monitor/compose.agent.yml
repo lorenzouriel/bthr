@@ -1,0 +1,37 @@
+# Optional overlay: docker compose -f docker-compose.yml -f compose.local.yml -f compose.agent.yml up -d --build
+services:
+  api:
+    environment:
+      Bot__ApiKey: ${BOT_API_KEY:?Set BOT_API_KEY in monitor/.env}
+      Bot__Username: ${TELEGRAM_BOT_USERNAME:?Set TELEGRAM_BOT_USERNAME in monitor/.env}
+      Photos__Root: /app/private-photos
+    volumes:
+      - meal-photos:/app/private-photos
+  agent:
+    build:
+      context: ../agent
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?Set TELEGRAM_BOT_TOKEN in monitor/.env}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:?Set TELEGRAM_WEBHOOK_SECRET in monitor/.env}
+      BOT_API_KEY: ${BOT_API_KEY}
+      API_URL: http://api:8080
+      WEB_URL: ${WEB_PUBLIC_URL:-http://localhost:8080}
+      LOCAL_ONLY: ${AI_LOCAL_ONLY:-true}
+      TIMEZONE: ${AGENT_TIMEZONE:-UTC}
+      ENVIRONMENT: ${ENVIRONMENT:-Development}
+      AGENT_INSTANCE: ${AGENT_INSTANCE:-agent-local}
+      SERVICE_VERSION: ${SERVICE_VERSION:-local}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      LANGSMITH_TRACING: "false"
+    volumes:
+      - ../agent/config:/app/config:ro
+    ports: ["127.0.0.1:8090:8090"]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      api: {condition: service_started}
+      otel-collector: {condition: service_started}
+    restart: unless-stopped
+volumes:
+  meal-photos:

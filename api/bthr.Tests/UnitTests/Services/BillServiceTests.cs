@@ -29,7 +29,7 @@ public class BillServiceTests : ServiceTestBase
             PaymentMethod = "Bank Transfer",
             Amount = 150.00m,
             CurrencyCode = "USD",
-            DueDay = 15,
+            DueDate = new DateOnly(2026, 10, 15),
             RecurrenceType = "Monthly",
             Description = "Monthly electric bill"
         };
@@ -44,7 +44,7 @@ public class BillServiceTests : ServiceTestBase
         result.Name.Should().Be(request.Name);
         result.Category.Should().Be(request.Category);
         result.Amount.Should().Be(request.Amount);
-        result.DueDay.Should().Be(request.DueDay);
+        result.DueDate.Should().Be(request.DueDate);
         result.RecurrenceType.Should().Be(request.RecurrenceType);
 
         var bill = await Context.Bills.FindAsync(result.Id);
@@ -110,17 +110,15 @@ public class BillServiceTests : ServiceTestBase
 
         var billActiveInMonth = new BillBuilder()
             .WithUserId(userId)
-            .WithCreatedAt(new DateTime(2024, 1, 1))
-            .WithEndDate(null)
+            .WithDueDate(new DateOnly(2024, 1, 1))
             .Build();
         var billCreatedAfterMonth = new BillBuilder()
             .WithUserId(userId)
-            .WithCreatedAt(new DateTime(2024, 3, 1))
+            .WithDueDate(new DateOnly(2024, 3, 1))
             .Build();
         var billEndedBeforeMonth = new BillBuilder()
             .WithUserId(userId)
-            .WithCreatedAt(new DateTime(2023, 1, 1))
-            .WithEndDate(new DateTime(2023, 12, 31))
+            .WithDueDate(new DateOnly(2023, 12, 31))
             .Build();
 
         await Context.Bills.AddRangeAsync(billActiveInMonth, billCreatedAfterMonth, billEndedBeforeMonth);
@@ -162,7 +160,7 @@ public class BillServiceTests : ServiceTestBase
     }
 
     [Fact]
-    public async Task GetUserBillsAsync_ComputesPaidThisMonth_WhenMatchingExpenseExistsInMonth()
+    public async Task GetUserBillsAsync_UsesStoredPaidDate_RegardlessOfMatchingExpenses()
     {
         // Arrange
         var userId = 1;
@@ -177,11 +175,12 @@ public class BillServiceTests : ServiceTestBase
             .WithName("Water Bill")
             .Build();
 
+        paidBill.PaidDate = DateOnly.FromDateTime(now.AddDays(-40));
         await Context.Bills.AddRangeAsync(paidBill, unpaidBill);
 
         var matchingExpense = new ExpenseBuilder()
             .WithUserId(userId)
-            .WithDescription("Electric Bill")
+            .WithDescription("Water Bill")
             .WithExpenseDate(now)
             .Build();
         await Context.Expenses.AddAsync(matchingExpense);
@@ -192,9 +191,7 @@ public class BillServiceTests : ServiceTestBase
 
         // Assert
         result.Should().HaveCount(2);
-        result.Single(b => b.Id == paidBill.Id).PaidThisMonth.Should().BeTrue();
-        result.Single(b => b.Id == paidBill.Id).PaidDate.Should().NotBeNull();
-        result.Single(b => b.Id == unpaidBill.Id).PaidThisMonth.Should().BeFalse();
+        result.Single(b => b.Id == paidBill.Id).PaidDate.Should().Be(paidBill.PaidDate);
         result.Single(b => b.Id == unpaidBill.Id).PaidDate.Should().BeNull();
     }
 

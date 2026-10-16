@@ -15,12 +15,16 @@ public class CreateMealRequest
     public string? Description { get; set; }
 
     [Required]
+    [Range(0, 999999.99)]
     public decimal Calories { get; set; }
 
+    [Range(0, 9999.99)]
     public decimal? ProteinGrams { get; set; }
 
+    [Range(0, 9999.99)]
     public decimal? CarbsGrams { get; set; }
 
+    [Range(0, 9999.99)]
     public decimal? FatGrams { get; set; }
 }
 
@@ -34,12 +38,16 @@ public class UpdateMealRequest
     [MaxLength(500)]
     public string? Description { get; set; }
 
+    [Range(0, 999999.99)]
     public decimal? Calories { get; set; }
 
+    [Range(0, 9999.99)]
     public decimal? ProteinGrams { get; set; }
 
+    [Range(0, 9999.99)]
     public decimal? CarbsGrams { get; set; }
 
+    [Range(0, 9999.99)]
     public decimal? FatGrams { get; set; }
 
     public short? Status { get; set; }
@@ -52,9 +60,13 @@ public class MealResponse
     public DateTime MealDate { get; set; }
     public string MealType { get; set; } = string.Empty;
     public string? Description { get; set; }
+    [Range(0, 999999.99)]
     public decimal Calories { get; set; }
+    [Range(0, 9999.99)]
     public decimal? ProteinGrams { get; set; }
+    [Range(0, 9999.99)]
     public decimal? CarbsGrams { get; set; }
+    [Range(0, 9999.99)]
     public decimal? FatGrams { get; set; }
     public short Status { get; set; }
     public DateTime CreatedAt { get; set; }

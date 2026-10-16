@@ -17,7 +17,7 @@ export type User = {
   id: number
   username: string
   email: string
-  plan: number
+
   isAdmin?: boolean
 }
 
@@ -41,10 +41,6 @@ export function useData() {
   const value = useContext(Context)
   if (!value) throw new Error("Missing data provider")
   return value
-}
-
-export function canAccess(key: string, user: User) {
-  return !["goals", "budgets", "investments"].includes(key) || user.plan >= 1
 }
 
 export default function DataProvider({ children }: { children: ReactNode }) {
@@ -100,7 +96,7 @@ export default function DataProvider({ children }: { children: ReactNode }) {
     setLoading(true)
 
     Promise.all(
-      RESOURCES.filter((config) => canAccess(config.key, user)).map(
+      RESOURCES.map(
         async (config) => {
           try {
             return {

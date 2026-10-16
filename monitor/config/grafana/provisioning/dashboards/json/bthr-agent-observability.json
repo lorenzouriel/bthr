@@ -1,0 +1,437 @@
+{
+  "uid": "bthr-agent-observability",
+  "title": "bthr / Agent and AI costs",
+  "schemaVersion": 41,
+  "version": 1,
+  "tags": [
+    "bthr",
+    "agent"
+  ],
+  "refresh": "15s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "environment",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": "label_values(bthr_agent_alive, environment)",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": "label_values(bthr_agent_alive{environment=~\"$environment\"}, service_instance_id)",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
+        "name": "provider",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": "label_values(bthr_ai_calls_total{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\"}, provider)",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
+        "name": "model",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": "label_values(bthr_ai_calls_total{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\",provider=~\"$provider\"}, model)",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Agent instances / heartbeat",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "bthr_agent_alive{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\"}",
+          "legendFormat": "{{provider}} / {{model}} {{token_type}} {{reason}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "title": "In-memory queue (lost on restart)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "bthr_agent_queue_depth{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\"}",
+          "legendFormat": "{{provider}} / {{model}} {{token_type}} {{reason}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "title": "Model calls / second",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(provider,model,outcome)(rate(bthr_ai_calls_total{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\",provider=~\"$provider\",model=~\"$model\"}[$__rate_interval]))",
+          "legendFormat": "{{provider}} / {{model}} {{token_type}} {{reason}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "title": "Model latency p95",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95,sum by(le,provider,model)(rate(bthr_ai_duration_seconds_bucket{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\",provider=~\"$provider\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "{{provider}} / {{model}} {{token_type}} {{reason}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "title": "Tokens in selected period",
+      "type": "barchart",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(provider,model,token_type)(increase(bthr_ai_tokens_total{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\",provider=~\"$provider\",model=~\"$model\"}[$__range]))",
+          "legendFormat": "{{provider}} / {{model}} {{token_type}} {{reason}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "title": "Estimated API cost in selected period (known calls only)",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(provider,model)(increase(bthr_ai_cost_usd_total{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\",provider=~\"$provider\",model=~\"$model\"}[$__range]))",
+          "legendFormat": "{{provider}} / {{model}} {{token_type}} {{reason}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 7,
+      "title": "Unknown usage / pricing: not zero cost",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(provider,model,reason)(increase(bthr_ai_unknown_total{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\",provider=~\"$provider\",model=~\"$model\"}[$__range]))",
+          "legendFormat": "{{provider}} / {{model}} {{token_type}} {{reason}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "title": "Estimated cost / hour",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 24,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(provider,model)(rate(bthr_ai_cost_usd_total{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\",provider=~\"$provider\",model=~\"$model\"}[1h])) * 3600",
+          "legendFormat": "{{provider}} / {{model}} {{token_type}} {{reason}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 9,
+      "title": "Estimated cost per model call",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 32,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(provider,model)(increase(bthr_ai_cost_usd_total{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\",provider=~\"$provider\",model=~\"$model\"}[$__range])) / sum by(provider,model)(increase(bthr_ai_calls_total{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\",provider=~\"$provider\",model=~\"$model\"}[$__range]))",
+          "legendFormat": "{{provider}} / {{model}} {{token_type}} {{reason}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 10,
+      "title": "Workflow outcomes",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 32,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(outcome)(rate(bthr_agent_operations_total{service_name=\"bthr.Agent\",environment=~\"$environment\",service_instance_id=~\"$instance\"}[$__rate_interval]))",
+          "legendFormat": "{{provider}} / {{model}} {{token_type}} {{reason}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 11,
+      "title": "Correlated agent logs",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 40,
+        "w": 24,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"bthr.Agent\",environment=~\"$environment\"} | service_instance_id=~\"$instance\"",
+          "queryType": "range"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Model traces by provider / model",
+      "type": "table",
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 50,
+        "w": 24,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "traceql",
+          "query": "{ resource.service.name = \"bthr.Agent\" && resource.environment =~ \"${environment:regex}\" && resource.service.instance.id =~ \"${instance:regex}\" && span.gen_ai.provider.name =~ \"${provider:regex}\" && span.gen_ai.request.model =~ \"${model:regex}\" }",
+          "tableType": "traces"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Accounting limits",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 59,
+        "w": 24,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Costs are estimates for reported, priced usage, not invoices. Unknown usage/rates are shown separately. Local API charges may be zero; hardware/electricity are not included. Metrics are independent of trace sampling, but telemetry loss can undercount. Logs include all agent events; provider/model selectors apply to model metrics and traces."
+      }
+    }
+  ],
+  "links": [
+    {
+      "type": "link",
+      "title": "API",
+      "url": "/d/bthr-api-observability?var-environment=${environment}&var-instance=All",
+      "keepTime": true
+    }
+  ]
+}

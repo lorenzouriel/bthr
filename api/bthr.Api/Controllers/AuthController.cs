@@ -36,7 +36,6 @@ public class AuthController : ControllerBase
         Expires = expires
     };
 
-
     [HttpPost("register")]
     [ProducesResponseType(typeof(RegisterResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -46,7 +45,7 @@ public class AuthController : ControllerBase
         {
             var result = await _userService.RegisterAsync(request);
 
-            var token = _jwtService.GenerateToken(result.UserId, 0);
+            var token = _jwtService.GenerateToken(result.UserId);
             Response.Cookies.Append("access_token", token, BuildCookieOptions(DateTimeOffset.UtcNow.AddDays(7)));
 
             return StatusCode(201, new { userId = result.UserId, token });
@@ -66,9 +65,7 @@ public class AuthController : ControllerBase
 
         if (result == null)
         {
-            _logger.LogWarning("Failed login attempt for {Email} from {SourceIp}",
-                request.Email,
-                HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+            _logger.LogWarning("Failed login attempt");
             return Unauthorized(new { message = "Invalid credentials" });
         }
 
@@ -104,7 +101,7 @@ public class AuthController : ControllerBase
             return Unauthorized();
         }
 
-        return Ok(new { id = user.Id, email = user.Email, username = user.Username, plan = user.Plan, isAdmin = User.FindFirst("admin")?.Value == "true" });
+        return Ok(new { id = user.Id, email = user.Email, username = user.Username, isAdmin = User.FindFirst("admin")?.Value == "true" });
     }
 
     [HttpPost("change-password")]
@@ -125,9 +122,7 @@ public class AuthController : ControllerBase
             var success = await _userService.ChangePasswordAsync(userId, request);
             if (!success) return Unauthorized();
 
-            _logger.LogInformation("Password changed for userId={UserId} from {SourceIp}",
-                userId,
-                HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+            _logger.LogInformation("Password changed");
 
             return Ok(new { message = "Senha alterada com sucesso" });
         }
@@ -137,24 +132,4 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPost("bot/token")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> BotToken([FromBody] BotTokenRequest request)
-    {
-        var botApiKey = _configuration["Bot:ApiKey"];
-        var providedKey = Request.Headers["X-Bot-Api-Key"].FirstOrDefault();
-
-        if (string.IsNullOrEmpty(botApiKey) || providedKey != botApiKey)
-            return Unauthorized(new { message = "Invalid bot API key" });
-
-        var user = await _userService.GetUserByIdAsync(request.UserId);
-        if (user == null)
-            return NotFound(new { message = "User not found" });
-
-        var isAdmin = await _userService.IsUserAdminAsync(request.UserId);
-        var token = _jwtService.GenerateToken(request.UserId, user.Plan, isAdmin: isAdmin);
-        return Ok(new { token });
-    }
 }

@@ -7,7 +7,7 @@ namespace bthr.Api.Services;
 
 public interface IJwtService
 {
-    string GenerateToken(int userId, int plan = 0, bool isAdmin = false);
+    string GenerateToken(int userId, bool isAdmin = false);
     int? ValidateToken(string token);
 }
 
@@ -20,7 +20,7 @@ public class JwtService : IJwtService
         _configuration = configuration;
     }
 
-    public string GenerateToken(int userId, int plan = 0, bool isAdmin = false)
+    public string GenerateToken(int userId, bool isAdmin = false)
     {
         var secretKey = _configuration["Jwt:SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
@@ -29,7 +29,6 @@ public class JwtService : IJwtService
         var claims = new[]
         {
             new Claim("sub", userId.ToString()),
-            new Claim("plan", plan.ToString()),
             new Claim("admin", isAdmin ? "true" : "false"),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };

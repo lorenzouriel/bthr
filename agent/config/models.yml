@@ -1,0 +1,30 @@
+# Select exact installed/available model IDs before starting. No implicit fallback.
+tasks:
+  conversation: local
+  insights: local
+  vision: local-vision
+profiles:
+  local:
+    provider: ollama
+    model: qwen3:8b
+    deployment: local
+    base_url: http://host.docker.internal:11434
+    vision: false
+  local-vision:
+    provider: ollama
+    model: qwen2.5vl:7b
+    deployment: local
+    base_url: http://host.docker.internal:11434
+    vision: true
+  claude:
+    provider: anthropic
+    model: claude-sonnet-4-6
+    deployment: cloud
+    key_env: ANTHROPIC_API_KEY
+    vision: true
+  gpt:
+    provider: openai
+    model: gpt-4.1
+    deployment: cloud
+    key_env: OPENAI_API_KEY
+    vision: true

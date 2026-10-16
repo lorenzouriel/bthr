@@ -61,20 +61,49 @@ test("forms send numeric values and nullable optional fields; computed fields ar
 
   const body = serialize(config.fields, {
     amount: "123.45",
-    dueDay: "7",
-    isRecurrent: false,
-    endDate: "",
+
+    recurrenceInterval: "2",
+
+    dueDate: "2026-10-14",
+
+    paidDate: "",
+
     paidThisMonth: true,
   })
 
   assert.equal(body.amount, 123.45)
-  assert.equal(body.dueDay, 7)
-  assert.equal(body.endDate, null)
-  assert.equal(body.isRecurrent, false)
+
+  assert.equal(body.recurrenceInterval, 2)
+
+  assert.equal(body.paidDate, null)
+
+  assert.equal(body.dueDate, "2026-10-14")
+
   assert.ok(!("paidThisMonth" in body))
+
+  const sleep = RESOURCES.find((row) => row.key === "sleep-logs")
+
+  assert.ok(!("totalHours" in serialize(sleep.fields, { totalHours: 8 })))
+
+  const investments = RESOURCES.find((row) => row.key === "investments")
+
+  assert.ok(
+    !investments.fields.some((field) =>
+      ["currentValue", "profitLoss", "annualYieldPercent"].includes(field.name),
+    ),
+  )
 })
 
 test("date fields and timestamp editing round-trip without timezone drift", () => {
+  const bill = RESOURCES.find((row) => row.key === "bills")
+  assert.equal(initialValues(bill.fields).paidDate, "")
+  assert.equal(initialValues(bill.fields).recurrenceInterval, 1)
+  const edited = initialValues(bill.fields, {
+    paidDate: null,
+    nextDueDate: null,
+  })
+  assert.equal(serialize(bill.fields, edited).paidDate, null)
+  assert.equal(serialize(bill.fields, edited).nextDueDate, null)
   const config = RESOURCES.find((row) => row.key === "sleep-logs")
 
   const row = {

@@ -16,7 +16,9 @@ function Panel({
 }: {
   title: string
   note?: string
+
   action?: { label: string; run: () => void }
+
   children: ReactNode
 }) {
   return (
@@ -65,6 +67,7 @@ function Bars({
   series,
 }: {
   rows: { label: string; a: number; b?: number }[]
+
   series: string
 }) {
   const max = Math.max(1, ...rows.flatMap((row) => [row.a, row.b ?? 0]))
@@ -264,11 +267,7 @@ export default function Dashboard({
           )
         })}
       {!rows("goals").length && (
-        <p className="empty-message">
-          {user!.plan < 1
-            ? "Goals require plan 1 or above."
-            : "No savings goals yet."}
-        </p>
+        <p className="empty-message">No savings goals yet.</p>
       )}
     </div>
   )
@@ -415,7 +414,7 @@ export default function Dashboard({
                     <div>
                       <strong>{row.name}</strong>
                       <small>
-                        {row.startDate.slice(0, 10)} to {" "}
+                        {row.startDate.slice(0, 10)} to{" "}
                         {row.endDate.slice(0, 10)}
                       </small>
                     </div>
@@ -423,32 +422,36 @@ export default function Dashboard({
                   </div>
                 ))}
               {!rows("budgets").length && (
-                <p className="empty-message">
-                  {user!.plan < 1
-                    ? "Budgets require plan 1 or above."
-                    : "No budgets yet."}
-                </p>
+                <p className="empty-message">No budgets yet.</p>
               )}
             </div>
           </Panel>
           <Panel
-            title="Bills this month"
-            note="Ordered by due day"
+            title="Bills"
+            note="Ordered by recorded due date"
             action={{ label: "All bills", run: () => onSection("Bills") }}
           >
             <div className="bill-list">
               {[...rows("bills")]
-                .sort((a, b) => a.dueDay - b.dueDay)
+
+                .sort((a, b) =>
+                  (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999"),
+                )
+
                 .slice(0, 5)
                 .map((row) => (
                   <div className="bill" key={row.id}>
-                    <span className="bill-date">{row.dueDay}</span>
+                    <span className="bill-date">
+                      {row.dueDate?.slice(8, 10) ?? "\u2014"}
+                    </span>
                     <div>
                       <strong>{row.name}</strong>
                       <small>
-                        {row.paidThisMonth
-                          ? "Matched payment"
-                          : "No matched payment"}
+                        {row.paidDate
+                          ? `Paid ${row.paidDate}`
+                          : row.dueDate
+                            ? `Due ${row.dueDate}`
+                            : "No due date"}
                       </small>
                     </div>
                     <b>{money(row.amount, row.currencyCode)}</b>
@@ -617,7 +620,7 @@ export default function Dashboard({
                   <small> h</small>
                 </strong>
                 <span>
-                  {new Date(latestSleep.bedTime).toLocaleString()} to {" "}
+                  {new Date(latestSleep.bedTime).toLocaleString()} to{" "}
                   {new Date(latestSleep.wakeTime).toLocaleString()}
                 </span>
               </div>
@@ -723,7 +726,8 @@ export default function Dashboard({
                     <strong>{row.meditationType}</strong>
                     <small>
                       {row.sessionDate.slice(0, 10)} | Mood{" "}
-                      {row.moodBefore ?? "\u2014"} to {row.moodAfter ?? "\u2014"}
+                      {row.moodBefore ?? "\u2014"} to{" "}
+                      {row.moodAfter ?? "\u2014"}
                     </small>
                   </div>
                   <b>{row.durationMinutes} min</b>
@@ -739,7 +743,8 @@ export default function Dashboard({
             {latest ? (
               <div className="live-journal">
                 <small>
-                  {latest.entryDate.slice(0, 10)} | Mood {latest.mood ?? "\u2014"}/5
+                  {latest.entryDate.slice(0, 10)} | Mood{" "}
+                  {latest.mood ?? "\u2014"}/5
                 </small>
                 <h3>{latest.title || "Untitled reflection"}</h3>
                 <p>{latest.content}</p>
@@ -863,7 +868,9 @@ export default function Dashboard({
                   disabled={taskBusy !== null}
                   onClick={() => toggle(habit)}
                 >
-                  <span className="task-check body">{done ? "\u2713" : ""}</span>
+                  <span className="task-check body">
+                    {done ? "\u2713" : ""}
+                  </span>
                   <span className="task-copy">
                     <strong>{habit.habitName}</strong>
                     <small>{habit.targetFrequency}</small>

@@ -33,22 +33,16 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [Column("status")]
-    public byte Status { get; set; } = 1;
+    public short Status { get; set; } = 1;
 
-    [Column("plan")]
-    public byte Plan { get; set; } = 0;
+    [Column("telegram_user_id")]
+    public long? TelegramUserId { get; set; }
 
     // Navigation properties
     public virtual ICollection<Habit> Habits { get; set; } = new List<Habit>();
     public virtual ICollection<HabitLog> HabitLogs { get; set; } = new List<HabitLog>();
     public virtual ICollection<SubstanceLog> SubstanceLogs { get; set; } = new List<SubstanceLog>();
     public virtual ICollection<SymptomLog> SymptomLogs { get; set; } = new List<SymptomLog>();
-    public virtual ICollection<Expense> Expenses { get; set; } = new List<Expense>();
-    public virtual ICollection<Earning> Earnings { get; set; } = new List<Earning>();
-    public virtual ICollection<Bill> Bills { get; set; } = new List<Bill>();
-    public virtual ICollection<Budget> Budgets { get; set; } = new List<Budget>();
-    public virtual ICollection<Goal> Goals { get; set; } = new List<Goal>();
-    public virtual ICollection<Investment> Investments { get; set; } = new List<Investment>();
     public virtual ICollection<WeeklyRoutine> WeeklyRoutines { get; set; } = new List<WeeklyRoutine>();
     public virtual ICollection<Workout> Workouts { get; set; } = new List<Workout>();
     public virtual ICollection<PersonalRecord> PersonalRecords { get; set; } = new List<PersonalRecord>();

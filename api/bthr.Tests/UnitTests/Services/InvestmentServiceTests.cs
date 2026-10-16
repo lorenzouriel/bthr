@@ -30,10 +30,7 @@ public class InvestmentServiceTests : ServiceTestBase
             Broker = "Fidelity",
             CurrencyCode = "USD",
             InvestedAmount = 5000.00m,
-            CurrentValue = 5500.00m,
             PurchaseDate = DateTime.UtcNow.AddMonths(-6),
-            AnnualYieldPercent = 8.5m,
-            ProfitLoss = 500.00m
         };
 
         // Act
@@ -47,7 +44,6 @@ public class InvestmentServiceTests : ServiceTestBase
         result.Category.Should().Be(request.Category);
         result.AssetName.Should().Be(request.AssetName);
         result.InvestedAmount.Should().Be(request.InvestedAmount);
-        result.CurrentValue.Should().Be(request.CurrentValue);
         result.PurchaseDate.Should().Be(request.PurchaseDate);
 
         var investment = await Context.Investments.FindAsync(result.Id);
@@ -251,7 +247,6 @@ public class InvestmentServiceTests : ServiceTestBase
             .WithUserId(userId)
             .WithAssetName("Apple Inc.")
             .WithInvestedAmount(5000.00m)
-            .WithCurrentValue(5500.00m)
             .Build();
         await Context.Investments.AddAsync(investment);
         await Context.SaveChangesAsync();
@@ -259,9 +254,7 @@ public class InvestmentServiceTests : ServiceTestBase
         var request = new UpdateInvestmentRequest
         {
             AssetName = "Apple Inc. (Updated)",
-            CurrentValue = 6000.00m,
-            AnnualYieldPercent = 10.0m,
-            ProfitLoss = 1000.00m
+            InvestedAmount = 6000.00m,
         };
 
         // Act
@@ -270,13 +263,11 @@ public class InvestmentServiceTests : ServiceTestBase
         // Assert
         result.Should().NotBeNull();
         result!.AssetName.Should().Be("Apple Inc. (Updated)");
-        result.CurrentValue.Should().Be(6000.00m);
-        result.AnnualYieldPercent.Should().Be(10.0m);
-        result.ProfitLoss.Should().Be(1000.00m);
+        result.InvestedAmount.Should().Be(6000.00m);
 
         var updatedInvestment = await Context.Investments.FindAsync(investment.Id);
         updatedInvestment!.AssetName.Should().Be("Apple Inc. (Updated)");
-        updatedInvestment.CurrentValue.Should().Be(6000.00m);
+        updatedInvestment.InvestedAmount.Should().Be(6000.00m);
     }
 
     [Fact]
@@ -286,7 +277,7 @@ public class InvestmentServiceTests : ServiceTestBase
         var userId = 1;
         var request = new UpdateInvestmentRequest
         {
-            CurrentValue = 6000.00m
+            InvestedAmount = 6000.00m
         };
 
         // Act
@@ -310,7 +301,7 @@ public class InvestmentServiceTests : ServiceTestBase
 
         var request = new UpdateInvestmentRequest
         {
-            CurrentValue = 6000.00m
+            InvestedAmount = 6000.00m
         };
 
         // Act
@@ -334,7 +325,7 @@ public class InvestmentServiceTests : ServiceTestBase
 
         var request = new UpdateInvestmentRequest
         {
-            CurrentValue = 6000.00m
+            InvestedAmount = 6000.00m
         };
 
         // Act

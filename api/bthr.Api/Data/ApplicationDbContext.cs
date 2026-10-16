@@ -40,6 +40,7 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<User>().HasIndex(x => x.TelegramUserId).IsUnique().HasFilter("telegram_user_id IS NOT NULL");
 
         modelBuilder.Entity<Habit>(entity =>
         {
@@ -74,13 +75,9 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(e => e.User).WithMany(u => u.SymptomLogs)
                 .HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
         });
-         // User configuration
         // User configuration
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasIndex(e => e.Username).IsUnique();
-            entity.HasIndex(e => e.Email).IsUnique();
-            entity.HasIndex(e => e.PhoneNumber).IsUnique();
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
         });
 
@@ -88,65 +85,42 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Expense>(entity =>
         {
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
-            entity.HasOne(e => e.User)
-                  .WithMany(u => u.Expenses)
-                  .HasForeignKey(e => e.UserId)
-                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Earning configuration
         modelBuilder.Entity<Earning>(entity =>
         {
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
-            entity.HasOne(e => e.User)
-                  .WithMany(u => u.Earnings)
-                  .HasForeignKey(e => e.UserId)
-                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Bill configuration
         modelBuilder.Entity<Bill>(entity =>
         {
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
-            entity.HasOne(e => e.User)
-                  .WithMany(u => u.Bills)
-                  .HasForeignKey(e => e.UserId)
-                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Budget configuration
         modelBuilder.Entity<Budget>(entity =>
         {
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
-            entity.HasOne(e => e.User)
-                  .WithMany(u => u.Budgets)
-                  .HasForeignKey(e => e.UserId)
-                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Goal configuration
         modelBuilder.Entity<Goal>(entity =>
         {
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
-            entity.HasOne(e => e.User)
-                  .WithMany(u => u.Goals)
-                  .HasForeignKey(e => e.UserId)
-                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Investment configuration
         modelBuilder.Entity<Investment>(entity =>
         {
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
-            entity.HasOne(e => e.User)
-                  .WithMany(u => u.Investments)
-                  .HasForeignKey(e => e.UserId)
-                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         // WeeklyRoutine configuration
         modelBuilder.Entity<WeeklyRoutine>(entity =>
         {
+            entity.HasIndex(e => new { e.UserId, e.DayOfWeek }).IsUnique().HasDatabaseName("uq_weekly_routines_user_day");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
             entity.HasOne(e => e.User)
                   .WithMany(u => u.WeeklyRoutines)
@@ -187,6 +161,7 @@ public class ApplicationDbContext : DbContext
         // WaterIntake configuration
         modelBuilder.Entity<WaterIntake>(entity =>
         {
+            entity.HasIndex(e => new { e.UserId, e.IntakeDate }).IsUnique().HasDatabaseName("uq_water_intake_user_date");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
             entity.HasOne(e => e.User)
                   .WithMany(u => u.WaterIntakes)
@@ -197,6 +172,7 @@ public class ApplicationDbContext : DbContext
         // BodyMetric configuration
         modelBuilder.Entity<BodyMetric>(entity =>
         {
+            entity.HasIndex(e => new { e.UserId, e.MeasuredDate }).IsUnique().HasDatabaseName("uq_body_metrics_user_date");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
             entity.HasOne(e => e.User)
                   .WithMany(u => u.BodyMetrics)

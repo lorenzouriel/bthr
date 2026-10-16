@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication;
+using System.Threading.RateLimiting;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +18,15 @@ using Serilog.Sinks.OpenTelemetry;
 var builder = WebApplication.CreateBuilder(args);
 
 const string serviceName = "bthr.Api";
+var resourceAttributes = new Dictionary<string, object>
+{
+    ["service.name"] = serviceName,
+    ["service.namespace"] = "bthr",
+    ["service.instance.id"] = builder.Configuration["Otel:InstanceId"] ?? Environment.MachineName,
+    ["service.version"] = builder.Configuration["Otel:ServiceVersion"] ?? "development",
+    ["deployment.environment.name"] = builder.Environment.EnvironmentName,
+    ["environment"] = builder.Environment.EnvironmentName
+};
 var otelEndpoint = builder.Configuration["Otel:ExporterEndpoint"]
     ?? throw new InvalidOperationException("Otel:ExporterEndpoint not configured");
 
@@ -30,18 +41,23 @@ Log.Logger = new LoggerConfiguration()
     {
         options.Endpoint = otelEndpoint;
         options.Protocol = OtlpProtocol.Grpc;
-        options.ResourceAttributes = new Dictionary<string, object>
-        {
-            ["service.name"] = serviceName
-        };
+        options.ResourceAttributes = resourceAttributes;
     })
     .CreateLogger();
 
 builder.Host.UseSerilog();
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => { options.Filters.Add<bthr.Api.Filters.DatabaseConstraintFilter>(); options.Filters.Add<bthr.Api.Filters.AgentConcurrencyFilter>(); });
 builder.Services.AddCors();
+builder.Services.AddSingleton<TelegramLinks>();
+builder.Services.AddHostedService<PhotoCleanup>();
+builder.Services.AddRateLimiter(options => {
+    options.RejectionStatusCode = 429;
+    options.AddPolicy("telegram", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+});
 
 // Configure Entity Framework with PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -49,11 +65,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Configure OpenTelemetry (traces + metrics)
 builder.Services.AddOpenTelemetry()
-    .ConfigureResource(resource => resource.AddService(serviceName))
+    .ConfigureResource(resource => resource.AddAttributes(resourceAttributes))
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
         .AddNpgsql()
+        .AddProcessor(new bthr.Api.Telemetry.PrivacyProcessor(builder.Configuration["Otel:DatabaseInstanceId"] ?? "postgresql"))
         .AddOtlpExporter(otlp =>
         {
             otlp.Endpoint = new Uri(otelEndpoint);
@@ -75,9 +92,12 @@ var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey));
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = "select";
+    options.DefaultChallengeScheme = "select";
 })
+.AddPolicyScheme("select", "select", options => options.ForwardDefaultSelector = context =>
+    context.Request.Headers.ContainsKey("X-Bot-Api-Key") ? "telegram" : JwtBearerDefaults.AuthenticationScheme)
+.AddScheme<AuthenticationSchemeOptions, TelegramAuthentication>("telegram", _ => { })
 .AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -102,17 +122,13 @@ builder.Services.AddAuthentication(options =>
         OnAuthenticationFailed = context =>
         {
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogWarning("JWT validation failed: {Error} from {SourceIp}",
-                context.Exception.Message,
-                context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+            logger.LogWarning("JWT validation failed");
             return Task.CompletedTask;
         },
         OnForbidden = context =>
         {
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogWarning("403 Forbidden for {Path} from {SourceIp}",
-                context.HttpContext.Request.Path,
-                context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+            logger.LogWarning("Request authorization denied");
             return Task.CompletedTask;
         }
     };
@@ -149,7 +165,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "bthr API",
         Version = "v1",
-        Description = "Financial Management API built with ASP.NET Core and Entity Framework"
+        Description = "Finance, body, health, habits, and mind tracking API"
     });
 
     // Add JWT Authentication to Swagger
@@ -190,19 +206,33 @@ if (app.Environment.IsDevelopment())
         .AllowCredentials());
 }
 
-// Health check endpoint
+// Liveness is independent of dependencies; readiness verifies the database.
 app.MapGet("/health", () => new { status = "ok" });
-
-app.UseAuthentication();
-app.UseAuthorization();
+app.MapGet("/health/live", () => new { status = "ok" });
+app.MapGet("/health/ready", async (ApplicationDbContext db, CancellationToken cancellationToken) =>
+{
+    try
+    {
+        return await db.Database.CanConnectAsync(cancellationToken)
+            ? Results.Ok(new { status = "ready" })
+            : Results.StatusCode(503);
+    }
+    catch { return Results.StatusCode(503); }
+});
 
 app.UseSerilogRequestLogging(options =>
 {
+    options.MessageTemplate = "HTTP {RequestMethod} {Route} responded {StatusCode} in {Elapsed:0.0000} ms";
     options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
     {
-        diagnosticContext.Set("SourceIp", httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+        var route = (httpContext.GetEndpoint() as Microsoft.AspNetCore.Routing.RouteEndpoint)?.RoutePattern.RawText ?? "unmatched";
+        diagnosticContext.Set("Route", route);
+        diagnosticContext.Set("RequestPath", route);
     };
 });
+app.UseRateLimiter();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

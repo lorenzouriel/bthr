@@ -126,8 +126,8 @@ export const RESOURCES: ResourceConfig[] = [
     section: "body",
     label: "Substance intake",
     basePath: "/api/users/{userId}/body/substance-logs",
-    hasEdit: false,
-    hasDelete: false,
+    hasEdit: true,
+    hasDelete: true,
     listPrimary: "substanceType",
     listSecondary: ["consumedAt", "unit", "notes"],
     listValue: "amount",
@@ -180,8 +180,8 @@ export const RESOURCES: ResourceConfig[] = [
     section: "body",
     label: "Symptoms",
     basePath: "/api/users/{userId}/body/symptom-logs",
-    hasEdit: false,
-    hasDelete: false,
+    hasEdit: true,
+    hasDelete: true,
     listPrimary: "symptom",
     listSecondary: ["logDate", "notes"],
     listValue: "severity",
@@ -199,7 +199,7 @@ export const RESOURCES: ResourceConfig[] = [
 
       {
         name: "severity",
-        label: "Severity (1 mild – 5 severe)",
+        label: "Severity (1 mild â€“ 5 severe)",
         type: "number",
         required: false,
         min: 1,
@@ -236,7 +236,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Name",
         type: "text",
         required: true,
-        maxLength: 100,
+
+        maxLength: 255,
       },
 
       {
@@ -244,7 +245,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Description",
         type: "textarea",
         required: false,
-        maxLength: 255,
+
+        maxLength: 500,
       },
 
       {
@@ -282,7 +284,9 @@ export const RESOURCES: ResourceConfig[] = [
     hasDelete: true,
 
     listPrimary: "name",
-    listSecondary: ["category", "dueDay"],
+
+    listSecondary: ["category", "dueDate"],
+
     listValue: "amount",
 
     fields: [
@@ -320,30 +324,34 @@ export const RESOURCES: ResourceConfig[] = [
         maxLength: 10,
       },
 
+      { name: "dueDate", label: "Due date", type: "date", required: false },
+
       {
-        name: "dueDay",
-        label: "Due day (1-31)",
+        name: "nextDueDate",
+        label: "Next due date",
+        type: "date",
+        required: false,
+      },
+
+      { name: "paidDate", label: "Paid date", type: "date", required: false },
+
+      {
+        name: "recurrenceInterval",
+        label: "Recurrence interval",
         type: "number",
-        required: true,
-        min: 1,
-        max: 31,
+        required: false,
         step: 1,
       },
 
       {
-        name: "isRecurrent",
-        label: "Recurrent",
-        type: "checkbox",
-        required: false,
-      },
-
-      { name: "endDate", label: "End date", type: "date", required: false },
-
-      {
         name: "recurrenceType",
+
         label: "Recurrence type",
+
         type: "text",
+
         required: false,
+
         maxLength: 50,
       },
 
@@ -352,23 +360,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Description",
         type: "textarea",
         required: false,
-        maxLength: 500,
-      },
 
-      {
-        name: "dueDate",
-        label: "Computed due date",
-        type: "text",
-        required: false,
-        readOnly: true,
-      },
-
-      {
-        name: "paidThisMonth",
-        label: "Paid this month",
-        type: "checkbox",
-        required: false,
-        readOnly: true,
+        maxLength: 255,
       },
     ],
   },
@@ -392,7 +385,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Name",
         type: "text",
         required: true,
-        maxLength: 100,
+
+        maxLength: 255,
       },
 
       {
@@ -400,7 +394,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Description",
         type: "textarea",
         required: false,
-        maxLength: 255,
+
+        maxLength: 500,
       },
 
       {
@@ -443,7 +438,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Category",
         type: "text",
         required: true,
-        maxLength: 255,
+
+        maxLength: 100,
       },
 
       {
@@ -451,7 +447,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Payment method",
         type: "text",
         required: true,
-        maxLength: 255,
+
+        maxLength: 100,
       },
 
       {
@@ -469,7 +466,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Description",
         type: "textarea",
         required: false,
-        maxLength: 255,
+
+        maxLength: 500,
       },
 
       {
@@ -500,7 +498,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Category",
         type: "text",
         required: true,
-        maxLength: 255,
+
+        maxLength: 100,
       },
 
       {
@@ -508,7 +507,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Payment method",
         type: "text",
         required: true,
-        maxLength: 255,
+
+        maxLength: 100,
       },
 
       {
@@ -526,7 +526,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Description",
         type: "textarea",
         required: false,
-        maxLength: 255,
+
+        maxLength: 500,
       },
 
       {
@@ -557,7 +558,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Type",
         type: "text",
         required: true,
-        maxLength: 50,
+
+        maxLength: 100,
       },
 
       {
@@ -573,7 +575,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Asset name",
         type: "text",
         required: true,
-        maxLength: 100,
+
+        maxLength: 255,
       },
 
       {
@@ -581,7 +584,8 @@ export const RESOURCES: ResourceConfig[] = [
         label: "Broker",
         type: "text",
         required: false,
-        maxLength: 100,
+
+        maxLength: 255,
       },
 
       {
@@ -600,14 +604,8 @@ export const RESOURCES: ResourceConfig[] = [
       },
 
       {
-        name: "currentValue",
-        label: "Current value",
-        type: "number",
-        required: false,
-      },
-
-      {
         name: "purchaseDate",
+
         label: "Purchase date",
         type: "date",
         required: true,
@@ -617,20 +615,7 @@ export const RESOURCES: ResourceConfig[] = [
         name: "maturityDate",
         label: "Maturity date",
         type: "date",
-        required: false,
-      },
 
-      {
-        name: "annualYieldPercent",
-        label: "Annual yield %",
-        type: "number",
-        required: false,
-      },
-
-      {
-        name: "profitLoss",
-        label: "Profit/loss",
-        type: "number",
         required: false,
       },
     ],
@@ -734,8 +719,8 @@ export const RESOURCES: ResourceConfig[] = [
     section: "body",
     label: "Personal Records",
     basePath: "/api/users/{userId}/body/personal-records",
-    hasEdit: false,
-    hasDelete: false,
+    hasEdit: true,
+    hasDelete: true,
 
     listPrimary: "exerciseName",
     listSecondary: ["metricType", "unit"],

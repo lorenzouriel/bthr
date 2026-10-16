@@ -10,7 +10,6 @@ public class UserProfileResponse
     public string? PhoneNumber { get; set; }
     public string Email { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
-    public byte Plan { get; set; } = 0;
 }
 
 // User Update DTO

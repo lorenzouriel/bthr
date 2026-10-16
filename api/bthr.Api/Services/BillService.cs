@@ -24,46 +24,12 @@ public class BillService : IBillService
 
     public async Task<List<BillResponse>> GetUserBillsAsync(int userId, int? year = null, int? month = null)
     {
-        var now = DateTime.UtcNow;
-        var targetYear = year ?? now.Year;
-        var targetMonth = month ?? now.Month;
-        var monthStart = new DateTime(targetYear, targetMonth, 1);
-        var monthEnd = monthStart.AddMonths(1);
-
-        var bills = await _context.Bills
-            .Where(b => b.UserId == userId
-                     && b.Status != 0
-                     && b.CreatedAt < monthEnd
-                     && (b.EndDate == null || b.EndDate >= monthStart))
-            .OrderBy(b => b.DueDay)
-            .ToListAsync();
-
-        var billNamesList = bills.Select(b => b.Name).ToList();
-
-        var paidExpenses = new List<Expense>();
-        if (billNamesList.Count > 0)
-        {
-            paidExpenses = await _context.Expenses
-                .Where(e => e.UserId == userId
-                         && e.ExpenseDate >= monthStart
-                         && e.ExpenseDate < monthEnd
-                         && e.Description != null
-                         && billNamesList.Contains(e.Description))
-                .ToListAsync();
-        }
-
-        var paidLookup = paidExpenses
-            .GroupBy(e => e.Description!, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(g => g.Key, g => g.OrderBy(e => e.ExpenseDate).First(), StringComparer.OrdinalIgnoreCase);
-
-        return bills.Select(b =>
-        {
-            var daysInMonth = DateTime.DaysInMonth(targetYear, targetMonth);
-            var day = Math.Min(b.DueDay, daysInMonth);
-            var dueDate = new DateTime(targetYear, targetMonth, day);
-            paidLookup.TryGetValue(b.Name, out var matchedExpense);
-            return MapToResponse(b, dueDate, matchedExpense);
-        }).ToList();
+        var query = _context.Bills.AsNoTracking().Where(b => b.UserId == userId && b.Status != 0);
+        // Filter stored dates only. Recurrence metadata does not synthesize bill occurrences.
+        if (year.HasValue) query = query.Where(b => b.DueDate.HasValue && b.DueDate.Value.Year == year.Value);
+        if (month.HasValue) query = query.Where(b => b.DueDate.HasValue && b.DueDate.Value.Month == month.Value);
+        var bills = await query.OrderBy(b => b.DueDate).ThenBy(b => b.Id).ToListAsync();
+        return bills.Select(MapToResponse).ToList();
     }
 
     public async Task<BillResponse> CreateBillAsync(int userId, CreateBillRequest request)
@@ -76,9 +42,10 @@ public class BillService : IBillService
             PaymentMethod = request.PaymentMethod,
             Amount = request.Amount,
             CurrencyCode = request.CurrencyCode,
-            DueDay = request.DueDay,
-            IsRecurrent = request.IsRecurrent,
-            EndDate = request.EndDate,
+            DueDate = request.DueDate,
+            RecurrenceInterval = request.RecurrenceInterval,
+            NextDueDate = request.NextDueDate,
+            PaidDate = request.PaidDate,
             RecurrenceType = request.RecurrenceType,
             Description = request.Description,
             Status = 1
@@ -87,10 +54,7 @@ public class BillService : IBillService
         _context.Bills.Add(bill);
         await _context.SaveChangesAsync();
 
-        var now = DateTime.UtcNow;
-        var daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
-        var day = Math.Min(bill.DueDay, daysInMonth);
-        return MapToResponse(bill, new DateTime(now.Year, now.Month, day), null);
+        return MapToResponse(bill);
     }
 
     public async Task<BillResponse?> UpdateBillAsync(int userId, int billId, UpdateBillRequest request)
@@ -106,21 +70,20 @@ public class BillService : IBillService
 
         if (request.Name != null) bill.Name = request.Name;
         if (request.Category != null) bill.Category = request.Category;
-        if (request.PaymentMethod != null) bill.PaymentMethod = request.PaymentMethod;
+        if (request.HasPaymentMethod) bill.PaymentMethod = request.PaymentMethod;
         if (request.Amount.HasValue) bill.Amount = request.Amount.Value;
         if (request.CurrencyCode != null) bill.CurrencyCode = request.CurrencyCode;
-        if (request.DueDay.HasValue) bill.DueDay = request.DueDay.Value;
-        if (request.IsRecurrent.HasValue) bill.IsRecurrent = request.IsRecurrent.Value;
-        if (request.EndDate.HasValue) bill.EndDate = request.EndDate;
-        if (request.RecurrenceType != null) bill.RecurrenceType = request.RecurrenceType;
-        if (request.Description != null) bill.Description = request.Description;
+        if (request.HasDueDate) bill.DueDate = request.DueDate;
+        if (request.HasRecurrenceInterval) bill.RecurrenceInterval = request.RecurrenceInterval;
+        if (request.HasNextDueDate) bill.NextDueDate = request.NextDueDate;
+        if (request.HasPaidDate) bill.PaidDate = request.PaidDate;
+        if (request.HasRecurrenceType) bill.RecurrenceType = request.RecurrenceType;
+        if (request.HasDescription) bill.Description = request.Description;
 
+        bill.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
-        var now = DateTime.UtcNow;
-        var daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
-        var day = Math.Min(bill.DueDay, daysInMonth);
-        return MapToResponse(bill, new DateTime(now.Year, now.Month, day), null);
+        return MapToResponse(bill);
     }
 
     public async Task<bool> DeleteBillAsync(int userId, int billId)
@@ -135,12 +98,13 @@ public class BillService : IBillService
             throw new UnauthorizedAccessException("Not authorized to delete this bill");
 
         bill.Status = 0;
+        bill.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
         return true;
     }
 
-    private static BillResponse MapToResponse(Bill b, DateTime dueDate, Expense? paidExpense) => new BillResponse
+    private static BillResponse MapToResponse(Bill b) => new BillResponse
     {
         Id = b.Id,
         UserId = b.UserId,
@@ -148,16 +112,15 @@ public class BillService : IBillService
         Description = b.Description,
         Category = b.Category,
         Amount = b.Amount,
-        DueDay = b.DueDay,
+        DueDate = b.DueDate,
         PaymentMethod = b.PaymentMethod,
         CurrencyCode = b.CurrencyCode,
-        IsRecurrent = b.IsRecurrent,
-        EndDate = b.EndDate,
+        RecurrenceInterval = b.RecurrenceInterval,
+        NextDueDate = b.NextDueDate,
+        PaidDate = b.PaidDate,
+        UpdatedAt = b.UpdatedAt,
         RecurrenceType = b.RecurrenceType,
         Status = b.Status,
         CreatedAt = b.CreatedAt,
-        DueDate = dueDate.ToString("yyyy-MM-dd"),
-        PaidThisMonth = paidExpense != null,
-        PaidDate = paidExpense?.ExpenseDate.ToString("yyyy-MM-dd"),
     };
 }

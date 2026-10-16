@@ -76,7 +76,7 @@ public class UserService : IUserService
             return null;
         }
 
-        var token = _jwtService.GenerateToken(user.Id, user.Plan, isAdmin: user.Status == 3);
+        var token = _jwtService.GenerateToken(user.Id, isAdmin: user.Status == 3);
 
         return new LoginResponse
         {
@@ -96,7 +96,6 @@ public class UserService : IUserService
                 PhoneNumber = u.PhoneNumber,
                 Email = u.Email,
                 CreatedAt = u.CreatedAt,
-                Plan = u.Plan
             })
             .ToListAsync();
     }
@@ -116,7 +115,6 @@ public class UserService : IUserService
             PhoneNumber = user.PhoneNumber,
             Email = user.Email,
             CreatedAt = user.CreatedAt,
-            Plan = user.Plan
         };
     }
 
@@ -170,7 +168,6 @@ public class UserService : IUserService
             PhoneNumber = user.PhoneNumber,
             Email = user.Email,
             CreatedAt = user.CreatedAt,
-            Plan = user.Plan
         };
     }
 

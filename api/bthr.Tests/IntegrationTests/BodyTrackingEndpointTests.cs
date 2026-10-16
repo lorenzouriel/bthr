@@ -37,6 +37,7 @@ public sealed class BodyTrackingEndpointTests : IDisposable
             .ConfigureServices(services =>
             {
                 services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase(databaseName));
+                services.AddScoped<IPersonalRecordService, PersonalRecordService>();
                 services.AddScoped<IHabitService, HabitService>();
                 services.AddScoped<IHabitLogService, HabitLogService>();
                 services.AddScoped<ISubstanceLogService, SubstanceLogService>();
@@ -66,6 +67,7 @@ public sealed class BodyTrackingEndpointTests : IDisposable
 
     private static object Payload(string resource) => resource switch
     {
+        "personal-records" => new { exerciseName = "Run", metricType = "Distance", value = 5, unit = "km", achievedDate = "2026-10-02" },
         "habits" => new { habitName = "Stretch", category = "Health" },
         "habit-logs" => new { habitId = 10, logDate = "2026-10-02", isCompleted = true },
         "substance-logs" => new { consumedAt = "2026-10-02T10:00:00Z", substanceType = "Caffeine", amount = 80.5m, unit = "mg" },
@@ -268,17 +270,6 @@ public sealed class BodyTrackingEndpointTests : IDisposable
     }
 
     [Theory]
-    [InlineData("substance-logs")]
-    [InlineData("symptom-logs")]
-    public async Task AppendOnlyLogs_DoNotExposeMutationRoutes(string resource)
-    {
-        var created = await CreateAsync(resource);
-        var path = Root + resource + "/" + created.GetProperty("id").GetInt32();
-        (await _client.PutAsJsonAsync(path, Payload(resource))).StatusCode.Should().Be(HttpStatusCode.NotFound);
-        (await _client.DeleteAsync(path)).StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Theory]
     [InlineData(1)]
     [InlineData(5)]
     [InlineData(null)]
@@ -312,6 +303,29 @@ public sealed class BodyTrackingEndpointTests : IDisposable
         _client.DefaultRequestHeaders.Remove("X-Test-User");
         _client.DefaultRequestHeaders.Add("X-Test-User", "invalid");
         (await _client.GetAsync("/api/users/-1/body/" + resource)).StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Theory]
+    [InlineData("personal-records")]
+    [InlineData("substance-logs")]
+    [InlineData("symptom-logs")]
+    public async Task NewlyEditableResources_RejectOtherOwnersAndSoftDelete(string resource)
+    {
+        var created = await CreateAsync(resource);
+        var id = created.GetProperty("id").GetInt32();
+        var path = Root + resource + "/" + id;
+        (await _client.PutAsJsonAsync(path, Payload(resource))).StatusCode.Should().Be(HttpStatusCode.OK);
+        _client.DefaultRequestHeaders.Remove("X-Test-User");
+        _client.DefaultRequestHeaders.Add("X-Test-User", "2");
+        (await _client.PutAsJsonAsync(path, Payload(resource))).StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var foreign = "/api/users/2/body/" + resource + "/" + id;
+        (await _client.PutAsJsonAsync(foreign, Payload(resource))).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await _client.DeleteAsync(foreign)).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        _client.DefaultRequestHeaders.Remove("X-Test-User");
+        _client.DefaultRequestHeaders.Add("X-Test-User", "1");
+        (await _client.DeleteAsync(path)).StatusCode.Should().Be(HttpStatusCode.OK);
+        (await _client.PutAsJsonAsync(path, Payload(resource))).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await _client.GetFromJsonAsync<JsonElement[]>(Root + resource)).Should().BeEmpty();
     }
 
     public void Dispose()

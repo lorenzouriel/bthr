@@ -1,3 +1,4 @@
+import TelegramLink from "./TelegramLink"
 import { useState } from "react"
 
 import { api } from "./api"
@@ -60,7 +61,7 @@ export default function Account({
           <p>Sign in to your finance, body, and mind records.</p>
         ) : (
           <p>
-            {user?.username} | {user?.email} | Plan {user?.plan}
+            {user?.username} | {user?.email}
           </p>
         )}
         {sessionError && (
@@ -71,6 +72,7 @@ export default function Account({
             </button>
           </div>
         )}
+        {!authentication && <TelegramLink />}
         <form className="entry-form" onSubmit={submit}>
           <fieldset disabled={busy}>
             {authentication ? (

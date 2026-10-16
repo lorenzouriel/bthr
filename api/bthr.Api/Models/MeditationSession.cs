@@ -16,7 +16,7 @@ public class MeditationSession
     public int UserId { get; set; }
 
     [Required]
-    [Column("session_date")]
+    [Column("session_date", TypeName = "date")]
     public DateTime SessionDate { get; set; }
 
     [Required]
